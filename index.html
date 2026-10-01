@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10272F">
+<title>مكاننا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--ink:#10272F;--ink2:#3F5861;--mute:#768B94;--line:#D3DDE1;--bg:#E6ECEE;--card:#fff;--acc:#E8A33D;--accInk:#3A2500;--ok:#2F8F6B;--bad:#C4483B;--tabs:62px;--safeB:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.3}
+h2{font-size:22px;margin-bottom:10px}
+.view{position:fixed;inset:0;overflow:auto}
+.center{display:grid;place-items:center;padding:24px}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--ink);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+
+/* auth */
+.auth{width:min(420px,100%);margin:0 auto;padding:40px 22px 30px;display:flex;flex-direction:column;gap:12px}
+.auth h1{font-size:40px;font-weight:700;letter-spacing:-.5px}
+.lead{margin:0 0 6px;color:var(--ink2)}
+label{display:flex;flex-direction:column;gap:5px;font-weight:500;font-size:14px;color:var(--ink2)}
+input,select,textarea{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px;font-size:16px;color:var(--ink);width:100%}
+input:focus,select:focus,textarea:focus{outline:3px solid #E8A33D66;border-color:var(--acc)}
+textarea{min-height:110px;resize:vertical}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:600;cursor:pointer;background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.acc{background:var(--acc);color:var(--accInk);border-color:var(--acc)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55}
+.btn:focus-visible,.link:focus-visible,.tabs button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.link{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;padding:6px}
+.err{color:var(--bad);min-height:1.4em;margin:0;font-weight:500}
+.seg{display:flex;background:#fff;border-radius:12px;padding:4px;border:1.5px solid var(--line);gap:4px}
+.seg button{flex:1;border:0;background:none;padding:9px 6px;border-radius:9px;font-weight:600;color:var(--ink2);cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff}
+.seg.small button{font-size:13px;padding:8px 2px}
+
+/* main */
+#v-main{position:fixed;inset:0}
+#map{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;background:#cfdadd}
+#top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:500;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
+.chip{pointer-events:auto;background:var(--ink);color:#fff;padding:7px 15px;border-radius:999px;font-weight:600;font-size:14px;border:0;box-shadow:0 2px 10px #0003}
+button.chip{cursor:pointer;background:#fff;color:var(--ink)}
+#sheet{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB));z-index:500;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -4px 18px #0002;max-height:42vh;overflow:auto;padding:8px 16px 10px}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 4px}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row.tap{cursor:pointer}
+.av{flex:none;width:42px;height:42px;border-radius:50%;background:var(--c,#3A6EA5);color:#fff;font-weight:700;font-size:18px;display:grid;place-items:center}
+.grow{flex:1;min-width:0}
+.nm{font-weight:600}
+.st{font-size:13px;color:var(--mute)}
+.st.on{color:var(--ok)}
+.st.off{color:var(--bad)}
+.meta{font-size:12px;color:var(--ink2);text-align:left;white-space:nowrap}
+.panel{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;z-index:550;background:var(--bg);overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 14px 28px}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.hint{color:var(--mute);font-size:13px;margin:0}
+.tabs{position:absolute;inset-inline:0;bottom:0;z-index:600;height:calc(var(--tabs) + var(--safeB));padding-bottom:var(--safeB);background:var(--card);border-top:1px solid var(--line);display:flex}
+.tabs button{flex:1;border:0;background:none;font-weight:600;color:var(--mute);cursor:pointer;position:relative}
+.tabs button.on{color:var(--ink)}
+.tabs button.on::after{content:"";position:absolute;top:0;inset-inline:26%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
+.badge{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--line);color:var(--ink2)}
+.badge.ok{background:#D9F0E6;color:#1C6B4D}
+.badge.warn{background:#FBE9C8;color:#7A4F00}
+.badge.bad{background:#F6D9D5;color:#8E2A20}
+.colors{display:flex;gap:10px;flex-wrap:wrap}
+.colors button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);background:var(--c);cursor:pointer}
+.colors button.on{box-shadow:0 0 0 3px var(--ink)}
+.sw-row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.switch{position:relative;width:52px;height:30px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch span{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:background .15s;cursor:pointer}
+.switch span::before{content:"";position:absolute;width:24px;height:24px;top:3px;inset-inline-start:3px;background:#fff;border-radius:50%;transition:transform .15s}
+.switch input:checked+span{background:var(--ok)}
+.switch input:checked+span::before{transform:translateX(-22px)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;letter-spacing:2px;direction:ltr;text-align:right;font-weight:700}
+.wiz{background:var(--bg);z-index:900}
+.dots{display:flex;gap:6px;margin-bottom:8px}
+.dots i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.dots i.done{background:var(--ok)}
+.dots i.cur{background:var(--acc)}
+#modal{position:fixed;inset:0;background:#0008;z-index:1200;display:grid;place-items:center;padding:20px}
+#modal .box{background:#fff;border-radius:16px;padding:18px;width:min(360px,100%);display:flex;flex-direction:column;gap:14px}
+#toast{position:fixed;inset-inline:16px;bottom:calc(var(--tabs) + var(--safeB) + 14px);z-index:1300;background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;text-align:center;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.on{opacity:1;transform:none}
+/* map markers */
+.pin{width:38px;height:38px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:17px;border:3px solid #fff;box-shadow:0 2px 8px #0006}
+.pin.stale{filter:grayscale(.85);opacity:.8}
+.tag{position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#fff;padding:1px 8px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 1px 4px #0004;color:var(--ink)}
+.leaflet-container{font-family:inherit}
+</style>
+<script>
+/* ====== الإعدادات: عدّلها مرة واحدة فقط ====== */
+window.APP_CONFIG = {
+  appName: "مكاننا",
+  firebase: {
+    apiKey: "AIzaSyD_8AtkuLyDRovVGhIiWiiBErpKVQXBrsc",
+    authDomain: "makanona.firebaseapp.com",
+    databaseURL: "https://makanona-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "makanona",
+    appId: "1:1089912633653:web:9d76d8c1c5047badd9347c"
+  }
+};
+</script>
+</head>
+<body>
+
+<div id="v-loading" class="view center"><div class="spin" role="status" aria-label="جارٍ التحميل"></div></div>
+
+<div id="v-auth" class="view" hidden>
+  <div class="auth">
+    <h1 id="brand">مكاننا</h1>
+    <p class="lead">خريطة العائلة. كل فرد يقرر من يراه.</p>
+    <div class="seg" id="auth-seg"><button data-mode="login" class="on">دخول</button><button data-mode="signup">تسجيل جديد</button></div>
+    <label id="f-name" hidden>الاسم<input id="in-name" autocomplete="name"></label>
+    <label>البريد الإلكتروني<input id="in-email" type="email" inputmode="email" autocomplete="email" dir="ltr"></label>
+    <label>كلمة السر<input id="in-pass" type="password" autocomplete="current-password" dir="ltr"></label>
+    <label id="f-code" hidden>رمز الدعوة (اختياري)<input id="in-code" dir="ltr" autocapitalize="characters" autocomplete="off"></label>
+    <p class="hint" id="f-code-hint" hidden>بدون رمز، يبقى حسابك بانتظار موافقة المشرف.</p>
+    <button id="btn-auth" class="btn primary block">دخول</button>
+    <button id="btn-reset" class="link">نسيت كلمة السر</button>
+    <p id="auth-err" class="err" role="alert"></p>
+  </div>
+</div>
+
+<div id="v-pending" class="view center" hidden>
+  <div class="auth">
+    <h2 id="pend-title"></h2>
+    <p id="pend-text" class="lead"></p>
+    <button id="btn-out1" class="btn block">تسجيل الخروج</button>
+  </div>
+</div>
+
+<div id="v-wizard" class="view wiz" hidden>
+  <div class="auth">
+    <div class="dots" id="wiz-dots"></div>
+    <h2 id="wiz-title"></h2>
+    <p id="wiz-text" class="lead"></p>
+    <button id="wiz-go" class="btn acc block"></button>
+    <button id="wiz-skip" class="link"></button>
+  </div>
+</div>
+
+<div id="v-main" hidden>
+  <div id="map"></div>
+  <div id="top"><div class="chip" id="chip"></div><button class="chip" id="btn-fit">عرض الجميع</button></div>
+  <div id="sheet"><div class="grab"></div><div id="sheet-list"></div></div>
+
+  <div id="t-people" class="panel" hidden>
+    <h2>الأشخاص</h2>
+    <p class="hint" style="margin-bottom:12px">يظهر الشخص على خريطتك فقط بعد أن يوافق كل منكما على الآخر.</p>
+    <div id="people-list"></div>
+  </div>
+
+  <div id="t-me" class="panel" hidden>
+    <h2>حسابي</h2>
+    <div class="card">
+      <label>الاسم<input id="me-name"></label>
+      <div style="font-weight:500;font-size:14px;color:var(--ink2)">اللون على الخريطة</div>
+      <div id="me-colors" class="colors"></div>
+      <button id="btn-save-profile" class="btn primary">حفظ</button>
+    </div>
+    <div class="card">
+      <div class="sw-row">
+        <div>
+          <b>إيقاف المشاركة مؤقتاً</b>
+          <p class="hint">عند الإيقاف لا يرى أحد من العائلة موقعك. حساب المشرف يبقى يراه.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="me-pause" aria-label="إيقاف المشاركة مؤقتاً"><span></span></label>
+      </div>
+    </div>
+    <div class="card" id="native-card" hidden>
+      <b>حالة الإرسال من هذا الهاتف</b>
+      <div id="native-status"></div>
+      <button id="btn-wiz" class="btn">فتح معالج الإعداد</button>
+    </div>
+    <div class="card" id="web-note" hidden>
+      <p class="hint">إرسال الموقع يعمل من تطبيق أندرويد فقط. هذه الصفحة للعرض.</p>
+    </div>
+    <div class="card">
+      <b>الخصوصية</b>
+      <p class="hint">يُرسل موقعك إلى قاعدة بيانات العائلة فقط. يراه من اتصلتَ بهم بموافقة الطرفين، ويراه المشرف دائماً.</p>
+    </div>
+    <div class="card">
+      <button id="btn-pw" class="btn">إرسال رابط تغيير كلمة السر</button>
+      <button id="btn-out2" class="btn danger">تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <div id="t-admin" class="panel" hidden>
+    <h2>الإدارة</h2>
+    <div class="seg small" id="adm-seg" style="margin-bottom:12px">
+      <button data-adm="members" class="on">الأعضاء</button>
+      <button data-adm="invites">الدعوات</button>
+      <button data-adm="create">حساب جديد</button>
+      <button data-adm="settings">الإعدادات</button>
+    </div>
+
+    <div id="adm-members"></div>
+
+    <div id="adm-invites" hidden>
+      <div class="card">
+        <b>دعوة جديدة</b>
+        <label>اسم المدعو<input id="inv-name"></label>
+        <label>البريد الإلكتروني (اختياري)<input id="inv-email" type="email" dir="ltr"></label>
+        <label>رقم الهاتف بصيغة دولية، بدون + (اختياري)<input id="inv-phone" inputmode="numeric" dir="ltr" placeholder="9639xxxxxxxx"></label>
+        <button class="btn primary" data-act="inv-create">إنشاء الدعوة</button>
+        <p class="hint">صلاحية الرمز 7 أيام ويُستخدم مرة واحدة. إن كان الإرسال التلقائي مفعّلاً وكتبتَ بريداً، تُرسل الدعوة فوراً.</p>
+      </div>
+      <div id="invite-list"></div>
+    </div>
+
+    <div id="adm-create" hidden>
+      <div class="card">
+        <b>إنشاء حساب مباشرة (مثلاً لطفل أو كبير سن)</b>
+        <label>الاسم<input id="new-name"></label>
+        <label>البريد الإلكتروني<input id="new-email" type="email" dir="ltr"></label>
+        <label>كلمة السر<input id="new-pass" dir="ltr"></label>
+        <button class="btn primary" data-act="acc-create">إنشاء الحساب</button>
+        <div id="new-result" class="hint"></div>
+      </div>
+    </div>
+
+    <div id="adm-settings" hidden>
+      <div class="card">
+        <b>رابط تحميل التطبيق (APK)</b>
+        <input id="st-apk" dir="ltr" placeholder="https://github.com/.../releases/download/.../makanona.apk">
+        <b style="margin-top:6px">الإرسال بالإيميل</b>
+        <div class="sw-row"><span>تفعيل الإرسال التلقائي</span><label class="switch"><input type="checkbox" id="st-mail-on" aria-label="تفعيل الإرسال التلقائي"><span></span></label></div>
+        <label>رابط Apps Script (ينتهي بـ /exec)<input id="st-script" dir="ltr"></label>
+        <label>اسم المرسل الظاهر<input id="st-sender"></label>
+        <label>بريد الرد (اختياري)<input id="st-reply" type="email" dir="ltr"></label>
+        <label>إرسال من اسم مستعار في Gmail (اختياري)<input id="st-from" type="email" dir="ltr"></label>
+        <label>عنوان الرسالة<input id="st-subject"></label>
+        <label>نص الرسالة<textarea id="st-body"></textarea></label>
+        <p class="hint">المتغيرات: {name} اسم المدعو، {code} الرمز، {apk} رابط التحميل، {app} اسم التطبيق.</p>
+        <button class="btn primary" data-act="st-save">حفظ الإعدادات</button>
+        <button class="btn" data-act="st-test">اختبار الاتصال بالسكربت</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="map" class="on">الخريطة</button>
+    <button data-tab="people">الأشخاص</button>
+    <button data-tab="me">حسابي</button>
+    <button data-tab="admin" id="tab-admin" hidden>الإدارة</button>
+  </nav>
+</div>
+
+<div id="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <div id="modal-msg"></div>
+    <div class="acts"><button id="modal-ok" class="btn primary">تأكيد</button><button id="modal-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getDatabase, ref, onValue, set, update, get, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+const CFG = window.APP_CONFIG;
+const app = initializeApp(CFG.firebase);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const isNative = !!window.AndroidBridge;
+const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
+const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
+const DEFAULT_BODY = 'مرحباً {name}،\nتمت دعوتك للانضمام إلى تطبيق {app}.\n١) حمّل التطبيق من: {apk}\n٢) اختر «تسجيل جديد» وأدخل رمز الدعوة: {code}\nالرمز صالح لمدة ٧ أيام.';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const initial = n => (String(n || '?').trim()[0] || '?');
+document.title = CFG.appName;
+$('brand').textContent = CFG.appName;
+
+const S = {
+  uid: null, me: null, started: false, isAdmin: false, tab: 'map', adm: 'members',
+  dir: {}, mine: {}, their: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
+  meUn: null, unsubs: {}, linkUn: {}, locUn: {}, markers: {}, map: null, fitted: false,
+  registering: false, authMode: 'login', pickColor: null, tick: null
+};
+
+/* ---------- أدوات واجهة ---------- */
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3400); }
+function ask(msg, ok = 'تأكيد') {
+  return new Promise(res => {
+    $('modal-msg').textContent = msg; $('modal-ok').textContent = ok; $('modal').hidden = false;
+    const done = v => { $('modal').hidden = true; $('modal-ok').onclick = $('modal-no').onclick = null; res(v); };
+    $('modal-ok').onclick = () => done(true); $('modal-no').onclick = () => done(false);
+  });
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch {} t.remove(); }
+  toast('تم النسخ');
+}
+function ago(ts) {
+  const s = Math.max(0, (Date.now() - ts) / 1000);
+  if (s < 60) return 'لحظات';
+  if (s < 3600) return Math.round(s / 60) + ' دقيقة';
+  if (s < 86400) return Math.round(s / 3600) + ' ساعة';
+  return Math.round(s / 86400) + ' يوم';
+}
+const fmtDate = ts => new Date(ts).toLocaleDateString('ar', { day: 'numeric', month: 'short' });
+function showView(v) { for (const id of ['loading', 'auth', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; }
+function authErr(e) {
+  const m = {
+    'auth/invalid-credential': 'البريد أو كلمة السر غير صحيحة', 'auth/wrong-password': 'البريد أو كلمة السر غير صحيحة',
+    'auth/user-not-found': 'البريد أو كلمة السر غير صحيحة', 'auth/email-already-in-use': 'هذا البريد مسجّل مسبقاً، جرّب الدخول',
+    'auth/weak-password': 'كلمة السر قصيرة، اكتب 6 أحرف على الأقل', 'auth/invalid-email': 'صيغة البريد غير صحيحة',
+    'auth/network-request-failed': 'لا يوجد اتصال بالإنترنت', 'auth/too-many-requests': 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة'
+  };
+  return m[e.code] || ('تعذر تنفيذ الطلب (' + (e.code || e.message) + ')');
+}
+const nat = () => { try { return JSON.parse(window.AndroidBridge.status()); } catch { return null; } };
+
+/* ---------- تسجيل الدخول ---------- */
+function setAuthMode(m) {
+  S.authMode = m;
+  document.querySelectorAll('#auth-seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  const su = m === 'signup';
+  $('f-name').hidden = !su; $('f-code').hidden = !su; $('f-code-hint').hidden = !su;
+  $('btn-auth').textContent = su ? 'إنشاء الحساب' : 'دخول';
+  $('in-pass').autocomplete = su ? 'new-password' : 'current-password';
+  $('auth-err').textContent = '';
+}
+$('auth-seg').onclick = e => { const b = e.target.closest('button'); if (b) setAuthMode(b.dataset.mode); };
+$('btn-auth').onclick = async () => {
+  const email = $('in-email').value.trim(), pass = $('in-pass').value, btn = $('btn-auth');
+  $('auth-err').textContent = '';
+  if (!email || !pass) { $('auth-err').textContent = 'اكتب البريد وكلمة السر'; return; }
+  btn.disabled = true;
+  try {
+    if (S.authMode === 'login') await signInWithEmailAndPassword(auth, email, pass);
+    else await signup(email, pass);
+  } catch (e) { $('auth-err').textContent = authErr(e); }
+  btn.disabled = false;
+};
+$('btn-reset').onclick = async () => {
+  const email = $('in-email').value.trim();
+  if (!email) { $('auth-err').textContent = 'اكتب بريدك أولاً ثم اضغط «نسيت كلمة السر»'; return; }
+  try { await sendPasswordResetEmail(auth, email); toast('أُرسل رابط تغيير كلمة السر إلى بريدك'); } catch (e) { $('auth-err').textContent = authErr(e); }
+};
+async function signup(email, pass) {
+  const name = $('in-name').value.trim();
+  if (!name) throw { message: 'اكتب اسمك' };
+  const code = $('in-code').value.trim().toUpperCase();
+  S.registering = true;
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    const uid = cred.user.uid;
+    try { await updateProfile(cred.user, { displayName: name }); } catch {}
+    const base = { name, email, role: 'member', createdAt: Date.now() };
+    let approved = false;
+    if (code) {
+      try {
+        await update(ref(db), {
+          ['users/' + uid]: { ...base, status: 'approved', inviteCode: code },
+          ['invites/' + code + '/used']: true,
+          ['invites/' + code + '/usedBy']: uid
+        });
+        approved = true;
+      } catch { toast('رمز الدعوة غير صالح أو منتهٍ. حسابك بانتظار موافقة المشرف.'); }
+    }
+    if (!approved) await set(ref(db, 'users/' + uid), { ...base, status: 'pending' });
+  } finally { S.registering = false; }
+}
+async function ensurePending(u) {
+  try { await set(ref(db, 'users/' + u.uid), { name: u.displayName || (u.email || '').split('@')[0], email: u.email || '', role: 'member', status: 'pending', createdAt: Date.now() }); } catch (e) { console.error(e); }
+}
+const logout = async () => { if (isNative) { try { window.AndroidBridge.stopSharing(); } catch {} } await signOut(auth); };
+$('btn-out1').onclick = logout; $('btn-out2').onclick = logout;
+$('btn-pw').onclick = async () => { try { await sendPasswordResetEmail(auth, auth.currentUser.email); toast('أُرسل الرابط إلى بريدك'); } catch (e) { toast(authErr(e)); } };
+
+onAuthStateChanged(auth, u => {
+  cleanup(true);
+  if (!u) { S.uid = null; showView('auth'); return; }
+  S.uid = u.uid; showView('loading');
+  S.meUn = onValue(ref(db, 'users/' + u.uid), snap => {
+    S.me = snap.val();
+    if (!S.me) { if (!S.registering) ensurePending(u); return; }
+    route();
+  }, e => { console.error(e); toast('تعذر قراءة الحساب، تحقق من قواعد قاعدة البيانات'); });
+});
+
+function route() {
+  const st = S.me.status;
+  if (st === 'approved') { S.isAdmin = S.me.role === 'admin'; if (!S.started) startMain(); else $('tab-admin').hidden = !S.isAdmin; return; }
+  if (S.started) stopMain();
+  if (isNative) { try { window.AndroidBridge.stopSharing(); } catch {} }
+  if (st === 'pending') { $('pend-title').textContent = 'حسابك بانتظار الموافقة'; $('pend-text').textContent = 'سيفعّل المشرف حسابك قريباً، وتُفتح الخريطة تلقائياً بمجرد الموافقة.'; }
+  else { $('pend-title').textContent = 'الحساب غير مفعّل'; $('pend-text').textContent = 'أوقف المشرف هذا الحساب. تواصل معه إن كان ذلك بالخطأ.'; }
+  showView('pending');
+}
+
+/* ---------- تشغيل التطبيق الرئيسي ---------- */
+function startMain() {
+  S.started = true; S.fitted = false;
+  $('tab-admin').hidden = !S.isAdmin;
+  showView('main'); setTab('map'); initMap();
+  get(ref(db, 'directory/' + S.uid)).then(s => { if (!s.exists()) set(ref(db, 'directory/' + S.uid), { name: S.me.name, color: COLORS[Math.floor(Math.random() * COLORS.length)], paused: false }); }).catch(console.error);
+
+  S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncLinks(); syncLocs(); renderAll(); }, e => console.error('dir', e));
+  S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; syncLocs(); renderAll(); }, e => console.error('links', e));
+  if (S.isAdmin) {
+    S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; renderMap(); renderSheet(); }, e => console.error('locs', e));
+    S.unsubs.users = onValue(ref(db, 'users'), s => { S.users = s.val() || {}; renderAdmin(); }, e => console.error('users', e));
+    S.unsubs.invites = onValue(ref(db, 'invites'), s => { S.invites = s.val() || {}; renderInvites(); }, e => console.error('invites', e));
+    S.unsubs.settings = onValue(ref(db, 'settings/app'), s => { S.settings = s.val() || {}; fillSettings(); renderInvites(); }, e => console.error('settings', e));
+  }
+  S.tick = setInterval(() => { renderSheet(); if (S.tab === 'me') renderNative(); }, 10000);
+  if (isNative) ensureNative();
+}
+function stopMain() {
+  for (const k of Object.keys(S.unsubs)) S.unsubs[k]?.();
+  S.unsubs = {};
+  Object.values(S.linkUn).forEach(f => f?.()); S.linkUn = {};
+  Object.values(S.locUn).forEach(f => f?.()); S.locUn = {};
+  clearInterval(S.tick); S.started = false;
+  S.dir = {}; S.mine = {}; S.their = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {};
+  clearMarkers();
+}
+function cleanup(all) { stopMain(); if (all && S.meUn) { S.meUn(); S.meUn = null; } S.me = null; S.isAdmin = false; }
+
+function syncLinks() {
+  const others = Object.keys(S.dir).filter(u => u !== S.uid);
+  for (const u of others) if (!S.linkUn[u]) {
+    S.linkUn[u] = onValue(ref(db, 'links/' + u + '/' + S.uid), s => { S.their[u] = s.val() === true; syncLocs(); renderAll(); }, () => { S.their[u] = false; });
+  }
+  for (const u of Object.keys(S.linkUn)) if (!others.includes(u)) { S.linkUn[u]?.(); delete S.linkUn[u]; delete S.their[u]; }
+}
+const connected = u => S.mine[u] === true && S.their[u] === true;
+function syncLocs() {
+  if (S.isAdmin) return;
+  const want = new Set([S.uid]);
+  for (const u of Object.keys(S.dir)) if (u !== S.uid && connected(u)) want.add(u);
+  for (const u of want) {
+    const paused = u !== S.uid && S.dir[u]?.paused === true;
+    if (paused) { S.hidden[u] = true; S.locUn[u]?.(); delete S.locUn[u]; delete S.locs[u]; continue; }
+    if (S.locUn[u]) continue;
+    S.hidden[u] = false;
+    S.locUn[u] = onValue(ref(db, 'locations/' + u), s => { S.locs[u] = s.val(); S.hidden[u] = false; renderMap(); renderSheet(); },
+      () => { delete S.locUn[u]; delete S.locs[u]; S.hidden[u] = true; renderMap(); renderSheet(); });
+  }
+  for (const u of Object.keys(S.locUn)) if (!want.has(u)) { S.locUn[u]?.(); delete S.locUn[u]; delete S.locs[u]; }
+  for (const u of Object.keys(S.locs)) if (!want.has(u)) delete S.locs[u];
+}
+
+/* ---------- الخريطة ---------- */
+function initMap() {
+  if (S.map) { setTimeout(() => S.map.invalidateSize(), 50); return; }
+  S.map = L.map('map', { zoomControl: false }).setView([35.0, 38.0], 6);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(S.map);
+  setTimeout(() => S.map.invalidateSize(), 100);
+}
+function visibleIds() {
+  if (S.isAdmin) return Object.keys(S.dir);
+  const ids = [S.uid];
+  for (const u of Object.keys(S.dir)) if (u !== S.uid && connected(u)) ids.push(u);
+  return ids;
+}
+function pinIcon(id, l) {
+  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000;
+  const html = `<div class="pin${stale ? ' stale' : ''}" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="tag">${esc(id === S.uid ? 'أنا' : (d.name || ''))}</div>`;
+  return L.divIcon({ className: '', html, iconSize: [38, 38], iconAnchor: [19, 19] });
+}
+function renderMap() {
+  if (!S.map) return;
+  const keep = new Set();
+  for (const id of visibleIds()) {
+    const l = S.locs[id];
+    if (!l || typeof l.lat !== 'number') continue;
+    keep.add(id);
+    if (!S.markers[id]) { S.markers[id] = L.marker([l.lat, l.lng], { icon: pinIcon(id, l) }).addTo(S.map); S.markers[id].on('click', () => focusOn(id)); }
+    else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(pinIcon(id, l)); }
+  }
+  for (const id of Object.keys(S.markers)) if (!keep.has(id)) { S.map.removeLayer(S.markers[id]); delete S.markers[id]; }
+  if (!S.fitted && keep.size) { fitAll(); S.fitted = true; }
+}
+function clearMarkers() { if (S.map) for (const id of Object.keys(S.markers)) S.map.removeLayer(S.markers[id]); S.markers = {}; }
+function fitAll() {
+  const pts = Object.values(S.markers).map(m => m.getLatLng());
+  if (!pts.length) return;
+  if (pts.length === 1) S.map.setView(pts[0], 15); else S.map.fitBounds(L.latLngBounds(pts), { padding: [60, 60], maxZoom: 16 });
+}
+function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat, l.lng], 16, { duration: .8 }); }
+$('btn-fit').onclick = fitAll;
+
+function describe(id) {
+  const l = S.locs[id], d = S.dir[id] || {};
+  let txt, cls = '';
+  if (id !== S.uid && !S.isAdmin && S.hidden[id]) return { txt: 'أوقف مشاركة موقعه', cls: 'off' };
+  if (!l || typeof l.ts !== 'number') txt = 'لا توجد بيانات بعد';
+  else if (Date.now() - l.ts < 180000) {
+    cls = 'on'; txt = 'متصل الآن';
+    const kmh = Math.round((l.spd || 0) * 3.6);
+    if (kmh >= 4) txt += '، يتحرك بسرعة ' + kmh + ' كم/س';
+  } else { cls = 'off'; txt = 'آخر ظهور قبل ' + ago(l.ts); }
+  if (S.isAdmin && d.paused && id !== S.uid) txt += ' (أوقف المشاركة، تراه أنت فقط)';
+  return { txt, cls };
+}
+function renderSheet() {
+  const ids = visibleIds().sort((a, b) => (a === S.uid ? -1 : b === S.uid ? 1 : 0));
+  let online = 0;
+  const rows = ids.map(id => {
+    const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id);
+    if (ds.cls === 'on') online++;
+    const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? `بطارية ${l.bat}%${l.chg ? ' ⚡' : ''}` : '';
+    return `<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="grow"><div class="nm">${esc(id === S.uid ? 'أنا' : (d.name || '—'))}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div></div><div class="meta">${bat}</div></div>`;
+  }).join('');
+  $('chip').textContent = online + ' متصل من ' + ids.length;
+  let extra = '';
+  if (!S.isAdmin && ids.length <= 1) extra = '<p class="hint" style="padding:8px 0">لا أحد على خريطتك بعد. أضف أفراد العائلة من تبويب «الأشخاص».</p>';
+  $('sheet-list').innerHTML = rows + extra;
+}
+
+/* ---------- الأشخاص والاتصال المتبادل ---------- */
+function renderPeople() {
+  const list = Object.keys(S.dir).filter(u => u !== S.uid);
+  if (!list.length) { $('people-list').innerHTML = '<div class="card"><p class="hint">لا يوجد أفراد آخرون بعد. اطلب من المشرف دعوتهم.</p></div>'; return; }
+  $('people-list').innerHTML = '<div class="card">' + list.map(u => {
+    const d = S.dir[u], my = S.mine[u] === true, their = S.their[u] === true;
+    let st, btns;
+    if (my && their) { st = '<span class="badge ok">متصل</span>'; btns = `<button class="btn sm danger" data-act="unlink" data-id="${esc(u)}">إزالة</button>`; }
+    else if (my) { st = '<span class="badge warn">بانتظار موافقته</span>'; btns = `<button class="btn sm" data-act="unlink" data-id="${esc(u)}">إلغاء الطلب</button>`; }
+    else if (their) { st = '<span class="badge warn">يطلب رؤية موقعك</span>'; btns = `<button class="btn sm primary" data-act="link" data-id="${esc(u)}">قبول</button>`; }
+    else { st = ''; btns = `<button class="btn sm primary" data-act="link" data-id="${esc(u)}">إضافة</button>`; }
+    return `<div class="row"><div class="av" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="grow"><div class="nm">${esc(d.name)}</div>${st}</div><div class="acts">${btns}</div></div>`;
+  }).join('') + '</div>';
+}
+
+/* ---------- حسابي ---------- */
+function renderMe() {
+  const d = S.dir[S.uid] || {};
+  if (document.activeElement !== $('me-name')) $('me-name').value = d.name || S.me?.name || '';
+  if (!S.pickColor) S.pickColor = d.color || COLORS[0];
+  $('me-colors').innerHTML = COLORS.map(c => `<button style="--c:${c}" class="${c === S.pickColor ? 'on' : ''}" data-act="color" data-id="${c}" aria-label="لون"></button>`).join('');
+  $('me-pause').checked = d.paused === true;
+  $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
+  renderNative();
+}
+function renderNative() {
+  if (!isNative) return;
+  const s = nat(); if (!s) return;
+  const line = (t, ok) => `<div class="row" style="padding:6px 0"><div class="grow">${t}</div><span class="badge ${ok ? 'ok' : 'bad'}">${ok ? 'مفعّل' : 'غير مفعّل'}</span></div>`;
+  $('native-status').innerHTML = line('الموقع', s.fine) + line('الموقع طوال الوقت', s.bg) + line('الإشعارات', s.notif) + line('استثناء توفير البطارية', s.battery) +
+    `<p class="hint">${s.sharing ? (s.lastSend ? 'آخر إرسال قبل ' + ago(s.lastSend) : 'الخدمة تعمل ولم يُرسل موقع بعد') : 'الخدمة متوقفة'}</p>`;
+}
+$('btn-save-profile').onclick = async () => {
+  const name = $('me-name').value.trim(); if (!name) return toast('اكتب الاسم');
+  try { await update(ref(db, 'directory/' + S.uid), { name, color: S.pickColor }); toast('تم الحفظ'); } catch (e) { toast('تعذر الحفظ'); }
+};
+$('me-pause').onchange = async e => {
+  try { await update(ref(db, 'directory/' + S.uid), { paused: e.target.checked }); toast(e.target.checked ? 'تم إيقاف المشاركة عن العائلة' : 'عادت المشاركة'); } catch { toast('تعذر التنفيذ'); e.target.checked = !e.target.checked; }
+};
+
+/* ---------- الإدارة ---------- */
+function renderAdmin() {
+  const order = { pending: 0, approved: 1, disabled: 2 };
+  const ids = Object.keys(S.users).sort((a, b) => (order[S.users[a].status] ?? 9) - (order[S.users[b].status] ?? 9));
+  $('adm-members').innerHTML = ids.length ? ids.map(u => {
+    const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name;
+    const badge = x.status === 'pending' ? '<span class="badge warn">بانتظار الموافقة</span>' : x.status === 'approved' ? '<span class="badge ok">مفعّل</span>' : '<span class="badge bad">معطّل</span>';
+    const role = x.role === 'admin' ? ' <span class="badge">مشرف</span>' : '';
+    let b = '';
+    if (x.status === 'pending') b = `<button class="btn sm primary" data-act="approve" data-id="${esc(u)}">قبول</button><button class="btn sm danger" data-act="reject" data-id="${esc(u)}">رفض</button>`;
+    else if (x.status === 'approved' && !self) b = `<button class="btn sm danger" data-act="disable" data-id="${esc(u)}">تعطيل</button><button class="btn sm" data-act="role" data-id="${esc(u)}">${x.role === 'admin' ? 'إلغاء الإشراف' : 'ترقية لمشرف'}</button>`;
+    else if (x.status === 'disabled') b = `<button class="btn sm primary" data-act="enable" data-id="${esc(u)}">إعادة تفعيل</button>`;
+    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div></div>${badge}</div><div class="acts">${b}</div></div>`;
+  }).join('') : '<div class="card"><p class="hint">لا توجد حسابات.</p></div>';
+}
+function setAdm(t) {
+  S.adm = t;
+  document.querySelectorAll('#adm-seg button').forEach(b => b.classList.toggle('on', b.dataset.adm === t));
+  for (const k of ['members', 'invites', 'create', 'settings']) $('adm-' + k).hidden = k !== t;
+}
+$('adm-seg').onclick = e => { const b = e.target.closest('button'); if (b) setAdm(b.dataset.adm); };
+
+const newCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(8)); return Array.from(r, x => A[x % A.length]).join(''); };
+function inviteMsg(inv, code) {
+  const s = S.settings;
+  return (s.body || DEFAULT_BODY).replaceAll('{name}', inv.note || '').replaceAll('{code}', code).replaceAll('{apk}', s.apkUrl || '(الرابط غير محدد بعد)').replaceAll('{app}', CFG.appName);
+}
+const mailReady = () => !!(S.settings.mailEnabled && S.settings.scriptUrl);
+function renderInvites() {
+  const codes = Object.keys(S.invites).sort((a, b) => (S.invites[b].createdAt || 0) - (S.invites[a].createdAt || 0));
+  $('invite-list').innerHTML = codes.length ? codes.map(c => {
+    const i = S.invites[c], expired = !i.used && i.expires < Date.now();
+    const badge = i.used ? '<span class="badge ok">استُخدمت</span>' : expired ? '<span class="badge bad">منتهية</span>' : `<span class="badge warn">صالحة حتى ${esc(fmtDate(i.expires))}</span>`;
+    let b = '';
+    if (!i.used && !expired) {
+      if (i.phone) b += `<button class="btn sm acc" data-act="inv-wa" data-id="${esc(c)}">واتساب</button>`;
+      if (i.email && mailReady()) b += `<button class="btn sm" data-act="inv-mail" data-id="${esc(c)}">إيميل</button>`;
+      b += `<button class="btn sm" data-act="inv-copy" data-id="${esc(c)}">نسخ الرسالة</button>`;
+    }
+    b += `<button class="btn sm danger" data-act="inv-del" data-id="${esc(c)}">حذف</button>`;
+    return `<div class="card"><div class="sw-row"><div><div class="code">${esc(c)}</div><div class="hint">${esc(i.note || 'بدون اسم')}</div></div>${badge}</div><div class="acts">${b}</div></div>`;
+  }).join('') : '<div class="card"><p class="hint">لا توجد دعوات بعد.</p></div>';
+}
+async function mailInvite(code) {
+  const inv = S.invites[code], s = S.settings;
+  if (!mailReady()) return toast('فعّل الإرسال بالإيميل من تبويب الإعدادات');
+  if (!inv?.email) return toast('لا يوجد بريد لهذه الدعوة');
+  toast('جارٍ إرسال الإيميل...');
+  try {
+    const idToken = await auth.currentUser.getIdToken();
+    const res = await fetch(s.scriptUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'invite', idToken, to: inv.email, subject: (s.subject || DEFAULT_SUBJECT), text: inviteMsg(inv, code), senderName: s.senderName || '', replyTo: s.replyTo || '', from: s.fromAlias || '' }) });
+    const j = await res.json();
+    toast(j.ok ? 'وصلت الدعوة إلى ' + inv.email : 'فشل الإرسال: ' + j.error);
+  } catch (e) { toast('تعذر الاتصال بسكربت الإرسال'); }
+}
+function fillSettings() {
+  if (document.activeElement && $('adm-settings').contains(document.activeElement)) return;
+  const s = S.settings;
+  $('st-apk').value = s.apkUrl || ''; $('st-mail-on').checked = !!s.mailEnabled; $('st-script').value = s.scriptUrl || '';
+  $('st-sender').value = s.senderName || CFG.appName; $('st-reply').value = s.replyTo || ''; $('st-from').value = s.fromAlias || '';
+  $('st-subject').value = s.subject || DEFAULT_SUBJECT; $('st-body').value = s.body || DEFAULT_BODY;
+}
+
+/* ---------- الأوامر (تفويض النقرات) ---------- */
+const rnd = () => COLORS[Math.floor(Math.random() * COLORS.length)];
+const ACTIONS = {
+  focus: id => focusOn(id),
+  color: (id) => { S.pickColor = id; renderMe(); },
+  link: id => set(ref(db, 'links/' + S.uid + '/' + id), true),
+  unlink: async id => { if (await ask('إزالة الاتصال مع ' + (S.dir[id]?.name || 'هذا الشخص') + '؟ لن يرى أحدكما الآخر.', 'إزالة')) await remove(ref(db, 'links/' + S.uid + '/' + id)); },
+  approve: id => update(ref(db), { ['users/' + id + '/status']: 'approved', ...(S.dir[id] ? {} : { ['directory/' + id]: { name: S.users[id].name, color: rnd(), paused: false } }) }),
+  enable: id => ACTIONS.approve(id),
+  reject: async id => { if (await ask('رفض هذا الحساب؟', 'رفض')) await update(ref(db), { ['users/' + id + '/status']: 'disabled' }); },
+  disable: async id => { if (await ask('تعطيل حساب ' + (S.dir[id]?.name || S.users[id]?.name) + '؟ سيختفي من الخريطة ويتوقف دخوله.', 'تعطيل')) await update(ref(db), { ['users/' + id + '/status']: 'disabled', ['directory/' + id]: null, ['locations/' + id]: null }); },
+  role: async id => { const to = S.users[id].role === 'admin' ? 'member' : 'admin'; if (await ask(to === 'admin' ? 'منح هذا الشخص صلاحية المشرف؟ سيرى مواقع الجميع.' : 'إلغاء صلاحية المشرف؟', 'تأكيد')) await update(ref(db, 'users/' + id), { role: to }); },
+  'inv-create': async () => {
+    const note = $('inv-name').value.trim(), email = $('inv-email').value.trim(), phone = $('inv-phone').value.replace(/\D/g, '').replace(/^00/, '');
+    const code = newCode(), inv = { note, email, phone, createdBy: S.uid, createdAt: Date.now(), expires: Date.now() + 7 * 864e5, used: false };
+    await set(ref(db, 'invites/' + code), inv);
+    S.invites[code] = inv;
+    $('inv-name').value = $('inv-email').value = $('inv-phone').value = '';
+    if (email && mailReady()) await mailInvite(code); else toast('أُنشئت الدعوة: ' + code);
+  },
+  'inv-wa': id => { const i = S.invites[id]; window.open('https://wa.me/' + i.phone + '?text=' + encodeURIComponent(inviteMsg(i, id)), '_blank'); },
+  'inv-mail': id => mailInvite(id),
+  'inv-copy': id => copy(inviteMsg(S.invites[id], id)),
+  'inv-del': async id => { if (await ask('حذف هذه الدعوة؟', 'حذف')) await remove(ref(db, 'invites/' + id)); },
+  'acc-create': async () => {
+    const name = $('new-name').value.trim(), email = $('new-email').value.trim(), pass = $('new-pass').value || Math.random().toString(36).slice(2, 10);
+    if (!name || !email) return toast('اكتب الاسم والبريد');
+    if (pass.length < 6) return toast('كلمة السر 6 أحرف على الأقل');
+    let app2, uid;
+    try {
+      app2 = initializeApp(CFG.firebase, 'secondary-' + Date.now());
+      const a2 = getAuth(app2);
+      const cred = await createUserWithEmailAndPassword(a2, email, pass);
+      uid = cred.user.uid; await signOut(a2);
+    } catch (e) { return toast(authErr(e)); }
+    await update(ref(db), { ['users/' + uid]: { name, email, role: 'member', status: 'approved', createdAt: Date.now(), createdBy: S.uid }, ['directory/' + uid]: { name, color: rnd(), paused: false } });
+    $('new-result').innerHTML = `تم إنشاء الحساب. سلّمه هذه البيانات:<br><b dir="ltr">${esc(email)}</b><br><b dir="ltr">${esc(pass)}</b>`;
+    $('new-name').value = $('new-email').value = $('new-pass').value = '';
+  },
+  'st-save': async () => {
+    await set(ref(db, 'settings/app'), { apkUrl: $('st-apk').value.trim(), mailEnabled: $('st-mail-on').checked, scriptUrl: $('st-script').value.trim(), senderName: $('st-sender').value.trim(), replyTo: $('st-reply').value.trim(), fromAlias: $('st-from').value.trim(), subject: $('st-subject').value.trim(), body: $('st-body').value });
+    toast('تم حفظ الإعدادات');
+  },
+  'st-test': async () => {
+    const url = $('st-script').value.trim(); if (!url) return toast('ألصق رابط السكربت أولاً');
+    try {
+      const idToken = await auth.currentUser.getIdToken();
+      const j = await (await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'ping', idToken }) })).json();
+      toast(j.ok ? 'الاتصال سليم، المتبقي اليوم: ' + j.quota + ' إيميل' : 'خطأ: ' + j.error);
+    } catch { toast('تعذر الوصول إلى السكربت، تحقق من الرابط وصلاحية النشر'); }
+  }
+};
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest('[data-act]'); if (!b) return;
+  try { await ACTIONS[b.dataset.act]?.(b.dataset.id, b); } catch (e) { console.error(e); toast('تعذر تنفيذ الأمر (' + (e.code || e.message) + ')'); }
+});
+
+/* ---------- التبويبات ---------- */
+function setTab(t) {
+  S.tab = t;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  $('t-people').hidden = t !== 'people'; $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
+  $('sheet').hidden = t !== 'map'; $('top').hidden = t !== 'map';
+  if (t === 'map' && S.map) setTimeout(() => S.map.invalidateSize(), 50);
+  renderAll();
+}
+$('tabs').onclick = e => { const b = e.target.closest('button'); if (b) setTab(b.dataset.tab); };
+function renderAll() {
+  if (!S.started) return;
+  renderMap(); renderSheet();
+  if (S.tab === 'people') renderPeople();
+  if (S.tab === 'me') renderMe();
+  if (S.tab === 'admin') { renderAdmin(); renderInvites(); }
+}
+
+/* ---------- تطبيق أندرويد: معالج الإعداد ---------- */
+const flag = k => localStorage.getItem(k) === '1';
+const STEPS = [
+  { id: 'fine', req: true, title: 'السماح بالوصول إلى الموقع', text: 'يحتاج التطبيق موقع هاتفك ليظهر على خريطة العائلة. اضغط الزر ثم اختر «أثناء استخدام التطبيق» أو «السماح».', btn: 'السماح بالموقع', act: () => AndroidBridge.requestLocation(), done: s => s.fine },
+  { id: 'bg', req: true, title: 'الموقع طوال الوقت', text: 'ليستمر الإرسال والشاشة مطفأة، افتح الأذونات ثم الموقع واختر «السماح طوال الوقت».', btn: 'فتح الإعداد', act: () => AndroidBridge.requestBackground(), done: s => s.bg },
+  { id: 'notif', req: true, title: 'الإشعارات', text: 'يعرض أندرويد إشعاراً دائماً صغيراً ما دامت المشاركة تعمل. هذا شرط من النظام ويضمن بقاء الخدمة حيّة.', btn: 'السماح بالإشعارات', act: () => AndroidBridge.requestNotifications(), done: s => s.notif },
+  { id: 'battery', req: false, title: 'عدم تقييد البطارية', text: 'اسمح للتطبيق بالعمل في الخلفية دون أن يوقفه توفير الطاقة. هذا يمنع انقطاع الموقع.', btn: 'السماح', act: () => AndroidBridge.ignoreBattery(), done: s => s.battery, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_battery', '1'), skipped: () => flag('skip_battery') },
+  { id: 'auto', req: false, only: s => s.oem, title: 'التشغيل التلقائي', text: 'هاتفك من نوع يوقف التطبيقات في الخلفية. افتح الإعداد وفعّل «التشغيل التلقائي» أو «السماح بالعمل في الخلفية» لهذا التطبيق.', btn: 'فتح الإعداد', act: () => AndroidBridge.openAutoStart(), done: () => flag('auto_done'), skipLabel: 'تم، فعّلته', onSkip: () => localStorage.setItem('auto_done', '1'), skipped: () => false }
+];
+function wizNext(s) { for (const st of STEPS) { if (st.only && !st.only(s)) continue; if (st.done(s)) continue; if (st.skipped && st.skipped()) continue; return st; } return null; }
+let wizTimer = null;
+function ensureNative() {
+  const s = nat(); if (!s) return;
+  if (wizNext(s)) openWizard(); else startShare();
+}
+function startShare() { const u = auth.currentUser; if (u) { try { AndroidBridge.startSharing(u.uid, u.refreshToken, CFG.firebase.databaseURL, CFG.firebase.apiKey); } catch (e) { console.error(e); } } }
+function openWizard() { $('v-wizard').hidden = false; renderWizard(); clearInterval(wizTimer); wizTimer = setInterval(renderWizard, 900); }
+function closeWizard() { $('v-wizard').hidden = true; clearInterval(wizTimer); }
+function renderWizard() {
+  const s = nat(); if (!s) return;
+  const st = wizNext(s);
+  if (!st) { closeWizard(); startShare(); toast('اكتمل الإعداد، المشاركة تعمل'); return; }
+  const vis = STEPS.filter(x => !x.only || x.only(s));
+  $('wiz-dots').innerHTML = vis.map(x => `<i class="${x.done(s) ? 'done' : x.id === st.id ? 'cur' : ''}"></i>`).join('');
+  $('wiz-title').textContent = st.title; $('wiz-text').textContent = st.text;
+  const go = $('wiz-go'); go.textContent = st.btn; go.onclick = () => st.act();
+  const sk = $('wiz-skip'); sk.hidden = st.req; sk.textContent = st.skipLabel || ''; sk.onclick = () => { st.onSkip?.(); renderWizard(); };
+}
+$('btn-wiz').onclick = () => { localStorage.removeItem('skip_battery'); localStorage.removeItem('auto_done'); const s = nat(); if (s && wizNext(s)) openWizard(); else { toast('كل الإعدادات مكتملة'); startShare(); } };
+document.addEventListener('visibilitychange', () => { if (!document.hidden && isNative && S.started) ensureNative(); });
+</script>
+</body>
+</html>
