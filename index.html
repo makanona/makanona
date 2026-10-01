@@ -50,11 +50,14 @@ textarea{min-height:110px;resize:vertical}
 /* main */
 #v-main{position:fixed;inset:0}
 #map{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;background:#cfdadd}
-#top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:500;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
+#top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:500;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
 .chip{pointer-events:auto;background:var(--ink);color:#fff;padding:7px 15px;border-radius:999px;font-weight:600;font-size:14px;border:0;box-shadow:0 2px 10px #0003}
 button.chip{cursor:pointer;background:#fff;color:var(--ink)}
-#sheet{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB));z-index:500;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -4px 18px #0002;max-height:42vh;overflow:auto;padding:8px 16px 10px}
-.grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 4px}
+#style-menu{position:absolute;top:calc(54px + env(safe-area-inset-top,0px));inset-inline-end:12px;z-index:520;background:#fff;border-radius:14px;padding:6px;box-shadow:0 4px 18px #0003;display:flex;flex-direction:column;gap:2px;min-width:160px}
+#style-menu button{border:0;background:none;text-align:start;padding:9px 12px;border-radius:9px;font-weight:600;cursor:pointer}
+#style-menu button.on{background:var(--ink);color:#fff}
+.sheet{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB));z-index:500;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -4px 18px #0002;max-height:44vh;overflow:auto;padding:8px 16px 12px}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 6px}
 .row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
 .row.tap{cursor:pointer}
@@ -69,9 +72,9 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
 .hint{color:var(--mute);font-size:13px;margin:0}
 .tabs{position:absolute;inset-inline:0;bottom:0;z-index:600;height:calc(var(--tabs) + var(--safeB));padding-bottom:var(--safeB);background:var(--card);border-top:1px solid var(--line);display:flex}
-.tabs button{flex:1;border:0;background:none;font-weight:600;color:var(--mute);cursor:pointer;position:relative}
+.tabs button{flex:1;border:0;background:none;font-weight:600;font-size:13px;color:var(--mute);cursor:pointer;position:relative;padding:0 2px}
 .tabs button.on{color:var(--ink)}
-.tabs button.on::after{content:"";position:absolute;top:0;inset-inline:26%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
+.tabs button.on::after{content:"";position:absolute;top:0;inset-inline:22%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
 .badge{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--line);color:var(--ink2)}
 .badge.ok{background:#D9F0E6;color:#1C6B4D}
 .badge.warn{background:#FBE9C8;color:#7A4F00}
@@ -93,10 +96,14 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .dots i{flex:1;height:5px;border-radius:3px;background:var(--line)}
 .dots i.done{background:var(--ok)}
 .dots i.cur{background:var(--acc)}
-#modal{position:fixed;inset:0;background:#0008;z-index:1200;display:grid;place-items:center;padding:20px}
-#modal .box{background:#fff;border-radius:16px;padding:18px;width:min(360px,100%);display:flex;flex-direction:column;gap:14px}
+.modal{position:fixed;inset:0;background:#0008;z-index:1200;display:grid;place-items:center;padding:20px}
+.modal .box{background:#fff;border-radius:16px;padding:18px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
 #toast{position:fixed;inset-inline:16px;bottom:calc(var(--tabs) + var(--safeB) + 14px);z-index:1300;background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;text-align:center;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
 #toast.on{opacity:1;transform:none}
+.inrow{display:flex;gap:8px}
+.inrow input{flex:1}
+.hsum{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.hsum b{font-size:16px}
 /* map markers */
 .pin{width:38px;height:38px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:17px;border:3px solid #fff;box-shadow:0 2px 8px #0006}
 .pin.stale{filter:grayscale(.85);opacity:.8}
@@ -107,6 +114,7 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 /* ====== الإعدادات: عدّلها مرة واحدة فقط ====== */
 window.APP_CONFIG = {
   appName: "مكاننا",
+  defaultCountryCode: "963",
   firebase: {
     apiKey: "AIzaSyD_8AtkuLyDRovVGhIiWiiBErpKVQXBrsc",
     authDomain: "makanona.firebaseapp.com",
@@ -129,11 +137,26 @@ window.APP_CONFIG = {
     <label id="f-name" hidden>الاسم<input id="in-name" autocomplete="name"></label>
     <label>البريد الإلكتروني<input id="in-email" type="email" inputmode="email" autocomplete="email" dir="ltr"></label>
     <label>كلمة السر<input id="in-pass" type="password" autocomplete="current-password" dir="ltr"></label>
+    <label id="f-phone" hidden>رقم الهاتف<input id="in-phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="09xxxxxxxx"></label>
+    <p class="hint" id="f-phone-hint" hidden>يستخدمه أهلك وأصدقاؤك ليجدوك إن كان رقمك محفوظاً عندهم.</p>
+    <label id="f-birth" hidden>سنة الميلاد<input id="in-birth" type="text" inputmode="numeric" maxlength="4" dir="ltr" placeholder="1990"></label>
     <label id="f-code" hidden>رمز الدعوة (اختياري)<input id="in-code" dir="ltr" autocapitalize="characters" autocomplete="off"></label>
     <p class="hint" id="f-code-hint" hidden>بدون رمز، يبقى حسابك بانتظار موافقة المشرف.</p>
     <button id="btn-auth" class="btn primary block">دخول</button>
     <button id="btn-reset" class="link">نسيت كلمة السر</button>
     <p id="auth-err" class="err" role="alert"></p>
+  </div>
+</div>
+
+<div id="v-profile" class="view" hidden>
+  <div class="auth">
+    <h2>أكمل بياناتك</h2>
+    <p class="lead">خطوة واحدة لمرة واحدة. الرقم يجعل أهلك قادرين على إيجادك، وسنة الميلاد تحدد نوع الحساب.</p>
+    <label>رقم الهاتف<input id="pf-phone" type="tel" inputmode="tel" dir="ltr" placeholder="09xxxxxxxx"></label>
+    <label>سنة الميلاد<input id="pf-birth" type="text" inputmode="numeric" maxlength="4" dir="ltr" placeholder="1990"></label>
+    <button id="pf-save" class="btn primary block">حفظ ومتابعة</button>
+    <button id="pf-out" class="link">تسجيل الخروج</button>
+    <p id="pf-err" class="err" role="alert"></p>
   </div>
 </div>
 
@@ -157,31 +180,62 @@ window.APP_CONFIG = {
 
 <div id="v-main" hidden>
   <div id="map"></div>
-  <div id="top"><div class="chip" id="chip"></div><button class="chip" id="btn-fit">عرض الجميع</button></div>
-  <div id="sheet"><div class="grab"></div><div id="sheet-list"></div></div>
+  <div id="top">
+    <div class="chip" id="chip"></div>
+    <button class="chip" id="btn-fit">عرض الجميع</button>
+    <button class="chip" id="btn-style">نمط الخريطة</button>
+  </div>
+  <div id="style-menu" hidden></div>
+
+  <div id="sheet" class="sheet"><div class="grab"></div><div id="sheet-list"></div></div>
+
+  <div id="hsheet" class="sheet" hidden>
+    <div class="grab"></div>
+    <div class="inrow" style="margin-bottom:8px">
+      <select id="h-user" aria-label="الشخص"></select>
+      <input id="h-day" type="date" aria-label="اليوم">
+    </div>
+    <button class="btn primary block" data-act="hist-load">عرض المسار</button>
+    <div id="h-sum" class="hsum"></div>
+    <div id="h-stops"></div>
+  </div>
 
   <div id="t-people" class="panel" hidden>
     <h2>الأشخاص</h2>
-    <p class="hint" style="margin-bottom:12px">يظهر الشخص على خريطتك فقط بعد أن يوافق كل منكما على الآخر.</p>
     <div id="people-list"></div>
+    <div class="card" id="contacts-card" hidden>
+      <b>من جهات اتصالك</b>
+      <div id="contacts-body"></div>
+    </div>
+    <div class="card">
+      <b>البحث برقم هاتف</b>
+      <div class="inrow"><input id="srch-phone" type="tel" inputmode="tel" dir="ltr" placeholder="09xxxxxxxx"><button class="btn primary" data-act="srch">بحث</button></div>
+      <div id="srch-result"></div>
+      <p class="hint">يظهر لك الاسم فقط إن كان الرقم مسجلاً. لا تظهر على خريطة أحد حتى يوافق على طلبك.</p>
+    </div>
   </div>
 
   <div id="t-me" class="panel" hidden>
     <h2>حسابي</h2>
     <div class="card">
       <label>الاسم<input id="me-name"></label>
+      <div class="hint">رقم الهاتف: <span id="me-phone" dir="ltr"></span></div>
       <div style="font-weight:500;font-size:14px;color:var(--ink2)">اللون على الخريطة</div>
       <div id="me-colors" class="colors"></div>
       <button id="btn-save-profile" class="btn primary">حفظ</button>
     </div>
-    <div class="card">
+    <div class="card" id="pause-card">
       <div class="sw-row">
         <div>
           <b>إيقاف المشاركة مؤقتاً</b>
-          <p class="hint">عند الإيقاف لا يرى أحد من العائلة موقعك. حساب المشرف يبقى يراه.</p>
+          <p class="hint">عند الإيقاف لا يرى أحد من العائلة موقعك. يبقى المشرف قادراً على مساعدتك إن فُقد هاتفك.</p>
         </div>
         <label class="switch"><input type="checkbox" id="me-pause" aria-label="إيقاف المشاركة مؤقتاً"><span></span></label>
       </div>
+    </div>
+    <div class="card" id="minor-note" hidden>
+      <b>مشاركة الموقع مع الأهل</b>
+      <p class="hint">موقعك مشارَك مع أهلك لسلامتك، ولا يمكن إيقافه من حساب الأطفال.</p>
     </div>
     <div class="card" id="native-card" hidden>
       <b>حالة الإرسال من هذا الهاتف</b>
@@ -193,7 +247,7 @@ window.APP_CONFIG = {
     </div>
     <div class="card">
       <b>الخصوصية</b>
-      <p class="hint">يُرسل موقعك إلى قاعدة بيانات العائلة فقط. يراه من اتصلتَ بهم بموافقة الطرفين، ويراه المشرف دائماً.</p>
+      <p class="hint">يُرسل موقعك إلى قاعدة بيانات العائلة فقط. يراه من اتصلتَ بهم بموافقة الطرفين، ويراه المشرف ليساعدك إن فُقد هاتفك. يُحفظ مسار تنقلاتك 45 يوماً ثم يُحذف.</p>
     </div>
     <div class="card">
       <button id="btn-pw" class="btn">إرسال رابط تغيير كلمة السر</button>
@@ -217,7 +271,7 @@ window.APP_CONFIG = {
         <b>دعوة جديدة</b>
         <label>اسم المدعو<input id="inv-name"></label>
         <label>البريد الإلكتروني (اختياري)<input id="inv-email" type="email" dir="ltr"></label>
-        <label>رقم الهاتف بصيغة دولية، بدون + (اختياري)<input id="inv-phone" inputmode="numeric" dir="ltr" placeholder="9639xxxxxxxx"></label>
+        <label>رقم الهاتف بصيغة دولية، بدون + (اختياري، لزر واتساب)<input id="inv-phone" inputmode="numeric" dir="ltr" placeholder="9639xxxxxxxx"></label>
         <button class="btn primary" data-act="inv-create">إنشاء الدعوة</button>
         <p class="hint">صلاحية الرمز 7 أيام ويُستخدم مرة واحدة. إن كان الإرسال التلقائي مفعّلاً وكتبتَ بريداً، تُرسل الدعوة فوراً.</p>
       </div>
@@ -230,6 +284,8 @@ window.APP_CONFIG = {
         <label>الاسم<input id="new-name"></label>
         <label>البريد الإلكتروني<input id="new-email" type="email" dir="ltr"></label>
         <label>كلمة السر<input id="new-pass" dir="ltr"></label>
+        <label>رقم الهاتف<input id="new-phone" type="tel" dir="ltr" placeholder="09xxxxxxxx"></label>
+        <label>سنة الميلاد<input id="new-birth" inputmode="numeric" maxlength="4" dir="ltr" placeholder="2015"></label>
         <button class="btn primary" data-act="acc-create">إنشاء الحساب</button>
         <div id="new-result" class="hint"></div>
       </div>
@@ -251,21 +307,35 @@ window.APP_CONFIG = {
         <button class="btn primary" data-act="st-save">حفظ الإعدادات</button>
         <button class="btn" data-act="st-test">اختبار الاتصال بالسكربت</button>
       </div>
+      <div class="card">
+        <b>سجل التنقلات</b>
+        <p class="hint">يُحذف تلقائياً ما هو أقدم من 45 يوماً عند فتح كل شخص للتطبيق. يمكنك تنظيف الجميع الآن.</p>
+        <button class="btn" data-act="prune-all">حذف سجلات أقدم من 45 يوماً للجميع</button>
+      </div>
     </div>
   </div>
 
   <nav class="tabs" id="tabs">
     <button data-tab="map" class="on">الخريطة</button>
-    <button data-tab="people">الأشخاص</button>
+    <button data-tab="history">السجل</button>
+    <button data-tab="people" id="tab-people">الأشخاص</button>
     <button data-tab="me">حسابي</button>
     <button data-tab="admin" id="tab-admin" hidden>الإدارة</button>
   </nav>
 </div>
 
-<div id="modal" hidden>
+<div id="modal" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <div id="modal-msg"></div>
     <div class="acts"><button id="modal-ok" class="btn primary">تأكيد</button><button id="modal-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
+<div id="modal-edit" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="ed-title">تعديل البيانات</b>
+    <label>رقم الهاتف<input id="ed-phone" type="tel" dir="ltr"></label>
+    <label>سنة الميلاد<input id="ed-birth" inputmode="numeric" maxlength="4" dir="ltr"></label>
+    <div class="acts"><button id="ed-ok" class="btn primary">حفظ</button><button id="ed-no" class="btn">إلغاء</button></div>
   </div>
 </div>
 <div id="toast" role="status"></div>
@@ -274,7 +344,7 @@ window.APP_CONFIG = {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getDatabase, ref, onValue, set, update, get, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const CFG = window.APP_CONFIG;
 const app = initializeApp(CFG.firebase);
@@ -282,24 +352,29 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
+const PRUNE_DAYS = 45;
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
 const DEFAULT_BODY = 'مرحباً {name}،\nتمت دعوتك للانضمام إلى تطبيق {app}.\n١) حمّل التطبيق من: {apk}\n٢) اختر «تسجيل جديد» وأدخل رمز الدعوة: {code}\nالرمز صالح لمدة ٧ أيام.';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const initial = n => (String(n || '?').trim()[0] || '?');
+const pad = n => String(n).padStart(2, '0');
+const dayKey = ms => { const d = new Date(ms); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const fmtTime = ts => new Date(ts).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
 document.title = CFG.appName;
 $('brand').textContent = CFG.appName;
 
 const S = {
-  uid: null, me: null, started: false, isAdmin: false, tab: 'map', adm: 'members',
-  dir: {}, mine: {}, their: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
-  meUn: null, unsubs: {}, linkUn: {}, locUn: {}, markers: {}, map: null, fitted: false,
-  registering: false, authMode: 'login', pickColor: null, tick: null
+  uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
+  dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
+  matches: [], matchDone: false, matchBusy: false, srch: null, myHash: null,
+  meUn: null, unsubs: {}, linkUn: {}, dirUn: {}, locUn: {}, markers: {}, map: null, hl: null, base: [],
+  fitted: false, registering: false, authMode: 'login', pickColor: null, tick: null, editId: null
 };
 
-/* ---------- أدوات واجهة ---------- */
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3400); }
+/* ---------- أدوات ---------- */
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3600); }
 function ask(msg, ok = 'تأكيد') {
   return new Promise(res => {
     $('modal-msg').textContent = msg; $('modal-ok').textContent = ok; $('modal').hidden = false;
@@ -320,24 +395,49 @@ function ago(ts) {
   return Math.round(s / 86400) + ' يوم';
 }
 const fmtDate = ts => new Date(ts).toLocaleDateString('ar', { day: 'numeric', month: 'short' });
-function showView(v) { for (const id of ['loading', 'auth', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; }
+function showView(v) { for (const id of ['loading', 'auth', 'profile', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; }
 function authErr(e) {
+  if (!e.code) return e.message || 'تعذر تنفيذ الطلب';
   const m = {
     'auth/invalid-credential': 'البريد أو كلمة السر غير صحيحة', 'auth/wrong-password': 'البريد أو كلمة السر غير صحيحة',
     'auth/user-not-found': 'البريد أو كلمة السر غير صحيحة', 'auth/email-already-in-use': 'هذا البريد مسجّل مسبقاً، جرّب الدخول',
     'auth/weak-password': 'كلمة السر قصيرة، اكتب 6 أحرف على الأقل', 'auth/invalid-email': 'صيغة البريد غير صحيحة',
     'auth/network-request-failed': 'لا يوجد اتصال بالإنترنت', 'auth/too-many-requests': 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة'
   };
-  return m[e.code] || ('تعذر تنفيذ الطلب (' + (e.code || e.message) + ')');
+  return m[e.code] || ('تعذر تنفيذ الطلب (' + e.code + ')');
 }
 const nat = () => { try { return JSON.parse(window.AndroidBridge.status()); } catch { return null; } };
+const haversine = (a, b) => { const R = 6371000, r = x => x * Math.PI / 180, dLa = r(b.lat - a.lat), dLo = r(b.lng - a.lng); const h = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+
+/* ---------- الهاتف وسنة الميلاد ---------- */
+const toLatin = s => String(s || '').replace(/[٠-٩]/g, c => c.charCodeAt(0) - 1632).replace(/[۰-۹]/g, c => c.charCodeAt(0) - 1776);
+function normPhone(raw) {
+  const cc = CFG.defaultCountryCode || '963';
+  const s = toLatin(raw).trim(); if (!s) return null;
+  const intl = s.startsWith('+') || s.startsWith('00');
+  let d = s.replace(/\D/g, '');
+  if (s.startsWith('00')) d = d.slice(2);
+  if (!intl) {
+    if (d.startsWith('0')) d = cc + d.slice(1);
+    else if (d.length === 9 && d.startsWith('9')) d = cc + d;
+  }
+  if (d.startsWith(cc + '0')) d = cc + d.slice(cc.length + 1);
+  if (d.length < 9 || d.length > 15) return null;
+  return '+' + d;
+}
+async function phoneHash(p) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('mk1|' + p));
+  return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join('');
+}
+const parseYear = v => { const y = parseInt(toLatin(v), 10); return (y >= 1920 && y <= new Date().getFullYear()) ? y : null; };
+const isMinor = by => new Date().getFullYear() - by < 18;
 
 /* ---------- تسجيل الدخول ---------- */
 function setAuthMode(m) {
   S.authMode = m;
   document.querySelectorAll('#auth-seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
   const su = m === 'signup';
-  $('f-name').hidden = !su; $('f-code').hidden = !su; $('f-code-hint').hidden = !su;
+  for (const id of ['f-name', 'f-phone', 'f-phone-hint', 'f-birth', 'f-code', 'f-code-hint']) $(id).hidden = !su;
   $('btn-auth').textContent = su ? 'إنشاء الحساب' : 'دخول';
   $('in-pass').autocomplete = su ? 'new-password' : 'current-password';
   $('auth-err').textContent = '';
@@ -362,13 +462,17 @@ $('btn-reset').onclick = async () => {
 async function signup(email, pass) {
   const name = $('in-name').value.trim();
   if (!name) throw { message: 'اكتب اسمك' };
+  const phone = normPhone($('in-phone').value);
+  if (!phone) throw { message: 'رقم الهاتف غير صحيح. اكتبه مثل 09xxxxxxxx' };
+  const birthYear = parseYear($('in-birth').value);
+  if (!birthYear) throw { message: 'اكتب سنة الميلاد من 4 أرقام' };
   const code = $('in-code').value.trim().toUpperCase();
   S.registering = true;
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     const uid = cred.user.uid;
     try { await updateProfile(cred.user, { displayName: name }); } catch {}
-    const base = { name, email, role: 'member', createdAt: Date.now() };
+    const base = { name, email, phone, birthYear, role: 'member', createdAt: Date.now() };
     let approved = false;
     if (code) {
       try {
@@ -387,8 +491,17 @@ async function ensurePending(u) {
   try { await set(ref(db, 'users/' + u.uid), { name: u.displayName || (u.email || '').split('@')[0], email: u.email || '', role: 'member', status: 'pending', createdAt: Date.now() }); } catch (e) { console.error(e); }
 }
 const logout = async () => { if (isNative) { try { window.AndroidBridge.stopSharing(); } catch {} } await signOut(auth); };
-$('btn-out1').onclick = logout; $('btn-out2').onclick = logout;
+$('btn-out1').onclick = logout; $('btn-out2').onclick = logout; $('pf-out').onclick = logout;
 $('btn-pw').onclick = async () => { try { await sendPasswordResetEmail(auth, auth.currentUser.email); toast('أُرسل الرابط إلى بريدك'); } catch (e) { toast(authErr(e)); } };
+
+$('pf-save').onclick = async () => {
+  const phone = normPhone($('pf-phone').value), by = parseYear($('pf-birth').value);
+  if (!phone) { $('pf-err').textContent = 'رقم الهاتف غير صحيح. اكتبه مثل 09xxxxxxxx'; return; }
+  if (!by) { $('pf-err').textContent = 'اكتب سنة الميلاد من 4 أرقام'; return; }
+  $('pf-err').textContent = '';
+  try { await update(ref(db), { ['users/' + S.uid + '/phone']: phone, ['users/' + S.uid + '/birthYear']: by }); }
+  catch (e) { $('pf-err').textContent = 'تعذر الحفظ. إن كانت بياناتك محفوظة سابقاً فاطلب التعديل من المشرف.'; }
+};
 
 onAuthStateChanged(auth, u => {
   cleanup(true);
@@ -403,7 +516,13 @@ onAuthStateChanged(auth, u => {
 
 function route() {
   const st = S.me.status;
-  if (st === 'approved') { S.isAdmin = S.me.role === 'admin'; if (!S.started) startMain(); else $('tab-admin').hidden = !S.isAdmin; return; }
+  if (st === 'approved') {
+    S.isAdmin = S.me.role === 'admin';
+    if (!S.me.phone || !S.me.birthYear) { if (S.started) stopMain(); showView('profile'); return; }
+    S.minor = isMinor(S.me.birthYear);
+    if (!S.started) startMain(); else { $('tab-admin').hidden = !S.isAdmin; renderMe(); }
+    return;
+  }
   if (S.started) stopMain();
   if (isNative) { try { window.AndroidBridge.stopSharing(); } catch {} }
   if (st === 'pending') { $('pend-title').textContent = 'حسابك بانتظار الموافقة'; $('pend-text').textContent = 'سيفعّل المشرف حسابك قريباً، وتُفتح الخريطة تلقائياً بمجرد الموافقة.'; }
@@ -415,43 +534,62 @@ function route() {
 function startMain() {
   S.started = true; S.fitted = false;
   $('tab-admin').hidden = !S.isAdmin;
-  showView('main'); setTab('map'); initMap();
-  get(ref(db, 'directory/' + S.uid)).then(s => { if (!s.exists()) set(ref(db, 'directory/' + S.uid), { name: S.me.name, color: COLORS[Math.floor(Math.random() * COLORS.length)], paused: false }); }).catch(console.error);
+  showView('main'); initMap(); setTab('map');
+  ensureDirectory().then(ensureIndex).catch(console.error);
 
-  S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncLinks(); syncLocs(); renderAll(); }, e => console.error('dir', e));
-  S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; syncLocs(); renderAll(); }, e => console.error('links', e));
+  S.unsubs.reqs = onValue(ref(db, 'requests/' + S.uid), s => { S.reqs = s.val() || {}; updateBadge(); if (S.tab === 'people') renderPeople(); }, e => console.error('reqs', e));
+  S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('links', e));
   if (S.isAdmin) {
+    S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
     S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; renderMap(); renderSheet(); }, e => console.error('locs', e));
     S.unsubs.users = onValue(ref(db, 'users'), s => { S.users = s.val() || {}; renderAdmin(); }, e => console.error('users', e));
     S.unsubs.invites = onValue(ref(db, 'invites'), s => { S.invites = s.val() || {}; renderInvites(); }, e => console.error('invites', e));
     S.unsubs.settings = onValue(ref(db, 'settings/app'), s => { S.settings = s.val() || {}; fillSettings(); renderInvites(); }, e => console.error('settings', e));
-  }
+  } else syncWatch();
   S.tick = setInterval(() => { renderSheet(); if (S.tab === 'me') renderNative(); }, 10000);
+  prune(S.uid).catch(() => {});
   if (isNative) ensureNative();
 }
 function stopMain() {
   for (const k of Object.keys(S.unsubs)) S.unsubs[k]?.();
   S.unsubs = {};
-  Object.values(S.linkUn).forEach(f => f?.()); S.linkUn = {};
-  Object.values(S.locUn).forEach(f => f?.()); S.locUn = {};
+  for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
+  S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false;
-  S.dir = {}; S.mine = {}; S.their = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {};
-  clearMarkers();
+  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false;
+  clearMarkers(); if (S.hl) S.hl.clearLayers();
 }
-function cleanup(all) { stopMain(); if (all && S.meUn) { S.meUn(); S.meUn = null; } S.me = null; S.isAdmin = false; }
+function cleanup(all) { stopMain(); if (all && S.meUn) { S.meUn(); S.meUn = null; } S.me = null; S.isAdmin = false; S.minor = false; }
 
-function syncLinks() {
-  const others = Object.keys(S.dir).filter(u => u !== S.uid);
-  for (const u of others) if (!S.linkUn[u]) {
-    S.linkUn[u] = onValue(ref(db, 'links/' + u + '/' + S.uid), s => { S.their[u] = s.val() === true; syncLocs(); renderAll(); }, () => { S.their[u] = false; });
+async function ensureDirectory() {
+  const s = await get(ref(db, 'directory/' + S.uid));
+  if (!s.exists()) await set(ref(db, 'directory/' + S.uid), { name: S.me.name, color: COLORS[Math.floor(Math.random() * COLORS.length)], paused: false });
+}
+async function ensureIndex() {
+  if (!S.me?.phone) return;
+  S.myHash = await phoneHash(S.me.phone);
+  const s = await get(ref(db, 'phoneIndex/' + S.myHash));
+  if (!s.exists()) await set(ref(db, 'phoneIndex/' + S.myHash), { uid: S.uid, name: S.dir[S.uid]?.name || S.me.name });
+  else if (s.val().uid !== S.uid) toast('رقم هاتفك مسجّل لحساب آخر. راجع المشرف.');
+}
+
+/* من نراقبه: المشرف يرى الجميع، والعضو يرى من أضافهم فقط */
+function syncWatch() {
+  const want = new Set(S.isAdmin ? Object.keys(S.dir) : Object.keys(S.mine));
+  want.delete(S.uid);
+  for (const u of want) {
+    if (!S.linkUn[u]) S.linkUn[u] = onValue(ref(db, `links/${u}/${S.uid}`), s => { S.their[u] = s.val() === true; syncLocs(); renderAll(); }, () => { S.their[u] = false; });
+    if (!S.isAdmin && !S.dirUn[u]) S.dirUn[u] = onValue(ref(db, 'directory/' + u), s => { if (s.exists()) S.dir[u] = s.val(); else delete S.dir[u]; syncLocs(); renderAll(); }, () => {});
   }
-  for (const u of Object.keys(S.linkUn)) if (!others.includes(u)) { S.linkUn[u]?.(); delete S.linkUn[u]; delete S.their[u]; }
+  for (const u of Object.keys(S.linkUn)) if (!want.has(u)) { S.linkUn[u]?.(); delete S.linkUn[u]; delete S.their[u]; }
+  for (const u of Object.keys(S.dirUn)) if (!want.has(u) && u !== S.uid) { S.dirUn[u]?.(); delete S.dirUn[u]; delete S.dir[u]; }
+  if (!S.isAdmin && !S.dirUn[S.uid]) S.dirUn[S.uid] = onValue(ref(db, 'directory/' + S.uid), s => { if (s.exists()) S.dir[S.uid] = s.val(); renderAll(); }, () => {});
 }
 const connected = u => S.mine[u] === true && S.their[u] === true;
 function syncLocs() {
   if (S.isAdmin) return;
   const want = new Set([S.uid]);
-  for (const u of Object.keys(S.dir)) if (u !== S.uid && connected(u)) want.add(u);
+  for (const u of Object.keys(S.mine)) if (u !== S.uid && connected(u)) want.add(u);
   for (const u of want) {
     const paused = u !== S.uid && S.dir[u]?.paused === true;
     if (paused) { S.hidden[u] = true; S.locUn[u]?.(); delete S.locUn[u]; delete S.locs[u]; continue; }
@@ -463,20 +601,45 @@ function syncLocs() {
   for (const u of Object.keys(S.locUn)) if (!want.has(u)) { S.locUn[u]?.(); delete S.locUn[u]; delete S.locs[u]; }
   for (const u of Object.keys(S.locs)) if (!want.has(u)) delete S.locs[u];
 }
-
-/* ---------- الخريطة ---------- */
-function initMap() {
-  if (S.map) { setTimeout(() => S.map.invalidateSize(), 50); return; }
-  S.map = L.map('map', { zoomControl: false }).setView([35.0, 38.0], 6);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(S.map);
-  setTimeout(() => S.map.invalidateSize(), 100);
-}
 function visibleIds() {
   if (S.isAdmin) return Object.keys(S.dir);
   const ids = [S.uid];
-  for (const u of Object.keys(S.dir)) if (u !== S.uid && connected(u)) ids.push(u);
+  for (const u of Object.keys(S.mine)) if (u !== S.uid && connected(u)) ids.push(u);
   return ids;
 }
+
+/* ---------- الخريطة وأنماطها ---------- */
+const OSM = '© OpenStreetMap';
+const CARTO = '© OpenStreetMap © CARTO';
+const ESRI = 'Tiles © Esri';
+const STYLES = {
+  osm: { name: 'عادية (أسماء عربية)', layers: [['https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: OSM }]] },
+  voyager: { name: 'شوارع واضحة', layers: [['https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20, subdomains: 'abcd', attribution: CARTO }]] },
+  sat: { name: 'قمر صناعي', layers: [['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI }]] },
+  hybrid: { name: 'هجين (قمر صناعي وأسماء)', layers: [
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI }],
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }]] },
+  dark: { name: 'داكنة', layers: [['https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20, subdomains: 'abcd', attribution: CARTO }]] }
+};
+function setStyle(k) {
+  if (!STYLES[k]) k = 'osm';
+  S.base.forEach(l => S.map.removeLayer(l)); S.base = [];
+  for (const [url, opt] of STYLES[k].layers) { const l = L.tileLayer(url, opt).addTo(S.map); S.base.push(l); }
+  try { localStorage.setItem('mapStyle', k); } catch {}
+  S.styleKey = k;
+  $('style-menu').innerHTML = Object.entries(STYLES).map(([key, v]) => `<button data-act="style" data-id="${key}" class="${key === k ? 'on' : ''}">${esc(v.name)}</button>`).join('');
+}
+function initMap() {
+  if (S.map) { setTimeout(() => S.map.invalidateSize(), 50); return; }
+  S.map = L.map('map', { zoomControl: false }).setView([35.0, 38.0], 6);
+  S.hl = L.layerGroup().addTo(S.map);
+  let k = 'osm'; try { k = localStorage.getItem('mapStyle') || 'osm'; } catch {}
+  setStyle(k);
+  setTimeout(() => S.map.invalidateSize(), 100);
+}
+$('btn-style').onclick = () => { $('style-menu').hidden = !$('style-menu').hidden; };
+$('btn-fit').onclick = () => fitAll();
+
 function pinIcon(id, l) {
   const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000;
   const html = `<div class="pin${stale ? ' stale' : ''}" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="tag">${esc(id === S.uid ? 'أنا' : (d.name || ''))}</div>`;
@@ -502,7 +665,6 @@ function fitAll() {
   if (pts.length === 1) S.map.setView(pts[0], 15); else S.map.fitBounds(L.latLngBounds(pts), { padding: [60, 60], maxZoom: 16 });
 }
 function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat, l.lng], 16, { duration: .8 }); }
-$('btn-fit').onclick = fitAll;
 
 function describe(id) {
   const l = S.locs[id], d = S.dir[id] || {};
@@ -532,28 +694,105 @@ function renderSheet() {
   $('sheet-list').innerHTML = rows + extra;
 }
 
-/* ---------- الأشخاص والاتصال المتبادل ---------- */
+/* ---------- سجل التنقلات ---------- */
+function renderHistoryControls() {
+  const ids = visibleIds(), sel = $('h-user'), key = ids.join(',');
+  if (sel.dataset.k !== key) {
+    const cur = sel.value;
+    sel.innerHTML = ids.map(id => `<option value="${esc(id)}">${esc(id === S.uid ? 'أنا' : (S.dir[id]?.name || id))}</option>`).join('');
+    sel.dataset.k = key; if (ids.includes(cur)) sel.value = cur;
+  }
+  if (!$('h-day').value) $('h-day').value = dayKey(Date.now());
+}
+async function loadHistory() {
+  const uid = $('h-user').value, day = $('h-day').value;
+  if (!uid || !day) return;
+  $('h-sum').innerHTML = '<p class="hint">جارٍ التحميل...</p>'; $('h-stops').innerHTML = '';
+  let obj;
+  try { obj = (await get(ref(db, `history/${uid}/${day}`))).val() || {}; }
+  catch { $('h-sum').innerHTML = '<p class="hint">لا تملك صلاحية عرض هذا السجل الآن.</p>'; return; }
+  S.hl.clearLayers();
+  const pts = Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
+  if (!pts.length) { $('h-sum').innerHTML = '<p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p>'; return; }
+
+  const color = S.dir[uid]?.color || '#3A6EA5';
+  let cur = [[pts[0].lat, pts[0].lng]], dist = 0;
+  const flush = () => { if (cur.length > 1) L.polyline(cur, { color, weight: 5, opacity: .9 }).addTo(S.hl); };
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b);
+    if (gap > 15 * 60e3 && d > 1000) { flush(); L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color, weight: 3, opacity: .6, dashArray: '6 8' }).addTo(S.hl); cur = [[b.lat, b.lng]]; }
+    else { cur.push([b.lat, b.lng]); dist += d; }
+  }
+  flush();
+  const first = pts[0], last = pts[pts.length - 1], end = last.ets || last.ts;
+  const stops = pts.filter(p => p.ets && p.ets - p.ts >= 5 * 60e3);
+  const dot = (p, fill, tip) => L.circleMarker([p.lat, p.lng], { radius: 9, color: '#fff', weight: 3, fillColor: fill, fillOpacity: 1 }).bindTooltip(tip, { permanent: true, direction: 'top', offset: [0, -8] }).addTo(S.hl);
+  stops.forEach(p => L.circleMarker([p.lat, p.lng], { radius: 8, color: '#fff', weight: 2, fillColor: '#E8A33D', fillOpacity: 1 }).bindTooltip(fmtTime(p.ts) + ' – ' + fmtTime(p.ets)).addTo(S.hl));
+  dot(first, '#2F8F6B', 'بداية ' + fmtTime(first.ts)); dot(last, '#C4483B', 'آخر نقطة ' + fmtTime(end));
+  S.map.fitBounds(L.latLngBounds(pts.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 17 });
+
+  $('h-sum').innerHTML = `<b>${esc(fmtTime(first.ts))} حتى ${esc(fmtTime(end))}</b><span class="hint">المسافة التقريبية ${(dist / 1000).toFixed(1)} كم، وعدد الوقفات ${stops.length}</span>`;
+  $('h-stops').innerHTML = stops.map(p => `<div class="row tap" data-act="hist-focus" data-id="${p.lat},${p.lng}"><div class="grow"><div class="nm">وقفة ${esc(fmtTime(p.ts))} – ${esc(fmtTime(p.ets))}</div><div class="st">${Math.round((p.ets - p.ts) / 60000)} دقيقة في المكان نفسه</div></div></div>`).join('');
+}
+async function prune(uid) {
+  const cutoff = dayKey(Date.now() - (PRUNE_DAYS + 1) * 864e5);
+  const sn = await get(query(ref(db, 'history/' + uid), orderByKey(), endAt(cutoff)));
+  const ups = {}; sn.forEach(c => { ups[`history/${uid}/${c.key}`] = null; });
+  const n = Object.keys(ups).length; if (n) await update(ref(db), ups);
+  return n;
+}
+
+/* ---------- الأشخاص ---------- */
+const prow = (name, color, sub, btns) => `<div class="row"><div class="av" style="--c:${esc(color || '#3A6EA5')}">${esc(initial(name))}</div><div class="grow"><div class="nm">${esc(name || '—')}</div>${sub || ''}</div><div class="acts">${btns || ''}</div></div>`;
+function updateBadge() { const n = Object.keys(S.reqs).length; $('tab-people').textContent = 'الأشخاص' + (n ? ' (' + n + ')' : ''); }
 function renderPeople() {
-  const list = Object.keys(S.dir).filter(u => u !== S.uid);
-  if (!list.length) { $('people-list').innerHTML = '<div class="card"><p class="hint">لا يوجد أفراد آخرون بعد. اطلب من المشرف دعوتهم.</p></div>'; return; }
-  $('people-list').innerHTML = '<div class="card">' + list.map(u => {
-    const d = S.dir[u], my = S.mine[u] === true, their = S.their[u] === true;
-    let st, btns;
-    if (my && their) { st = '<span class="badge ok">متصل</span>'; btns = `<button class="btn sm danger" data-act="unlink" data-id="${esc(u)}">إزالة</button>`; }
-    else if (my) { st = '<span class="badge warn">بانتظار موافقته</span>'; btns = `<button class="btn sm" data-act="unlink" data-id="${esc(u)}">إلغاء الطلب</button>`; }
-    else if (their) { st = '<span class="badge warn">يطلب رؤية موقعك</span>'; btns = `<button class="btn sm primary" data-act="link" data-id="${esc(u)}">قبول</button>`; }
-    else { st = ''; btns = `<button class="btn sm primary" data-act="link" data-id="${esc(u)}">إضافة</button>`; }
-    return `<div class="row"><div class="av" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="grow"><div class="nm">${esc(d.name)}</div>${st}</div><div class="acts">${btns}</div></div>`;
-  }).join('') + '</div>';
+  let html = '';
+  const reqs = Object.keys(S.reqs);
+  if (reqs.length) html += '<div class="card"><b>طلبات تنتظر موافقتك</b>' + reqs.map(u => { const r = S.reqs[u]; return prow(r.name, r.color, '<div class="st">يريد أن يرى موقعك وتراه</div>', `<button class="btn sm primary" data-act="accept" data-id="${esc(u)}">قبول</button><button class="btn sm" data-act="decline" data-id="${esc(u)}">رفض</button>`); }).join('') + '</div>';
+  const mine = Object.keys(S.mine).filter(u => u !== S.uid);
+  html += '<div class="card"><b>أشخاصي</b>' + (mine.length ? mine.map(u => {
+    const d = S.dir[u] || {}, ok = connected(u);
+    return prow(d.name, d.color, ok ? '<span class="badge ok">متصل</span>' : '<span class="badge warn">بانتظار موافقته</span>', `<button class="btn sm ${ok ? 'danger' : ''}" data-act="unlink" data-id="${esc(u)}">${ok ? 'إزالة' : 'إلغاء الطلب'}</button>`);
+  }).join('') : '<p class="hint">لم تضف أحداً بعد. ابحث عن شخص برقمه، أو اختر من جهات اتصالك.</p>') + '</div>';
+  $('people-list').innerHTML = html;
+  renderContacts();
+}
+function renderContacts() {
+  $('contacts-card').hidden = !isNative;
+  if (!isNative) return;
+  const s = nat();
+  if (!s || !s.contacts) { $('contacts-body').innerHTML = '<p class="hint">اسمح بالوصول إلى جهات الاتصال ليجد التطبيق أهلك وأصدقاءك المشتركين من أرقام هاتفك. تبقى أسماء جهاتك على هاتفك، وتُرسل بصمات مشفّرة لأرقامك للمطابقة فقط.</p><button class="btn primary" data-act="ask-contacts">السماح بجهات الاتصال</button>'; return; }
+  const list = S.matches.filter(m => !S.mine[m.uid] && !S.reqs[m.uid]);
+  let h = `<button class="btn sm" data-act="refresh-contacts" ${S.matchBusy ? 'disabled' : ''}>${S.matchBusy ? 'جارٍ البحث...' : 'تحديث'}</button>`;
+  if (list.length) h += list.map(m => prow(m.saved, S.dir[m.uid]?.color, `<div class="st">مشترك باسم ${esc(m.name)}</div>`, `<button class="btn sm primary" data-act="add" data-id="${esc(m.uid)}">إضافة</button>`)).join('');
+  else if (S.matchDone && !S.matchBusy) h += '<p class="hint">لا يوجد مشتركون جدد من جهات اتصالك. احفظ رقم الشخص عندك ثم اضغط «تحديث».</p>';
+  else if (!S.matchBusy) h += '<p class="hint">اضغط «تحديث» لمطابقة جهات اتصالك مع المشتركين.</p>';
+  $('contacts-body').innerHTML = h;
+}
+async function refreshContacts() {
+  const s = nat(); if (!s || !s.contacts) return toast('اسمح بجهات الاتصال أولاً');
+  S.matchBusy = true; renderContacts();
+  let list = []; try { list = JSON.parse(window.AndroidBridge.contacts()); } catch {}
+  const nums = new Map();
+  for (const c of list) for (const raw of (c.p || [])) { const p = normPhone(raw); if (p && p !== S.me.phone && !nums.has(p)) nums.set(p, c.n); }
+  const entries = Array.from(nums.entries()), found = new Map();
+  for (let i = 0; i < entries.length; i += 30) {
+    await Promise.all(entries.slice(i, i + 30).map(async ([p, n]) => {
+      try { const sn = await get(ref(db, 'phoneIndex/' + await phoneHash(p))); if (sn.exists() && sn.val().uid !== S.uid) found.set(sn.val().uid, { uid: sn.val().uid, name: sn.val().name, saved: n }); } catch {}
+    }));
+  }
+  S.matches = Array.from(found.values()); S.matchDone = true; S.matchBusy = false; renderContacts();
 }
 
 /* ---------- حسابي ---------- */
 function renderMe() {
   const d = S.dir[S.uid] || {};
   if (document.activeElement !== $('me-name')) $('me-name').value = d.name || S.me?.name || '';
+  $('me-phone').textContent = S.me?.phone || '';
   if (!S.pickColor) S.pickColor = d.color || COLORS[0];
   $('me-colors').innerHTML = COLORS.map(c => `<button style="--c:${c}" class="${c === S.pickColor ? 'on' : ''}" data-act="color" data-id="${c}" aria-label="لون"></button>`).join('');
   $('me-pause').checked = d.paused === true;
+  $('pause-card').hidden = S.minor; $('minor-note').hidden = !S.minor;
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
   renderNative();
 }
@@ -561,15 +800,17 @@ function renderNative() {
   if (!isNative) return;
   const s = nat(); if (!s) return;
   const line = (t, ok) => `<div class="row" style="padding:6px 0"><div class="grow">${t}</div><span class="badge ${ok ? 'ok' : 'bad'}">${ok ? 'مفعّل' : 'غير مفعّل'}</span></div>`;
-  $('native-status').innerHTML = line('الموقع', s.fine) + line('الموقع طوال الوقت', s.bg) + line('الإشعارات', s.notif) + line('استثناء توفير البطارية', s.battery) +
+  $('native-status').innerHTML = line('الموقع', s.fine) + line('الموقع طوال الوقت', s.bg) + line('الإشعارات', s.notif) + line('استثناء توفير البطارية', s.battery) + line('جهات الاتصال', s.contacts) +
     `<p class="hint">${s.sharing ? (s.lastSend ? 'آخر إرسال قبل ' + ago(s.lastSend) : 'الخدمة تعمل ولم يُرسل موقع بعد') : 'الخدمة متوقفة'}</p>`;
 }
 $('btn-save-profile').onclick = async () => {
   const name = $('me-name').value.trim(); if (!name) return toast('اكتب الاسم');
-  try { await update(ref(db, 'directory/' + S.uid), { name, color: S.pickColor }); toast('تم الحفظ'); } catch (e) { toast('تعذر الحفظ'); }
+  const ups = { ['directory/' + S.uid + '/name']: name, ['directory/' + S.uid + '/color']: S.pickColor };
+  if (S.myHash) ups['phoneIndex/' + S.myHash + '/name'] = name;
+  try { await update(ref(db), ups); toast('تم الحفظ'); } catch (e) { toast('تعذر الحفظ'); }
 };
 $('me-pause').onchange = async e => {
-  try { await update(ref(db, 'directory/' + S.uid), { paused: e.target.checked }); toast(e.target.checked ? 'تم إيقاف المشاركة عن العائلة' : 'عادت المشاركة'); } catch { toast('تعذر التنفيذ'); e.target.checked = !e.target.checked; }
+  try { await update(ref(db), { ['directory/' + S.uid + '/paused']: e.target.checked }); toast(e.target.checked ? 'تم إيقاف المشاركة عن العائلة' : 'عادت المشاركة'); } catch { toast('تعذر التنفيذ'); e.target.checked = !e.target.checked; }
 };
 
 /* ---------- الإدارة ---------- */
@@ -580,11 +821,13 @@ function renderAdmin() {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name;
     const badge = x.status === 'pending' ? '<span class="badge warn">بانتظار الموافقة</span>' : x.status === 'approved' ? '<span class="badge ok">مفعّل</span>' : '<span class="badge bad">معطّل</span>';
     const role = x.role === 'admin' ? ' <span class="badge">مشرف</span>' : '';
+    const kid = x.birthYear && isMinor(x.birthYear) ? ' <span class="badge warn">طفل</span>' : '';
     let b = '';
     if (x.status === 'pending') b = `<button class="btn sm primary" data-act="approve" data-id="${esc(u)}">قبول</button><button class="btn sm danger" data-act="reject" data-id="${esc(u)}">رفض</button>`;
     else if (x.status === 'approved' && !self) b = `<button class="btn sm danger" data-act="disable" data-id="${esc(u)}">تعطيل</button><button class="btn sm" data-act="role" data-id="${esc(u)}">${x.role === 'admin' ? 'إلغاء الإشراف' : 'ترقية لمشرف'}</button>`;
     else if (x.status === 'disabled') b = `<button class="btn sm primary" data-act="enable" data-id="${esc(u)}">إعادة تفعيل</button>`;
-    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div></div>${badge}</div><div class="acts">${b}</div></div>`;
+    b += `<button class="btn sm" data-act="edit" data-id="${esc(u)}">الرقم والميلاد</button>`;
+    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || 'بدون رقم')} / ${esc(x.birthYear || 'بدون سنة ميلاد')}</div></div>${badge}</div><div class="acts">${b}</div></div>`;
   }).join('') : '<div class="card"><p class="hint">لا توجد حسابات.</p></div>';
 }
 function setAdm(t) {
@@ -593,6 +836,35 @@ function setAdm(t) {
   for (const k of ['members', 'invites', 'create', 'settings']) $('adm-' + k).hidden = k !== t;
 }
 $('adm-seg').onclick = e => { const b = e.target.closest('button'); if (b) setAdm(b.dataset.adm); };
+
+async function indexFor(uid, phone, name) {
+  const h = await phoneHash(phone), sn = await get(ref(db, 'phoneIndex/' + h));
+  if (sn.exists() && sn.val().uid !== uid) return { h, conflict: true };
+  return { h, value: { uid, name } };
+}
+async function dropIndex(uid, phone) {
+  if (!phone) return {};
+  const h = await phoneHash(phone), sn = await get(ref(db, 'phoneIndex/' + h));
+  return (sn.exists() && sn.val().uid === uid) ? { ['phoneIndex/' + h]: null } : {};
+}
+function editDialog(id) {
+  const x = S.users[id]; S.editId = id;
+  $('ed-title').textContent = 'تعديل بيانات ' + (S.dir[id]?.name || x.name);
+  $('ed-phone').value = x.phone || ''; $('ed-birth').value = x.birthYear || '';
+  $('modal-edit').hidden = false;
+}
+$('ed-no').onclick = () => { $('modal-edit').hidden = true; };
+$('ed-ok').onclick = async () => {
+  const id = S.editId, x = S.users[id], phone = normPhone($('ed-phone').value), by = parseYear($('ed-birth').value);
+  if (!phone || !by) return toast('تحقق من الرقم وسنة الميلاد');
+  const ups = { ['users/' + id + '/phone']: phone, ['users/' + id + '/birthYear']: by };
+  if (x.phone && x.phone !== phone) Object.assign(ups, await dropIndex(id, x.phone));
+  if (x.status === 'approved') {
+    const ix = await indexFor(id, phone, S.dir[id]?.name || x.name);
+    if (ix.conflict) toast('تنبيه: هذا الرقم مسجّل لحساب آخر، لم يُفهرس.'); else ups['phoneIndex/' + ix.h] = ix.value;
+  }
+  try { await update(ref(db), ups); $('modal-edit').hidden = true; toast('تم الحفظ'); } catch { toast('تعذر الحفظ'); }
+};
 
 const newCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(8)); return Array.from(r, x => A[x % A.length]).join(''); };
 function inviteMsg(inv, code) {
@@ -637,16 +909,60 @@ function fillSettings() {
 
 /* ---------- الأوامر (تفويض النقرات) ---------- */
 const rnd = () => COLORS[Math.floor(Math.random() * COLORS.length)];
+async function approveUser(id) {
+  const u = S.users[id], ups = { ['users/' + id + '/status']: 'approved' };
+  if (!S.dir[id]) ups['directory/' + id] = { name: u.name, color: rnd(), paused: false };
+  if (u.phone) {
+    const ix = await indexFor(id, u.phone, S.dir[id]?.name || u.name);
+    if (ix.conflict) toast('تنبيه: رقم هذا الشخص مسجّل لحساب آخر، لم يُفهرس.'); else ups['phoneIndex/' + ix.h] = ix.value;
+  }
+  await update(ref(db), ups);
+}
 const ACTIONS = {
   focus: id => focusOn(id),
-  color: (id) => { S.pickColor = id; renderMe(); },
-  link: id => set(ref(db, 'links/' + S.uid + '/' + id), true),
-  unlink: async id => { if (await ask('إزالة الاتصال مع ' + (S.dir[id]?.name || 'هذا الشخص') + '؟ لن يرى أحدكما الآخر.', 'إزالة')) await remove(ref(db, 'links/' + S.uid + '/' + id)); },
-  approve: id => update(ref(db), { ['users/' + id + '/status']: 'approved', ...(S.dir[id] ? {} : { ['directory/' + id]: { name: S.users[id].name, color: rnd(), paused: false } }) }),
-  enable: id => ACTIONS.approve(id),
+  'hist-focus': id => { const [la, ln] = id.split(',').map(Number); S.map.flyTo([la, ln], 17, { duration: .8 }); },
+  'hist-load': () => loadHistory(),
+  style: id => { setStyle(id); $('style-menu').hidden = true; },
+  color: id => { S.pickColor = id; renderMe(); },
+  add: async id => {
+    const me = S.dir[S.uid] || {};
+    await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${id}/${S.uid}`]: { name: me.name || S.me.name, color: me.color || COLORS[0], ts: Date.now() } });
+    toast('أُرسل الطلب. يظهر الشخص على خريطتك بعد موافقته.');
+    if (S.srch && S.srch.uid === id) { S.srch = null; $('srch-result').innerHTML = ''; }
+  },
+  accept: async id => { await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${S.uid}/${id}`]: null }); toast('تمت الموافقة'); },
+  decline: async id => { await remove(ref(db, `requests/${S.uid}/${id}`)); },
+  unlink: async id => {
+    if (await ask('إزالة الاتصال مع ' + (S.dir[id]?.name || 'هذا الشخص') + '؟ لن يرى أحدكما الآخر.', 'إزالة'))
+      await update(ref(db), { [`links/${S.uid}/${id}`]: null, [`requests/${id}/${S.uid}`]: null });
+  },
+  'ask-contacts': () => {
+    window.AndroidBridge.requestContacts();
+    let n = 0; const t = setInterval(() => { const s = nat(); if ((s && s.contacts) || ++n > 40) { clearInterval(t); if (s && s.contacts) refreshContacts(); else renderContacts(); } }, 800);
+  },
+  'refresh-contacts': () => refreshContacts(),
+  srch: async () => {
+    const p = normPhone($('srch-phone').value);
+    if (!p) return toast('رقم غير صحيح');
+    if (p === S.me.phone) return toast('هذا رقمك');
+    const sn = await get(ref(db, 'phoneIndex/' + await phoneHash(p)));
+    if (!sn.exists() || sn.val().uid === S.uid) { S.srch = null; $('srch-result').innerHTML = '<p class="hint">لا يوجد مشترك بهذا الرقم.</p>'; return; }
+    const v = sn.val(); S.srch = { uid: v.uid, name: v.name };
+    const st = connected(v.uid) ? '<span class="badge ok">متصل</span>' : S.mine[v.uid] ? '<span class="badge warn">بانتظار موافقته</span>' : '';
+    const btn = (S.mine[v.uid] || S.reqs[v.uid]) ? '' : `<button class="btn sm primary" data-act="add" data-id="${esc(v.uid)}">إرسال طلب</button>`;
+    $('srch-result').innerHTML = prow(v.name, null, st, btn);
+  },
+  approve: id => approveUser(id),
+  enable: id => approveUser(id),
   reject: async id => { if (await ask('رفض هذا الحساب؟', 'رفض')) await update(ref(db), { ['users/' + id + '/status']: 'disabled' }); },
-  disable: async id => { if (await ask('تعطيل حساب ' + (S.dir[id]?.name || S.users[id]?.name) + '؟ سيختفي من الخريطة ويتوقف دخوله.', 'تعطيل')) await update(ref(db), { ['users/' + id + '/status']: 'disabled', ['directory/' + id]: null, ['locations/' + id]: null }); },
+  disable: async id => {
+    if (!(await ask('تعطيل حساب ' + (S.dir[id]?.name || S.users[id]?.name) + '؟ سيختفي من الخريطة ويتوقف دخوله.', 'تعطيل'))) return;
+    const ups = { ['users/' + id + '/status']: 'disabled', ['directory/' + id]: null, ['locations/' + id]: null };
+    Object.assign(ups, await dropIndex(id, S.users[id]?.phone));
+    await update(ref(db), ups);
+  },
   role: async id => { const to = S.users[id].role === 'admin' ? 'member' : 'admin'; if (await ask(to === 'admin' ? 'منح هذا الشخص صلاحية المشرف؟ سيرى مواقع الجميع.' : 'إلغاء صلاحية المشرف؟', 'تأكيد')) await update(ref(db, 'users/' + id), { role: to }); },
+  edit: id => editDialog(id),
   'inv-create': async () => {
     const note = $('inv-name').value.trim(), email = $('inv-email').value.trim(), phone = $('inv-phone').value.replace(/\D/g, '').replace(/^00/, '');
     const code = newCode(), inv = { note, email, phone, createdBy: S.uid, createdAt: Date.now(), expires: Date.now() + 7 * 864e5, used: false };
@@ -661,8 +977,13 @@ const ACTIONS = {
   'inv-del': async id => { if (await ask('حذف هذه الدعوة؟', 'حذف')) await remove(ref(db, 'invites/' + id)); },
   'acc-create': async () => {
     const name = $('new-name').value.trim(), email = $('new-email').value.trim(), pass = $('new-pass').value || Math.random().toString(36).slice(2, 10);
+    const phone = normPhone($('new-phone').value), by = parseYear($('new-birth').value);
     if (!name || !email) return toast('اكتب الاسم والبريد');
+    if (!phone) return toast('رقم الهاتف غير صحيح');
+    if (!by) return toast('سنة الميلاد غير صحيحة');
     if (pass.length < 6) return toast('كلمة السر 6 أحرف على الأقل');
+    const probe = await phoneHash(phone), taken = await get(ref(db, 'phoneIndex/' + probe));
+    if (taken.exists()) return toast('هذا الرقم مسجّل لحساب آخر');
     let app2, uid;
     try {
       app2 = initializeApp(CFG.firebase, 'secondary-' + Date.now());
@@ -670,9 +991,13 @@ const ACTIONS = {
       const cred = await createUserWithEmailAndPassword(a2, email, pass);
       uid = cred.user.uid; await signOut(a2);
     } catch (e) { return toast(authErr(e)); }
-    await update(ref(db), { ['users/' + uid]: { name, email, role: 'member', status: 'approved', createdAt: Date.now(), createdBy: S.uid }, ['directory/' + uid]: { name, color: rnd(), paused: false } });
+    await update(ref(db), {
+      ['users/' + uid]: { name, email, phone, birthYear: by, role: 'member', status: 'approved', createdAt: Date.now(), createdBy: S.uid },
+      ['directory/' + uid]: { name, color: rnd(), paused: false },
+      ['phoneIndex/' + probe]: { uid, name }
+    });
     $('new-result').innerHTML = `تم إنشاء الحساب. سلّمه هذه البيانات:<br><b dir="ltr">${esc(email)}</b><br><b dir="ltr">${esc(pass)}</b>`;
-    $('new-name').value = $('new-email').value = $('new-pass').value = '';
+    for (const id of ['new-name', 'new-email', 'new-pass', 'new-phone', 'new-birth']) $(id).value = '';
   },
   'st-save': async () => {
     await set(ref(db, 'settings/app'), { apkUrl: $('st-apk').value.trim(), mailEnabled: $('st-mail-on').checked, scriptUrl: $('st-script').value.trim(), senderName: $('st-sender').value.trim(), replyTo: $('st-reply').value.trim(), fromAlias: $('st-from').value.trim(), subject: $('st-subject').value.trim(), body: $('st-body').value });
@@ -685,6 +1010,11 @@ const ACTIONS = {
       const j = await (await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'ping', idToken }) })).json();
       toast(j.ok ? 'الاتصال سليم، المتبقي اليوم: ' + j.quota + ' إيميل' : 'خطأ: ' + j.error);
     } catch { toast('تعذر الوصول إلى السكربت، تحقق من الرابط وصلاحية النشر'); }
+  },
+  'prune-all': async () => {
+    if (!(await ask('حذف سجلات التنقل الأقدم من ' + PRUNE_DAYS + ' يوماً لجميع الأعضاء؟', 'حذف'))) return;
+    let n = 0; for (const u of Object.keys(S.dir)) { try { n += await prune(u); } catch {} }
+    toast('حُذف ' + n + ' يوم من السجل');
   }
 };
 document.addEventListener('click', async ev => {
@@ -696,17 +1026,21 @@ document.addEventListener('click', async ev => {
 function setTab(t) {
   S.tab = t;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  const mapMode = t === 'map' || t === 'history';
   $('t-people').hidden = t !== 'people'; $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
-  $('sheet').hidden = t !== 'map'; $('top').hidden = t !== 'map';
-  if (t === 'map' && S.map) setTimeout(() => S.map.invalidateSize(), 50);
+  $('sheet').hidden = t !== 'map'; $('hsheet').hidden = t !== 'history'; $('top').hidden = !mapMode;
+  if (!mapMode) $('style-menu').hidden = true;
+  if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
+  if (t !== 'history' && S.hl) S.hl.clearLayers();
   renderAll();
 }
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b) setTab(b.dataset.tab); };
 function renderAll() {
   if (!S.started) return;
-  renderMap(); renderSheet();
+  renderMap(); renderSheet(); updateBadge();
   if (S.tab === 'people') renderPeople();
   if (S.tab === 'me') renderMe();
+  if (S.tab === 'history') renderHistoryControls();
   if (S.tab === 'admin') { renderAdmin(); renderInvites(); }
 }
 
@@ -717,6 +1051,7 @@ const STEPS = [
   { id: 'bg', req: true, title: 'الموقع طوال الوقت', text: 'ليستمر الإرسال والشاشة مطفأة، افتح الأذونات ثم الموقع واختر «السماح طوال الوقت».', btn: 'فتح الإعداد', act: () => AndroidBridge.requestBackground(), done: s => s.bg },
   { id: 'notif', req: true, title: 'الإشعارات', text: 'يعرض أندرويد إشعاراً دائماً صغيراً ما دامت المشاركة تعمل. هذا شرط من النظام ويضمن بقاء الخدمة حيّة.', btn: 'السماح بالإشعارات', act: () => AndroidBridge.requestNotifications(), done: s => s.notif },
   { id: 'battery', req: false, title: 'عدم تقييد البطارية', text: 'اسمح للتطبيق بالعمل في الخلفية دون أن يوقفه توفير الطاقة. هذا يمنع انقطاع الموقع.', btn: 'السماح', act: () => AndroidBridge.ignoreBattery(), done: s => s.battery, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_battery', '1'), skipped: () => flag('skip_battery') },
+  { id: 'contacts', req: false, title: 'جهات الاتصال', text: 'ليجد التطبيق أهلك وأصدقاءك المشتركين من أرقام هاتفك. تبقى أسماء جهاتك على هاتفك، وتُرسل بصمات مشفّرة لأرقامك للمطابقة فقط.', btn: 'السماح', act: () => AndroidBridge.requestContacts(), done: s => s.contacts, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_contacts', '1'), skipped: () => flag('skip_contacts') },
   { id: 'auto', req: false, only: s => s.oem, title: 'التشغيل التلقائي', text: 'هاتفك من نوع يوقف التطبيقات في الخلفية. افتح الإعداد وفعّل «التشغيل التلقائي» أو «السماح بالعمل في الخلفية» لهذا التطبيق.', btn: 'فتح الإعداد', act: () => AndroidBridge.openAutoStart(), done: () => flag('auto_done'), skipLabel: 'تم، فعّلته', onSkip: () => localStorage.setItem('auto_done', '1'), skipped: () => false }
 ];
 function wizNext(s) { for (const st of STEPS) { if (st.only && !st.only(s)) continue; if (st.done(s)) continue; if (st.skipped && st.skipped()) continue; return st; } return null; }
@@ -738,7 +1073,7 @@ function renderWizard() {
   const go = $('wiz-go'); go.textContent = st.btn; go.onclick = () => st.act();
   const sk = $('wiz-skip'); sk.hidden = st.req; sk.textContent = st.skipLabel || ''; sk.onclick = () => { st.onSkip?.(); renderWizard(); };
 }
-$('btn-wiz').onclick = () => { localStorage.removeItem('skip_battery'); localStorage.removeItem('auto_done'); const s = nat(); if (s && wizNext(s)) openWizard(); else { toast('كل الإعدادات مكتملة'); startShare(); } };
+$('btn-wiz').onclick = () => { ['skip_battery', 'skip_contacts', 'auto_done'].forEach(k => localStorage.removeItem(k)); const s = nat(); if (s && wizNext(s)) openWizard(); else { toast('كل الإعدادات مكتملة'); startShare(); } };
 document.addEventListener('visibilitychange', () => { if (!document.hidden && isNative && S.started) ensureNative(); });
 </script>
 </body>
