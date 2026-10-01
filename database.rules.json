@@ -1,0 +1,135 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && ((root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved') || (auth.uid === $uid && !data.exists() && newData.child('role').val() === 'member' && (newData.child('status').val() === 'pending' || (newData.child('status').val() === 'approved' && root.child('invites').child(newData.child('inviteCode').val()).child('used').val() === false && root.child('invites').child(newData.child('inviteCode').val()).child('expires').val() > now))))",
+        ".validate": "newData.hasChildren(['name', 'role', 'status'])",
+        "phone": {
+          ".write": "auth != null && auth.uid === $uid && !data.exists()",
+          ".validate": "newData.isString() && newData.val().matches(/^[+][0-9]{9,15}$/)"
+        },
+        "birthYear": {
+          ".write": "auth != null && auth.uid === $uid && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 1920 && newData.val() <= 2100"
+        }
+      }
+    },
+    "directory": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+      "$uid": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (auth.uid === $uid || root.child('links').child(auth.uid).child($uid).val() === true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".validate": "newData.hasChildren(['name'])",
+        "paused": {
+          ".validate": "newData.isBoolean() && (newData.val() === false || (root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved') || (root.child('users').child($uid).child('birthYear').exists() && now / 31556952000 + 1970 - root.child('users').child($uid).child('birthYear').val() >= 18))"
+        }
+      }
+    },
+    "phoneIndex": {
+      "$hash": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.exists() && newData.child('uid').val() === auth.uid && (!data.exists() || data.child('uid').val() === auth.uid)) || (!newData.exists() && data.child('uid').val() === auth.uid))",
+        ".validate": "newData.hasChildren(['uid', 'name']) && $hash.matches(/^[0-9a-f]{64}$/)"
+      }
+    },
+    "links": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$other": {
+          ".read": "auth != null && auth.uid === $other",
+          ".write": "auth != null && auth.uid === $uid && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+          ".validate": "newData.val() === true"
+        }
+      }
+    },
+    "requests": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && ((auth.uid === $from && root.child('users').child($to).child('status').val() === 'approved') || (auth.uid === $to && !newData.exists()))",
+          ".validate": "newData.hasChildren(['name', 'ts'])"
+        }
+      }
+    },
+    "locations": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+      "$uid": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (auth.uid === $uid || (root.child('links').child($uid).child(auth.uid).val() === true && root.child('links').child(auth.uid).child($uid).val() === true && !(root.child('directory').child($uid).child('paused').val() === true) && root.child('users').child($uid).child('status').val() === 'approved'))",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".validate": "newData.hasChildren(['lat', 'lng', 'ts'])"
+      }
+    },
+    "history": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+      "$uid": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (auth.uid === $uid || (root.child('links').child($uid).child(auth.uid).val() === true && root.child('links').child(auth.uid).child($uid).val() === true && !(root.child('directory').child($uid).child('paused').val() === true)))",
+        "$day": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'approved' && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (auth.uid === $uid && (!newData.exists() || !(root.child('directory').child($uid).child('paused').val() === true))))",
+          ".validate": "$day.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)",
+          "$pid": {
+            ".validate": "newData.hasChildren(['lat', 'lng', 'ts'])",
+            "lat": {
+              ".validate": "newData.isNumber()"
+            },
+            "lng": {
+              ".validate": "newData.isNumber()"
+            },
+            "ts": {
+              ".validate": "newData.isNumber()"
+            },
+            "ets": {
+              ".validate": "newData.isNumber()"
+            },
+            "acc": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "invites": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+      "$code": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+        "used": {
+          ".write": "auth != null && data.val() === false && newData.val() === true && root.child('invites').child($code).child('expires').val() > now"
+        },
+        "usedBy": {
+          ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
+        }
+      }
+    },
+    "settings": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin' && root.child('users').child(auth.uid).child('status').val() === 'approved'"
+    },
+    "alerts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+        ".write": "auth != null && auth.uid === $uid && root.child('users').child(auth.uid).child('status').val() === 'approved'",
+        ".validate": "newData.hasChildren(['on', 'km'])",
+        "on": {
+          ".validate": "newData.isBoolean()"
+        },
+        "km": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2000"
+        },
+        "per": {
+          "$friend": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2000"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
