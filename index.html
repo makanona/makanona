@@ -237,6 +237,23 @@ window.APP_CONFIG = {
       <b>مشاركة الموقع مع الأهل</b>
       <p class="hint">موقعك مشارَك مع أهلك لسلامتك، ولا يمكن إيقافه من حساب الأطفال.</p>
     </div>
+    <div class="card" id="prox-card">
+      <div class="sw-row">
+        <div>
+          <b>تنبيه القرب</b>
+          <p class="hint">يصلك إشعار عندما يدخل أحد أصدقائك المتصلين نطاق المسافة التي تحددها حولك، أو يخرج منه.</p>
+        </div>
+        <label class="switch"><input type="checkbox" id="prox-on" aria-label="تنبيه القرب"><span></span></label>
+      </div>
+      <div id="prox-opts" hidden>
+        <label>المسافة بالكيلومتر (من 1 إلى 2000)<input id="prox-km" type="text" inputmode="numeric" dir="ltr" placeholder="50"></label>
+        <div class="acts" style="margin:8px 0">
+          <button class="btn sm" data-act="prox-pick" data-id="1">1</button><button class="btn sm" data-act="prox-pick" data-id="5">5</button><button class="btn sm" data-act="prox-pick" data-id="10">10</button><button class="btn sm" data-act="prox-pick" data-id="25">25</button><button class="btn sm" data-act="prox-pick" data-id="50">50</button><button class="btn sm" data-act="prox-pick" data-id="100">100</button><button class="btn sm" data-act="prox-pick" data-id="200">200</button>
+        </div>
+        <button class="btn primary" data-act="prox-save">حفظ المسافة</button>
+      </div>
+      <p class="hint" id="prox-note"></p>
+    </div>
     <div class="card" id="native-card" hidden>
       <b>حالة الإرسال من هذا الهاتف</b>
       <div id="native-status"></div>
@@ -368,7 +385,7 @@ $('brand').textContent = CFG.appName;
 const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
-  matches: [], matchDone: false, matchBusy: false, srch: null, myHash: null,
+  alerts: { on: false, km: 50 }, matches: [], matchDone: false, matchBusy: false, srch: null, myHash: null,
   meUn: null, unsubs: {}, linkUn: {}, dirUn: {}, locUn: {}, markers: {}, map: null, hl: null, base: [],
   fitted: false, registering: false, authMode: 'login', pickColor: null, tick: null, editId: null
 };
@@ -546,6 +563,7 @@ function startMain() {
     S.unsubs.invites = onValue(ref(db, 'invites'), s => { S.invites = s.val() || {}; renderInvites(); }, e => console.error('invites', e));
     S.unsubs.settings = onValue(ref(db, 'settings/app'), s => { S.settings = s.val() || {}; fillSettings(); renderInvites(); }, e => console.error('settings', e));
   } else syncWatch();
+  S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') renderProx(); pushProx(); }, e => console.error('alerts', e));
   S.tick = setInterval(() => { renderSheet(); if (S.tab === 'me') renderNative(); }, 10000);
   prune(S.uid).catch(() => {});
   if (isNative) ensureNative();
@@ -610,16 +628,13 @@ function visibleIds() {
 
 /* ---------- الخريطة وأنماطها ---------- */
 const OSM = '© OpenStreetMap';
-const CARTO = '© OpenStreetMap © CARTO';
 const ESRI = 'Tiles © Esri';
 const STYLES = {
   osm: { name: 'عادية (أسماء عربية)', layers: [['https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: OSM }]] },
-  voyager: { name: 'شوارع واضحة', layers: [['https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 20, subdomains: 'abcd', attribution: CARTO }]] },
   sat: { name: 'قمر صناعي', layers: [['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI }]] },
   hybrid: { name: 'هجين (قمر صناعي وأسماء)', layers: [
     ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI }],
-    ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }]] },
-  dark: { name: 'داكنة', layers: [['https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20, subdomains: 'abcd', attribution: CARTO }]] }
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }]] }
 };
 function setStyle(k) {
   if (!STYLES[k]) k = 'osm';
@@ -704,6 +719,19 @@ function renderHistoryControls() {
   }
   if (!$('h-day').value) $('h-day').value = dayKey(Date.now());
 }
+/* تنعيم المسار: قصّ الزوايا (Chaikin) فلا تظهر الانعطافات حادة، ولا يخرج الخط عن مسار النقاط */
+function chaikin(pts, iters) {
+  let p = pts;
+  for (let k = 0; k < iters && p.length > 2; k++) {
+    const q = [p[0]];
+    for (let i = 0; i < p.length - 1; i++) {
+      const a = p[i], b = p[i + 1];
+      q.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]);
+    }
+    q.push(p[p.length - 1]); p = q;
+  }
+  return p;
+}
 async function loadHistory() {
   const uid = $('h-user').value, day = $('h-day').value;
   if (!uid || !day) return;
@@ -717,7 +745,7 @@ async function loadHistory() {
 
   const color = S.dir[uid]?.color || '#3A6EA5';
   let cur = [[pts[0].lat, pts[0].lng]], dist = 0;
-  const flush = () => { if (cur.length > 1) L.polyline(cur, { color, weight: 5, opacity: .9 }).addTo(S.hl); };
+  const flush = () => { if (cur.length > 1) L.polyline(chaikin(cur, cur.length > 400 ? 2 : 3), { color, weight: 5, opacity: .9, smoothFactor: 0.5, lineJoin: 'round', lineCap: 'round' }).addTo(S.hl); };
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b);
     if (gap > 15 * 60e3 && d > 1000) { flush(); L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color, weight: 3, opacity: .6, dashArray: '6 8' }).addTo(S.hl); cur = [[b.lat, b.lng]]; }
@@ -756,6 +784,7 @@ function renderPeople() {
   }).join('') : '<p class="hint">لم تضف أحداً بعد. ابحث عن شخص برقمه، أو اختر من جهات اتصالك.</p>') + '</div>';
   $('people-list').innerHTML = html;
   renderContacts();
+  if (S.srch) showSearch(S.srch);
 }
 function renderContacts() {
   $('contacts-card').hidden = !isNative;
@@ -768,6 +797,14 @@ function renderContacts() {
   else if (S.matchDone && !S.matchBusy) h += '<p class="hint">لا يوجد مشتركون جدد من جهات اتصالك. احفظ رقم الشخص عندك ثم اضغط «تحديث».</p>';
   else if (!S.matchBusy) h += '<p class="hint">اضغط «تحديث» لمطابقة جهات اتصالك مع المشتركين.</p>';
   $('contacts-body').innerHTML = h;
+}
+function showSearch(v) {
+  const u = v.uid; let sub = '', btn = '';
+  if (connected(u)) sub = '<div class="st on">مضاف إلى قائمتك، والاتصال متبادل</div>';
+  else if (S.mine[u]) sub = '<div class="st">مضاف إلى قائمتك، بانتظار موافقته</div>';
+  else if (S.reqs[u]) { sub = '<div class="st">طلب رؤية موقعك</div>'; btn = `<button class="btn sm primary" data-act="accept" data-id="${esc(u)}">قبول</button>`; }
+  else btn = `<button class="btn sm primary" data-act="add" data-id="${esc(u)}">إرسال طلب</button>`;
+  $('srch-result').innerHTML = prow(v.name, null, sub, btn);
 }
 async function refreshContacts() {
   const s = nat(); if (!s || !s.contacts) return toast('اسمح بجهات الاتصال أولاً');
@@ -794,8 +831,29 @@ function renderMe() {
   $('me-pause').checked = d.paused === true;
   $('pause-card').hidden = S.minor; $('minor-note').hidden = !S.minor;
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
+  renderProx();
   renderNative();
 }
+function renderProx() {
+  const a = S.alerts || { on: false, km: 50 };
+  if (document.activeElement !== $('prox-km')) $('prox-km').value = a.km || 50;
+  $('prox-on').checked = !!a.on; $('prox-opts').hidden = !a.on;
+  $('prox-note').textContent = isNative
+    ? 'يعمل التنبيه من خدمة التطبيق حتى لو كان مغلقاً. المسافة بخط مستقيم، وقد يتأخر التنبيه من دقيقة إلى 10 دقائق حسب بعد الأصدقاء عن حدّك. لا يصلك تنبيه عن صديق أوقف المشاركة.'
+    : 'يصلك التنبيه على هاتف أندرويد الذي فيه التطبيق. يمكنك ضبط الإعداد من هنا.';
+}
+async function saveProx(on, kmRaw) {
+  const km = Number(toLatin(kmRaw));
+  if (!(km >= 1 && km <= 2000)) { toast('اكتب مسافة من 1 إلى 2000 كم'); return false; }
+  await update(ref(db), { ['alerts/' + S.uid + '/on']: on, ['alerts/' + S.uid + '/km']: km });
+  return true;
+}
+function pushProx() { if (!isNative) return; const a = S.alerts || {}; try { window.AndroidBridge.setProximity(!!a.on, Number(a.km) || 50); } catch {} }
+$('prox-on').onchange = async e => {
+  const on = e.target.checked;
+  try { if (await saveProx(on, $('prox-km').value || 50)) toast(on ? 'تم تفعيل تنبيه القرب' : 'تم إيقاف تنبيه القرب'); else e.target.checked = !on; }
+  catch { toast('تعذر الحفظ'); e.target.checked = !on; }
+};
 function renderNative() {
   if (!isNative) return;
   const s = nat(); if (!s) return;
@@ -928,7 +986,7 @@ const ACTIONS = {
     const me = S.dir[S.uid] || {};
     await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${id}/${S.uid}`]: { name: me.name || S.me.name, color: me.color || COLORS[0], ts: Date.now() } });
     toast('أُرسل الطلب. يظهر الشخص على خريطتك بعد موافقته.');
-    if (S.srch && S.srch.uid === id) { S.srch = null; $('srch-result').innerHTML = ''; }
+    if (S.srch && S.srch.uid === id) setTimeout(() => showSearch(S.srch), 700);
   },
   accept: async id => { await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${S.uid}/${id}`]: null }); toast('تمت الموافقة'); },
   decline: async id => { await remove(ref(db, `requests/${S.uid}/${id}`)); },
@@ -941,6 +999,8 @@ const ACTIONS = {
     let n = 0; const t = setInterval(() => { const s = nat(); if ((s && s.contacts) || ++n > 40) { clearInterval(t); if (s && s.contacts) refreshContacts(); else renderContacts(); } }, 800);
   },
   'refresh-contacts': () => refreshContacts(),
+  'prox-pick': async id => { $('prox-km').value = id; if (await saveProx($('prox-on').checked, id)) toast('تم حفظ المسافة: ' + id + ' كم'); },
+  'prox-save': async () => { if (await saveProx($('prox-on').checked, $('prox-km').value)) toast('تم حفظ المسافة'); },
   srch: async () => {
     const p = normPhone($('srch-phone').value);
     if (!p) return toast('رقم غير صحيح');
@@ -948,9 +1008,8 @@ const ACTIONS = {
     const sn = await get(ref(db, 'phoneIndex/' + await phoneHash(p)));
     if (!sn.exists() || sn.val().uid === S.uid) { S.srch = null; $('srch-result').innerHTML = '<p class="hint">لا يوجد مشترك بهذا الرقم.</p>'; return; }
     const v = sn.val(); S.srch = { uid: v.uid, name: v.name };
-    const st = connected(v.uid) ? '<span class="badge ok">متصل</span>' : S.mine[v.uid] ? '<span class="badge warn">بانتظار موافقته</span>' : '';
-    const btn = (S.mine[v.uid] || S.reqs[v.uid]) ? '' : `<button class="btn sm primary" data-act="add" data-id="${esc(v.uid)}">إرسال طلب</button>`;
-    $('srch-result').innerHTML = prow(v.name, null, st, btn);
+    if (S.mine[v.uid]) toast(v.name + ' مضاف إلى قائمتك');
+    showSearch(S.srch);
   },
   approve: id => approveUser(id),
   enable: id => approveUser(id),
