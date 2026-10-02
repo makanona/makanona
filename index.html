@@ -117,6 +117,20 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .pin.stale{filter:grayscale(.85);opacity:.8}
 .tag{position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#fff;padding:1px 8px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 1px 4px #0004;color:var(--ink)}
 .leaflet-container{font-family:inherit}
+.mv{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:var(--ok);margin-inline-start:6px;white-space:nowrap}
+.mv svg,.tag svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tag small{display:block;text-align:center;font-weight:600;font-size:10px;color:var(--ink2)}
+.tag small svg{width:11px;height:11px;vertical-align:-2px}
+.fab.sos{color:var(--bad);font-weight:800;font-size:12px}
+.fab.sos.hold{background:var(--bad);color:#fff;transition:background 1.8s linear}
+#sos-bar{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(100px + env(safe-area-inset-top,0px));z-index:510;display:flex;flex-direction:column;gap:6px}
+.sosrow{background:var(--bad);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
+.sosrow span{flex:1;min-width:0}
+.sosrow .btn{padding:5px 10px;font-size:12px;background:#fff;color:var(--bad);border-color:#fff}
+#pick-bar{position:absolute;inset-inline:12px;top:calc(12px + env(safe-area-inset-top,0px));z-index:520;background:var(--ink);color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center}
+#pick-bar span{flex:1}
+#pick-bar .btn{padding:6px 10px;font-size:12px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#E9F0F7;font-size:12px;font-weight:600}
 .pwwrap{position:relative;display:block}
 .pwwrap input{padding-inline-end:46px}
 .pw-eye{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--ink2)}
@@ -141,6 +155,41 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 #h-tlabel{text-align:center;font-weight:600}
 </style>
 <script>
+/* تشخيص: يعمل حتى لو فشل تحميل مكتبات Firebase */
+window.__boot = { t0: Date.now(), errors: [], ok: false };
+window.__err = function (m) { try { var e = window.__boot.errors; e.push(String(m).slice(0, 200)); if (e.length > 12) e.shift(); } catch (x) {} };
+window.addEventListener('error', function (e) { window.__err((e.message || 'error') + ' @' + String(e.filename || '').split('/').pop() + ':' + (e.lineno || '')); });
+window.addEventListener('unhandledrejection', function (e) { window.__err('promise: ' + ((e.reason && e.reason.message) || e.reason)); });
+window.__diagText = function () {
+  var b = window.__boot, L1 = [];
+  L1.push('إصدار الواجهة: ' + (window.__ui || 'غير محمّلة'));
+  L1.push('الوحدة الرئيسية: ' + (window.__moduleLoaded ? 'عملت' : 'لم تعمل (فشل تحميل مكتبات Firebase أو خطأ في الصفحة)'));
+  L1.push('الخريطة (Leaflet): ' + (typeof L !== 'undefined' ? 'محمّلة' : 'غير محمّلة'));
+  L1.push('الإنترنت: ' + (navigator.onLine ? 'متصل' : 'غير متصل'));
+  L1.push('المتصفح: ' + navigator.userAgent);
+  try { if (window.AndroidBridge) L1.push('التطبيق: ' + window.AndroidBridge.status()); } catch (x) {}
+  try { if (window.__diagExtra) L1.push(window.__diagExtra()); } catch (x) {}
+  L1.push('الأخطاء: ' + (b.errors.length ? b.errors.join(' | ') : 'لا شيء'));
+  L1.push('الزمن منذ الفتح: ' + Math.round((Date.now() - b.t0) / 1000) + ' ث');
+  return L1.join('\n');
+};
+setTimeout(function () {
+  if (window.__boot.ok) return;
+  var m = document.getElementById('modal'); if (m && !m.hidden) return;
+  var d = document.getElementById('v-diag'); if (!d) return;
+  document.getElementById('diag-text').textContent = window.__diagText();
+  d.hidden = false;
+}, 15000);
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('diag-retry').onclick = function () { location.reload(); };
+  document.getElementById('diag-copy').onclick = function () {
+    var t = window.__diagText();
+    try { navigator.clipboard.writeText(t); } catch (x) {}
+    document.getElementById('diag-copy').textContent = 'تم النسخ';
+  };
+});
+</script>
+<script>
 /* ====== الإعدادات: عدّلها مرة واحدة فقط ====== */
 window.APP_CONFIG = {
   appName: "مكاننا",
@@ -156,6 +205,16 @@ window.APP_CONFIG = {
 </script>
 </head>
 <body>
+
+<div id="v-diag" class="view" hidden style="z-index:2000;background:var(--bg)">
+  <div class="auth">
+    <h2>تعذر إكمال تشغيل التطبيق</h2>
+    <p class="lead">لم تكتمل بداية الصفحة خلال 15 ثانية. هذا ملخص يساعد في معرفة السبب.</p>
+    <pre id="diag-text" style="white-space:pre-wrap;direction:ltr;text-align:left;font-size:12px;background:#fff;border-radius:12px;padding:10px;max-height:40vh;overflow:auto;margin:0"></pre>
+    <button class="btn primary block" id="diag-retry">إعادة المحاولة</button>
+    <button class="btn block" id="diag-copy">نسخ التشخيص</button>
+  </div>
+</div>
 
 <div id="v-loading" class="view center"><div class="spin" role="status" aria-label="جارٍ التحميل"></div></div>
 
@@ -226,7 +285,11 @@ window.APP_CONFIG = {
   <div id="fabs">
     <button class="fab" id="btn-style" aria-label="نمط الخريطة"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="fab" id="btn-fit" aria-label="عرض الجميع"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
+    <button class="fab sos" id="btn-sos" aria-label="استغاثة SOS">SOS</button>
   </div>
+  <div id="pick-bar" hidden><span>اضغط على الخريطة لتحديد المكان</span><button class="btn sm" data-act="pick-me">موقعي</button><button class="btn sm" data-act="pick-cancel">إلغاء</button></div>
+  <div id="sos-bar"></div>
   <div id="send-bar" hidden><span>الإرسال متوقف: موقعك لا يصل للعائلة.</span><button class="btn sm" data-act="send-fix">إعداد</button></div>
   <div id="style-menu" hidden></div>
 
@@ -264,8 +327,10 @@ window.APP_CONFIG = {
     </div>
     <div class="pbtns">
       <button class="btn sm" id="p-hist-btn" data-act="p-hist">السجل</button>
+      <button class="btn sm" id="p-wa" data-act="p-wa" hidden>راسله واتساب</button>
       <span class="pchip" id="p-dist" hidden></span>
     </div>
+    <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b>الموقع مطفأ في هاتفه</b><span class="hint">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
     <div id="p-trip"></div>
   </div>
 
@@ -299,6 +364,11 @@ window.APP_CONFIG = {
       <b>مشاركة الموقع مع الأهل</b>
       <p class="hint">موقعك مشارَك مع أهلك لسلامتك، ولا يمكن إخفاؤه عن أحد من حساب الأطفال.</p>
     </div>
+    <div class="card" id="photo-card">
+      <div class="phead"><div class="av" id="me-av"></div><div class="grow"><b>صورتي</b><p class="hint">اختيارية وصغيرة الحجم، وتظهر لأصدقائك بدل الحرف.</p></div></div>
+      <div class="acts"><button class="btn sm" data-act="photo-pick">اختيار صورة</button><button class="btn sm danger" data-act="photo-del">إزالة</button></div>
+      <input type="file" id="photo-file" accept="image/*" hidden>
+    </div>
     <div class="card" id="lim-note" hidden>
       <b>حسابك قيد الاعتماد</b>
       <p class="hint">التطبيق يعمل ويظهر موقعك للمشرف. تتفعل بقية الميزات (الأصدقاء والبحث والسجل وتنبيه القرب) بعد أن يعتمد المشرف حسابك.</p>
@@ -320,6 +390,25 @@ window.APP_CONFIG = {
       </div>
       <p class="hint" id="prox-note"></p>
     </div>
+    <div class="card" id="alerts-card">
+      <b>تنبيهات أخرى عن أصدقائك</b>
+      <p class="hint">يفحصها هاتفك على مواقع أصدقائك المتصلين، فقد يتأخر التنبيه من دقيقة إلى 10 دقائق. لا يصلك شيء عمّن أخفى موقعه عنك.</p>
+      <div class="sw-row"><span>بطارية ضعيفة</span><label class="switch"><input type="checkbox" id="al-bat-on" aria-label="بطارية ضعيفة"><span></span></label></div>
+      <label>عند نزولها إلى (٪)<input id="al-bat-pct" inputmode="numeric" dir="ltr" placeholder="15"></label>
+      <div class="sw-row"><span>عدم نشاط (لم يتحدّث موقعه)</span><label class="switch"><input type="checkbox" id="al-idle-on" aria-label="عدم نشاط"><span></span></label></div>
+      <label>بعد (ساعات)<input id="al-idle-hrs" inputmode="numeric" dir="ltr" placeholder="3"></label>
+      <div class="sw-row"><span>بدء القيادة</span><label class="switch"><input type="checkbox" id="al-drive-on" aria-label="بدء القيادة"><span></span></label></div>
+      <div class="sw-row"><span>سرعة عالية</span><label class="switch"><input type="checkbox" id="al-speed-on" aria-label="سرعة عالية"><span></span></label></div>
+      <label>عند تجاوز (كم/س)<input id="al-speed-kmh" inputmode="numeric" dir="ltr" placeholder="120"></label>
+      <div class="sw-row"><span>استقبال استغاثة SOS من أصدقائك</span><label class="switch"><input type="checkbox" id="al-sos-on" aria-label="استقبال SOS"><span></span></label></div>
+      <button class="btn primary" data-act="al-save">حفظ التنبيهات</button>
+    </div>
+    <div class="card" id="places-card">
+      <b>أماكني</b>
+      <p class="hint">احفظ البيت أو المدرسة أو العمل، فيصلك تنبيه عند وصول أي صديق متصل إليه أو مغادرته.</p>
+      <div id="places-list"></div>
+      <button class="btn" data-act="pl-add">إضافة مكان</button>
+    </div>
     <div class="card" id="native-card" hidden>
       <b>حالة الإرسال من هذا الهاتف</b>
       <div id="native-status"></div>
@@ -336,8 +425,11 @@ window.APP_CONFIG = {
     </div>
     <div class="card">
       <p class="hint" id="ver-line"></p>
+      <a class="link" href="privacy.html" target="_blank">سياسة الخصوصية</a>
+      <button class="btn" data-act="diag-send">إرسال بيانات التشخيص للمشرف</button>
       <button id="btn-pw" class="btn">إرسال رابط تغيير كلمة السر</button>
       <button id="btn-out2" class="btn danger">تسجيل الخروج</button>
+      <button class="btn danger" data-act="del-open">حذف حسابي نهائياً</button>
     </div>
   </div>
 
@@ -434,12 +526,36 @@ window.APP_CONFIG = {
     <div class="acts"><button id="ed-ok" class="btn primary">حفظ</button><button id="ed-no" class="btn">إلغاء</button></div>
   </div>
 </div>
+<div id="modal-nick" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="nick-title">اسم مستعار</b>
+    <label>يظهر عندك وحدك<input id="nick-in" maxlength="40"></label>
+    <div class="acts"><button id="nick-ok" class="btn primary">حفظ</button><button id="nick-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
+<div id="modal-place" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b>مكان جديد</b>
+    <label>الاسم<input id="pl-name" maxlength="40" placeholder="البيت"></label>
+    <label>نصف القطر بالمتر (من 100 إلى 5000)<input id="pl-r" inputmode="numeric" dir="ltr" value="200"></label>
+    <div class="acts"><button id="pl-ok" class="btn primary">حفظ</button><button id="pl-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
+<div id="modal-del" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b style="color:var(--bad)">حذف الحساب نهائياً</b>
+    <p class="hint" style="margin:0">سيُحذف حسابك وموقعك وسجل تنقلاتك وإعداداتك وصورتك، ولا يمكن التراجع. اكتب كلمة السر للتأكيد.</p>
+    <span class="pwwrap"><input id="del-pass" type="password" dir="ltr" autocomplete="current-password"><button type="button" class="pw-eye" data-eye="del-pass" aria-label="إظهار كلمة السر"></button></span>
+    <p id="del-err" class="err" role="alert"></p>
+    <div class="acts"><button id="del-ok" class="btn danger">حذف نهائي</button><button id="del-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
 <div id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const CFG = window.APP_CONFIG;
@@ -449,7 +565,8 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '7';
+const UI_VERSION = '8';
+window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
 const DEFAULT_BODY = 'مرحباً {name}،\nتمت دعوتك للانضمام إلى تطبيق {app}.\n١) حمّل التطبيق من: {apk}\n٢) اختر «تسجيل جديد» وأدخل رمز الدعوة: {code}\nالرمز صالح لمدة ٧ أيام.';
@@ -466,6 +583,7 @@ $('brand').textContent = CFG.appName;
 const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
+  nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
   hides: {}, upd: {}, updDismissed: false, mineLoaded: false, migrated: false, tickN: 0, sheetMin: false, hMin: false,
@@ -496,7 +614,7 @@ function ago(ts) {
   return Math.round(s / 86400) + ' يوم';
 }
 const fmtDate = ts => new Date(ts).toLocaleDateString('ar', { day: 'numeric', month: 'short' });
-function showView(v) { for (const id of ['loading', 'auth', 'profile', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; }
+function showView(v) { for (const id of ['loading', 'auth', 'profile', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; if (v !== 'loading') { window.__boot.ok = true; $('v-diag').hidden = true; } }
 function authErr(e) {
   if (!e.code) return e.message || 'تعذر تنفيذ الطلب';
   const m = {
@@ -747,10 +865,17 @@ function startMain() {
     S.unsubs.settings = onValue(ref(db, 'settings/app'), s => { S.settings = s.val() || {}; fillSettings(); renderInvites(); }, e => console.error('settings', e));
   } else { syncWatch(); if (S.limited) syncLocs(); }
   if (!S.limited) {
-    S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') renderProx(); pushProx(); }, e => console.error('alerts', e));
+    S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') { renderProx(); renderAlerts(); } pushProx(); }, e => console.error('alerts', e));
     S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; if (S.tab === 'people') renderPeople(); }, e => console.error('hide', e));
   }
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; renderUpdate(); }, e => console.error('upd', e));
+  $('btn-sos').hidden = S.limited;
+  try { S.sosOut = JSON.parse(localStorage.getItem('sosOut') || 'null'); } catch { S.sosOut = null; }
+  if (!S.limited) {
+    S.unsubs.places = onValue(ref(db, 'places/' + S.uid), s => { S.places = s.val() || {}; renderPlaces(); pushAlerts(); }, e => console.error('places', e));
+    S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
+    S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { S.sosIn = s.val() || {}; renderSosBar(); }, e => console.error('sosIn', e));
+  }
   let mn = false; try { mn = localStorage.getItem('sheetMin') === '1'; } catch {}
   setSheetMin(mn);
   S.tick = setInterval(() => { S.tickN++; if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
@@ -763,7 +888,7 @@ function stopMain() {
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
-  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false;
+  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false;
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null;
 }
 function cleanup(all) {
@@ -838,7 +963,7 @@ function setStyle(k) {
 }
 function syncMarks() {
   if (!S.map || !S.hmk) return;
-  const on = S.map.getZoom() >= 12;
+  const on = S.map.getZoom() >= 10;
   if (on && !S.map.hasLayer(S.hmk)) S.hmk.addTo(S.map); else if (!on && S.map.hasLayer(S.hmk)) S.map.removeLayer(S.hmk);
 }
 function initMap() {
@@ -847,13 +972,32 @@ function initMap() {
   S.hl = L.layerGroup().addTo(S.map);
   S.hsel = L.layerGroup().addTo(S.map);
   S.hmk = L.layerGroup();
+  S.plg = L.layerGroup().addTo(S.map);
   S.map.on('zoomend', syncMarks);
+  S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng); });
   let k = 'osm'; try { k = localStorage.getItem('mapStyle') || 'osm'; } catch {}
   setStyle(k);
   setTimeout(() => S.map.invalidateSize(), 100);
 }
 $('btn-style').onclick = () => { $('style-menu').hidden = !$('style-menu').hidden; };
 $('btn-fit').onclick = () => fitAll();
+
+/* ---------- أسماء مستعارة، صور، ونوع الحركة ---------- */
+const dispName = id => (S.nick && S.nick[id]) || S.dir[id]?.name || '—';
+const avStyle = d => { const c = esc(d?.color || '#3A6EA5'); return d?.photo ? `--c:${c};background-image:url('${d.photo}');background-size:cover;background-position:center` : `--c:${c}`; };
+const avText = d => d?.photo ? '' : esc(initial(d?.name));
+const ICON = {
+  car: '<svg viewBox="0 0 24 24"><path d="M3 14l2-6a2 2 0 011.9-1.4h10.2A2 2 0 0119 8l2 6v4h-2v-1.5H5V18H3z"/><circle cx="7.5" cy="14" r="1"/><circle cx="16.5" cy="14" r="1"/></svg>',
+  bike: '<svg viewBox="0 0 24 24"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-8h5l3 8M10 8H8M13 8l-2.5 8"/></svg>',
+  walk: '<svg viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.7"/><path d="M12 8l-2.5 4 2.5 2v6M12 8l3 3h2.5M9.5 12L7 14.5M12 14l3 6"/></svg>'
+};
+function moveMode(l) {
+  if (!l || typeof l.spd !== 'number' || typeof l.ts !== 'number' || Date.now() - l.ts > 180000 || l.off === true) return null;
+  const k = l.spd * 3.6; if (k < 4) return null;
+  return { mode: k < 7 ? 'walk' : k <= 25 ? 'bike' : 'car', kmh: Math.round(k) };
+}
+function mvHtml(l) { const m = moveMode(l); return m ? `<span class="mv" title="${MODE[m.mode]}">${ICON[m.mode]}${m.kmh} كم/س</span>` : ''; }
+const phoneOf = id => String(S.users[id]?.phone || (S.phones[id] ? '+' + S.phones[id] : '')).replace(/\D/g, '');
 
 /* ---------- العنوان (حي أو شارع) من OpenStreetMap Nominatim ---------- */
 const ADDR = { cache: {}, fail: {}, q: [], busy: false, asked: new Set(), last: {} };
@@ -912,8 +1056,10 @@ const fmtKm = m => m < 1000 ? Math.round(m) + ' م' : (m / 1000).toFixed(1) + ' 
 const fmtDur = ms => { const m = Math.max(1, Math.round(ms / 60000)); return m < 60 ? m + ' دقيقة' : Math.floor(m / 60) + ' س و' + (m % 60) + ' د'; };
 
 function pinIcon(id, l) {
-  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000;
-  const html = `<div class="pin${stale ? ' stale' : ''}" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="tag">${esc(id === S.uid ? 'أنا' : (d.name || ''))}</div>`;
+  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = moveMode(l);
+  const nm = id === S.uid ? 'أنا' : dispName(id);
+  const sub = m ? `<small>${ICON[m.mode]}${m.kmh} كم/س</small>` : (stale ? `<small>قبل ${esc(ago(l.ts))}</small>` : '');
+  const html = `<div class="pin${stale ? ' stale' : ''}" style="${avStyle(d)}">${avText(d)}</div><div class="tag">${esc(nm)}${sub}</div>`;
   return L.divIcon({ className: '', html, iconSize: [38, 38], iconAnchor: [19, 19] });
 }
 function renderMap() {
@@ -938,30 +1084,29 @@ function fitAll() {
 function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat, l.lng], 16, { duration: .8 }); }
 
 function describe(id) {
-  const l = S.locs[id], d = S.dir[id] || {};
+  const l = S.locs[id];
   let txt, cls = '';
   if (id !== S.uid && !S.isAdmin && S.hidden[id]) return { txt: 'لا يشارك موقعه الآن', cls: 'off' };
   if (!l || typeof l.ts !== 'number') txt = 'لا توجد بيانات بعد';
-  else if (Date.now() - l.ts < 180000) {
-    cls = 'on'; txt = 'متصل الآن';
-    const kmh = Math.round((l.spd || 0) * 3.6);
-    if (kmh >= 4) txt += '، يتحرك بسرعة ' + kmh + ' كم/س';
-  } else { cls = 'off'; txt = 'آخر ظهور قبل ' + ago(l.ts); }
+  else if (l.off === true) { cls = 'off'; txt = 'الموقع مطفأ في هاتفه'; }
+  else if (Date.now() - l.ts < 180000) { cls = 'on'; txt = 'متصل الآن'; }
+  else { cls = 'off'; txt = 'آخر ظهور قبل ' + ago(l.ts); }
   return { txt, cls };
 }
 function renderSheet() {
   const ids = visibleIds().sort((a, b) => (a === S.uid ? -1 : b === S.uid ? 1 : 0));
   let online = 0; const rows = [], avs = [];
   for (const id of ids) {
-    const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), name = id === S.uid ? 'أنا' : (d.name || '—');
+    const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), name = id === S.uid ? 'أنا' : dispName(id);
     if (ds.cls === 'on') online++;
+    const off = l && l.off === true;
     const lowBat = l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 15 && !l.chg;
     const stale = l && typeof l.ts === 'number' && Date.now() - l.ts > 30 * 60e3;
-    const warn = (lowBat || stale) ? `<span class="warn-ic" title="${lowBat ? 'بطارية ضعيفة' : 'انقطع تحديث موقعه'}">!</span>` : '';
+    const warn = (off || lowBat || stale) ? `<span class="warn-ic" title="${off ? 'الموقع مطفأ في هاتفه' : lowBat ? 'بطارية ضعيفة' : 'انقطع تحديث موقعه'}">!</span>` : '';
     const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? `بطارية ${l.bat}%${l.chg ? ' ⚡' : ''}` : '';
     const ad = addrOf(id);
-    rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div><div class="grow"><div class="nm">${esc(name)}${warn}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
-    avs.push(`<button class="avb" style="--c:${esc(d.color || '#3A6EA5')};--ring:${ds.cls === 'on' ? '#2F8F6B' : '#C9D3D7'}" data-act="focus" data-id="${esc(id)}" aria-label="${esc(name)}">${esc(initial(d.name))}</button>`);
+    rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${mvHtml(l)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
+    avs.push(`<button class="avb" style="${avStyle(d)};--ring:${ds.cls === 'on' ? '#2F8F6B' : '#C9D3D7'}" data-act="focus" data-id="${esc(id)}" aria-label="${esc(name)}">${avText(d)}</button>`);
   }
   $('chip').textContent = online + ' متصل من ' + ids.length;
   let extra = '';
@@ -970,6 +1115,7 @@ function renderSheet() {
   $('sheet-av').innerHTML = avs.join('');
   $('sheet-list').innerHTML = rows.join('') + extra;
   if (S.person) renderPerson();
+  renderSosBar();
 }
 function applyTabVisibility() {
   const mapTab = S.tab === 'map';
@@ -986,12 +1132,14 @@ function renderPerson() {
   const id = S.person; if (!id) return;
   $('p-hist-btn').hidden = S.limited;
   const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), me = S.locs[S.uid];
-  $('p-av').textContent = initial(d.name); $('p-av').style.setProperty('--c', d.color || '#3A6EA5');
-  $('p-name').textContent = id === S.uid ? 'أنا' : (d.name || '—');
+  $('p-av').textContent = d.photo ? '' : initial(d.name); $('p-av').style.cssText = avStyle(d);
+  $('p-name').innerHTML = esc(id === S.uid ? 'أنا' : dispName(id)) + mvHtml(l);
   $('p-st').textContent = ds.txt; $('p-st').className = 'st ' + ds.cls;
   $('p-addr').textContent = addrOf(id);
   const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
+  $('p-off').hidden = !(l && l.off === true);
+  $('p-wa').hidden = !(id !== S.uid && phoneOf(id));
   if (id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = 'المسافة منك ' + fmtKm(haversine(me, l)); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
 }
@@ -1075,11 +1223,21 @@ function posAt(t) {
   const l = pts[pts.length - 1]; return { lat: l.lat, lng: l.lng, spd: 0 };
 }
 function scrub(v) {
-  if (!S.hpts.length) return;
-  const t = S.hpts[0].ts + v * 1000, pos = posAt(t), d = S.dir[S.huid] || {};
-  const icon = L.divIcon({ className: '', html: `<div class="pin" style="--c:${esc(d.color || '#3A6EA5')}">${esc(initial(d.name))}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
-  if (!S.hmark) S.hmark = L.marker([pos.lat, pos.lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else { S.hmark.setLatLng([pos.lat, pos.lng]); }
-  $('h-tlabel').textContent = fmtTime(t) + (pos.spd >= 4 ? '، ' + Math.round(pos.spd) + ' كم/س' : '');
+  const pts = S.hpts; if (pts.length < 2 || !S.hcum) return;
+  const total = S.hcum[S.hcum.length - 1], dist = total * (v / 1000);
+  let i = 1; while (i < pts.length - 1 && S.hcum[i] < dist) i++;
+  const a = pts[i - 1], b = pts[i], c0 = S.hcum[i - 1], c1 = S.hcum[i];
+  const f = c1 > c0 ? Math.min(1, Math.max(0, (dist - c0) / (c1 - c0))) : 0;
+  const a1 = a.ets || a.ts, t = a1 + f * (b.ts - a1);
+  const lat = a.lat + (b.lat - a.lat) * f, lng = a.lng + (b.lng - a.lng) * f;
+  const gap = b.ts - a1, dd = haversine(a, b), spd = (gap > 0 && c1 > c0) ? dd / (gap / 1000) * 3.6 : 0;
+  const d = S.dir[S.huid] || {};
+  const icon = L.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d)}">${avText(d)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
+  if (!S.hmark) S.hmark = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([lat, lng]);
+  let txt = fmtTime(t) + (spd >= 4 ? '، ' + Math.round(spd) + ' كم/س' : '');
+  const st = pts.find(p => p.ets && p.ets - p.ts >= 5 * 60e3 && haversine(p, { lat, lng }) < 40);
+  if (st) txt = 'وقفة من ' + fmtTime(st.ts) + ' إلى ' + fmtTime(st.ets);
+  $('h-tlabel').textContent = txt;
 }
 $('h-slider').oninput = e => scrub(+e.target.value);
 const fmtFull = ts => new Date(ts).toLocaleString('ar', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
@@ -1088,12 +1246,29 @@ function addMarks(an) {
   S.hmk.clearLayers();
   for (const it of an.items) {
     if (it.type !== 'trip') continue;
-    const hrs = it.dur / 3600e3, step = (hrs < 1 ? 10 : hrs <= 4 ? 15 : 30) * 60e3;
+    const hrs = it.dur / 3600e3, step = (hrs < 2 ? 5 : hrs <= 6 ? 10 : 20) * 60e3;
     for (let t = it.t0 + step; t < it.t1 - step / 3; t += step) {
       const p = posAt(t);
-      L.circleMarker([p.lat, p.lng], { radius: 5, color: '#fff', weight: 2, fillColor: '#10272F', fillOpacity: 1 }).bindPopup('<b>' + esc(fmtFull(t)) + '</b>').addTo(S.hmk);
+      L.circleMarker([p.lat, p.lng], { radius: 6, color: '#fff', weight: 2, fillColor: '#10272F', fillOpacity: 1 }).bindPopup('<b>' + esc(fmtFull(t)) + '</b>').addTo(S.hmk);
     }
   }
+}
+/* الضغط على أي مكان من الخط يعرض وقت المرور وسرعة تقديرية */
+function onRouteClick(e) {
+  const pts = S.hpts; if (pts.length < 2) return;
+  const k = Math.cos(e.latlng.lat * Math.PI / 180);
+  let best = null;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    const ax = (a.lng - e.latlng.lng) * k, ay = a.lat - e.latlng.lat, bx = (b.lng - e.latlng.lng) * k, by = b.lat - e.latlng.lat;
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+    const f = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+    const px = ax + f * dx, py = ay + f * dy, d = px * px + py * py;
+    if (!best || d < best.d) best = { d, i, f };
+  }
+  const a = pts[best.i - 1], b = pts[best.i], a1 = a.ets || a.ts, gap = b.ts - a1, dd = haversine(a, b);
+  const t = a1 + best.f * gap, kmh = (gap > 0 && !(gap > 15 * 60e3 && dd > 1000)) ? dd / (gap / 1000) * 3.6 : 0;
+  L.popup().setLatLng(e.latlng).setContent('<b>' + esc(fmtFull(t)) + '</b>' + (kmh >= 3 ? '<br>السرعة التقريبية ' + Math.round(kmh) + ' كم/س' : '')).openOn(S.map);
 }
 function openHistory(id) {
   if (!id || S.limited) return;
@@ -1123,15 +1298,20 @@ async function loadHistory() {
   if (S.histFor !== uid) return;
   S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null;
   const pts = Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
-  S.hpts = pts; S.huid = uid;
+  S.hpts = pts; S.huid = uid; S.hcum = null;
   if (!pts.length) { $('h-sum').innerHTML = '<p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p>'; return; }
 
   const color = S.dir[uid]?.color || '#3A6EA5';
   let cur = [[pts[0].lat, pts[0].lng]];
-  const flush = () => { if (cur.length > 1) L.polyline(chaikin(cur, cur.length > 400 ? 2 : 3), { color, weight: 5, opacity: .9, smoothFactor: 0.5, lineJoin: 'round', lineCap: 'round' }).addTo(S.hl); };
+  const flush = () => {
+    if (cur.length < 2) return;
+    const line = chaikin(cur, cur.length > 400 ? 2 : 3);
+    L.polyline(line, { color: '#000', weight: 24, opacity: 0, interactive: true }).on('click', onRouteClick).addTo(S.hl);   // منطقة لمس أوسع
+    L.polyline(line, { color, weight: 5, opacity: .9, smoothFactor: 0.5, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hl);
+  };
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b);
-    if (gap > 15 * 60e3 && d > 1000) { flush(); L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color, weight: 3, opacity: .6, dashArray: '6 8' }).addTo(S.hl); cur = [[b.lat, b.lng]]; }
+    if (gap > 15 * 60e3 && d > 1000) { flush(); L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color, weight: 3, opacity: .6, dashArray: '6 8', interactive: false }).addTo(S.hl); cur = [[b.lat, b.lng]]; }
     else cur.push([b.lat, b.lng]);
   }
   flush();
@@ -1145,8 +1325,11 @@ async function loadHistory() {
   S.map.fitBounds(L.latLngBounds(pts.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 17 });
   syncMarks();
 
+  // المنزلق بحسب طول المسار المقطوع، فتتساوى خطوات السحب مع الطريق
+  const cum = [0]; for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b); cum.push(cum[i - 1] + ((gap > 15 * 60e3 && d > 1000) ? 0 : d)); }
+  S.hcum = cum;
   $('h-sum').innerHTML = `<b>${esc(fmtTime(first.ts))} حتى ${esc(fmtTime(end))}</b><span class="hint">المسافة ${(an.dist / 1000).toFixed(1)} كم، الرحلات ${trips.length}، الوقفات ${stops.length}${an.vmax >= 5 ? '، أسرع سرعة تقريبية ' + Math.round(an.vmax) + ' كم/س' : ''}</span>`;
-  const sl = $('h-slider'); sl.max = Math.max(1, Math.floor((end - first.ts) / 1000)); sl.value = 0; $('h-scrub').hidden = false; scrub(0);
+  if (cum[cum.length - 1] >= 50) { const sl = $('h-slider'); sl.min = 0; sl.max = 1000; sl.step = 1; sl.value = 0; $('h-scrub').hidden = false; scrub(0); }
   $('h-list').innerHTML = an.items.map((it, i) => it.type === 'trip'
     ? `<div class="row tap" data-act="h-trip" data-id="${i}"><div class="grow"><div class="nm">${esc(MODE[it.mode])}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtKm(it.dist))}، ${esc(fmtDur(it.dur))}، متوسط ${Math.round(it.avg)} كم/س</div></div></div>`
     : `<div class="row tap" data-act="h-stop" data-id="${i}"><div class="grow"><div class="nm">وقفة</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st" id="hs-${i}"></div></div></div>`
@@ -1163,7 +1346,7 @@ async function prune(uid) {
 }
 
 /* ---------- الأشخاص ---------- */
-const prow = (name, color, sub, btns) => `<div class="row"><div class="av" style="--c:${esc(color || '#3A6EA5')}">${esc(initial(name))}</div><div class="grow"><div class="nm">${esc(name || '—')}</div>${sub || ''}</div><div class="acts">${btns || ''}</div></div>`;
+const prow = (name, color, sub, btns, photo) => `<div class="row"><div class="av" style="${avStyle({ color, photo })}">${photo ? '' : esc(initial(name))}</div><div class="grow"><div class="nm">${esc(name || '—')}</div>${sub || ''}</div><div class="acts">${btns || ''}</div></div>`;
 function updateBadge() { const n = Object.keys(S.reqs).length; $('tab-people').textContent = 'الأشخاص' + (n ? ' (' + n + ')' : ''); }
 function renderPeople() {
   if (S.limited) {
@@ -1178,7 +1361,8 @@ function renderPeople() {
   html += '<div class="card"><b>أشخاصي</b>' + (mine.length ? mine.map(u => {
     const d = S.dir[u] || {}, ok = connected(u);
     const sw = S.minor ? '' : `<label class="sw-row st" style="margin-top:4px"><span>إخفاء موقعي عنه</span><span class="switch"><input type="checkbox" data-hide="${esc(u)}" ${S.hides[u] ? 'checked' : ''} aria-label="إخفاء موقعي عنه"><span></span></span></label>`;
-    return prow(d.name, d.color, (ok ? '<span class="badge ok">متصل</span>' : '<span class="badge warn">بانتظار موافقته</span>') + sw, `<button class="btn sm ${ok ? 'danger' : ''}" data-act="unlink" data-id="${esc(u)}">${ok ? 'إزالة' : 'إلغاء الطلب'}</button>`);
+    const real = S.nick[u] && d.name && S.nick[u] !== d.name ? `<div class="st">اسمه في التطبيق: ${esc(d.name)}</div>` : '';
+    return prow(dispName(u), d.color, real + (ok ? '<span class="badge ok">متصل</span>' : '<span class="badge warn">بانتظار موافقته</span>') + sw, `<button class="btn sm" data-act="nick" data-id="${esc(u)}">اسم مستعار</button><button class="btn sm ${ok ? 'danger' : ''}" data-act="unlink" data-id="${esc(u)}">${ok ? 'إزالة' : 'إلغاء الطلب'}</button>`, d.photo);
   }).join('') : '<p class="hint">لم تضف أحداً بعد. ابحث عن شخص برقمه، أو اختر من جهات اتصالك.</p>') + '</div>';
   if (S.minor) html += '<p class="hint" style="margin:0 0 12px">حساب الأطفال لا يستطيع إخفاء موقعه عن أحد.</p>';
   $('people-list').innerHTML = html;
@@ -1218,7 +1402,7 @@ async function refreshContacts() {
   const entries = Array.from(nums.entries()), found = new Map(), foundPhones = new Set();
   for (let i = 0; i < entries.length; i += 30) {
     await Promise.all(entries.slice(i, i + 30).map(async ([p, n]) => {
-      try { const sn = await get(ref(db, 'phoneIndex/' + await phoneHash(p))); if (sn.exists() && sn.val().uid !== S.uid) { found.set(sn.val().uid, { uid: sn.val().uid, name: sn.val().name, saved: n }); foundPhones.add(p); } } catch {}
+      try { const sn = await get(ref(db, 'phoneIndex/' + await phoneHash(p))); if (sn.exists() && sn.val().uid !== S.uid) { found.set(sn.val().uid, { uid: sn.val().uid, name: sn.val().name, saved: n }); foundPhones.add(p); S.phones[sn.val().uid] = p.replace('+', ''); } } catch {}
     }));
   }
   S.nonMembers = entries.filter(([p]) => !foundPhones.has(p)).map(([p, n]) => ({ phone: p.replace('+', ''), saved: n }));
@@ -1236,6 +1420,9 @@ function renderMe() {
   { const sv = isNative ? nat() : null; $('ver-line').textContent = 'إصدار الواجهة ' + UI_VERSION + (sv && sv.verName ? '، إصدار التطبيق ' + sv.verName + ' (' + sv.ver + ')' : ''); }
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
   renderProx();
+  renderAlerts();
+  renderPlaces();
+  renderMePhoto();
   renderNative();
 }
 function renderProx() {
@@ -1252,7 +1439,7 @@ async function saveProx(on, kmRaw) {
   await update(ref(db), { ['alerts/' + S.uid + '/on']: on, ['alerts/' + S.uid + '/km']: km });
   return true;
 }
-function pushProx() { if (!isNative) return; const a = S.alerts || {}; try { window.AndroidBridge.setProximity(!!a.on, Number(a.km) || 50); } catch {} }
+function pushProx() { pushAlerts(); }
 $('prox-on').onchange = async e => {
   const on = e.target.checked;
   try { if (await saveProx(on, $('prox-km').value || 50)) toast(on ? 'تم تفعيل تنبيه القرب' : 'تم إيقاف تنبيه القرب'); else e.target.checked = !on; }
@@ -1408,7 +1595,9 @@ const ACTIONS = {
   color: id => { S.pickColor = id; renderMe(); },
   add: async id => {
     const me = S.dir[S.uid] || {};
-    await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${id}/${S.uid}`]: { name: me.name || S.me.name, color: me.color || COLORS[0], ts: Date.now() } });
+    const ups = { [`links/${S.uid}/${id}`]: true, [`requests/${id}/${S.uid}`]: { name: me.name || S.me.name, color: me.color || COLORS[0], ts: Date.now() } };
+    const mm = S.matches.find(x => x.uid === id); if (mm && mm.saved) ups[`nick/${S.uid}/${id}`] = mm.saved;
+    await update(ref(db), ups);
     toast('أُرسل الطلب. يظهر الشخص على خريطتك بعد موافقته.');
     if (S.srch && S.srch.uid === id) setTimeout(() => showSearch(S.srch), 700);
   },
@@ -1422,6 +1611,26 @@ const ACTIONS = {
     window.AndroidBridge.requestContacts();
     let n = 0; const t = setInterval(() => { const s = nat(); if ((s && s.contacts) || ++n > 40) { clearInterval(t); if (s && s.contacts) refreshContacts(); else renderContacts(); } }, 800);
   },
+  'al-save': async () => { try { await saveAlerts(); } catch { toast('تعذر الحفظ'); } },
+  'pl-add': () => startPick(),
+  'pl-del': async id => { if (await ask('حذف هذا المكان؟', 'حذف')) await remove(ref(db, `places/${S.uid}/${id}`)); },
+  'pick-cancel': () => endPick(),
+  'pick-me': () => { const l = S.locs[S.uid]; if (l && typeof l.lat === 'number') askPlace(l.lat, l.lng); else toast('لم يصل موقعك بعد'); },
+  nick: id => openNick(id),
+  'photo-pick': () => $('photo-file').click(),
+  'photo-del': async () => { await update(ref(db), { ['directory/' + S.uid + '/photo']: null }); toast('أُزيلت الصورة'); },
+  'p-wa': () => { const ph = phoneOf(S.person); if (ph) window.open('https://wa.me/' + ph, '_blank'); },
+  'del-open': () => { $('del-pass').value = ''; $('del-err').textContent = ''; $('modal-del').hidden = false; },
+  'diag-send': () => sendDiag(),
+  'sos-cancel': () => cancelSos(),
+  'sos-view': id => {
+    const e = S.sosIn[id]; if (!e || typeof e.lat !== 'number') return;
+    if (!S.sosg) S.sosg = L.layerGroup().addTo(S.map);
+    S.sosg.clearLayers();
+    L.circleMarker([e.lat, e.lng], { radius: 13, color: '#fff', weight: 3, fillColor: '#C4483B', fillOpacity: 1 }).bindPopup('<b>SOS: ' + esc(e.name || '') + '</b><br>' + esc(fmtFull(e.ts))).addTo(S.sosg).openPopup();
+    S.map.flyTo([e.lat, e.lng], 16, { duration: .8 });
+  },
+  'sos-dismiss': id => remove(ref(db, `sosInbox/${S.uid}/${id}`)),
   'refresh-contacts': () => refreshContacts(),
   'upd-go': () => { if (S.upd && S.upd.url) window.open(S.upd.url, '_blank'); else toast('رابط التحميل غير محدد بعد'); },
   'upd-later': () => { S.updDismissed = true; renderUpdate(); },
@@ -1555,6 +1764,211 @@ function renderUpdate() {
   }
 }
 
+/* ---------- إعدادات التنبيهات والأماكن ---------- */
+function alertsConfig() {
+  const a = S.alerts || {};
+  return {
+    prox: { on: !!a.on, km: Number(a.km) || 50 },
+    bat: { on: !!a.batOn, pct: Number(a.batPct) || 15 },
+    idle: { on: !!a.idleOn, hrs: Number(a.idleHrs) || 3 },
+    drive: { on: !!a.driveOn },
+    speed: { on: !!a.speedOn, kmh: Number(a.speedKmh) || 120 },
+    sos: { on: a.sosOn !== false },
+    places: Object.entries(S.places || {}).map(([id, p]) => ({ id, name: p.name, lat: p.lat, lng: p.lng, r: p.r, on: p.on !== false }))
+  };
+}
+function pushAlerts() {
+  if (!isNative) return;
+  try {
+    if (typeof window.AndroidBridge.setAlertConfig === 'function') window.AndroidBridge.setAlertConfig(JSON.stringify(alertsConfig()));
+    else window.AndroidBridge.setProximity(!!(S.alerts || {}).on, Number((S.alerts || {}).km) || 50);
+  } catch {}
+}
+function renderAlerts() {
+  $('alerts-card').hidden = S.limited; if (S.limited) return;
+  const a = S.alerts || {};
+  const setv = (id, v) => { const e = $(id); if (!e || document.activeElement === e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; };
+  setv('al-bat-on', a.batOn); setv('al-bat-pct', a.batPct || 15);
+  setv('al-idle-on', a.idleOn); setv('al-idle-hrs', a.idleHrs || 3);
+  setv('al-drive-on', a.driveOn);
+  setv('al-speed-on', a.speedOn); setv('al-speed-kmh', a.speedKmh || 120);
+  setv('al-sos-on', a.sosOn !== false);
+}
+async function saveAlerts() {
+  const num = (id, min, max) => { const v = Number(toLatin($(id).value)); return (v >= min && v <= max) ? v : null; };
+  const batPct = num('al-bat-pct', 5, 50), idleHrs = num('al-idle-hrs', 1, 72), speedKmh = num('al-speed-kmh', 40, 250);
+  if (batPct === null) return toast('نسبة البطارية من 5 إلى 50');
+  if (idleHrs === null) return toast('ساعات عدم النشاط من 1 إلى 72');
+  if (speedKmh === null) return toast('السرعة من 40 إلى 250 كم/س');
+  const p = 'alerts/' + S.uid + '/';
+  await update(ref(db), { [p + 'batOn']: $('al-bat-on').checked, [p + 'batPct']: batPct, [p + 'idleOn']: $('al-idle-on').checked, [p + 'idleHrs']: idleHrs, [p + 'driveOn']: $('al-drive-on').checked, [p + 'speedOn']: $('al-speed-on').checked, [p + 'speedKmh']: speedKmh, [p + 'sosOn']: $('al-sos-on').checked });
+  toast('تم حفظ التنبيهات');
+}
+function renderPlaces() {
+  $('places-card').hidden = S.limited; if (S.limited) return;
+  const ids = Object.keys(S.places || {});
+  $('places-list').innerHTML = ids.length ? ids.map(id => { const p = S.places[id]; return `<div class="row"><div class="grow"><div class="nm">${esc(p.name)}</div><div class="st">نصف القطر ${esc(p.r)} م</div></div><label class="switch"><input type="checkbox" data-place-on="${esc(id)}" ${p.on !== false ? 'checked' : ''} aria-label="تفعيل"><span></span></label><button class="btn sm danger" data-act="pl-del" data-id="${esc(id)}">حذف</button></div>`; }).join('') : '<p class="hint">لا توجد أماكن بعد.</p>';
+  drawPlaces();
+}
+function drawPlaces() {
+  if (!S.plg) return; S.plg.clearLayers();
+  for (const p of Object.values(S.places || {})) {
+    if (typeof p.lat !== 'number') continue;
+    L.circle([p.lat, p.lng], { radius: p.r, color: '#2F8F6B', weight: 1.5, dashArray: '4 4', fillOpacity: .07, interactive: false }).bindTooltip(esc(p.name)).addTo(S.plg);
+  }
+}
+let placeAt = null;
+function startPick() { setTab('map'); S.pickPlace = true; $('pick-bar').hidden = false; }
+function endPick() { S.pickPlace = false; $('pick-bar').hidden = true; }
+function askPlace(la, ln) { placeAt = { la, ln }; $('pl-name').value = ''; $('pl-r').value = '200'; $('modal-place').hidden = false; }
+$('pl-no').onclick = () => { $('modal-place').hidden = true; };
+$('pl-ok').onclick = async () => {
+  const name = $('pl-name').value.trim(), r = Number(toLatin($('pl-r').value));
+  if (!name) return toast('اكتب اسم المكان');
+  if (!(r >= 100 && r <= 5000)) return toast('نصف القطر من 100 إلى 5000 متر');
+  if (Object.keys(S.places).length >= 10) return toast('الحد الأقصى 10 أماكن');
+  const pid = newCode().slice(0, 6).toLowerCase();
+  try { await set(ref(db, `places/${S.uid}/${pid}`), { name, lat: +placeAt.la.toFixed(5), lng: +placeAt.ln.toFixed(5), r, on: true }); $('modal-place').hidden = true; endPick(); toast('حُفظ المكان'); }
+  catch { toast('تعذر الحفظ'); }
+};
+document.addEventListener('change', ev => {
+  const t = ev.target; if (!t.matches || !t.matches('[data-place-on]')) return;
+  update(ref(db), { [`places/${S.uid}/${t.dataset.placeOn}/on`]: t.checked }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
+});
+
+/* ---------- اسم مستعار للصديق (يظهر عندك وحدك) ---------- */
+let nickFor = null;
+function openNick(id) { nickFor = id; $('nick-title').textContent = 'اسم مستعار لـ ' + (S.dir[id]?.name || ''); $('nick-in').value = S.nick[id] || ''; $('modal-nick').hidden = false; }
+$('nick-no').onclick = () => { $('modal-nick').hidden = true; };
+$('nick-ok').onclick = async () => {
+  const v = $('nick-in').value.trim();
+  try { await update(ref(db), { [`nick/${S.uid}/${nickFor}`]: v || null }); $('modal-nick').hidden = true; } catch { toast('تعذر الحفظ'); }
+};
+
+/* ---------- صورتي المصغّرة ---------- */
+async function makeThumb(file) {
+  const url = URL.createObjectURL(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+  const c = document.createElement('canvas'); c.width = c.height = 96;
+  const m = Math.min(img.width, img.height);
+  c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 96, 96);
+  URL.revokeObjectURL(url);
+  for (const q of [0.75, 0.6, 0.5, 0.4]) { const d = c.toDataURL('image/jpeg', q); if (d.length <= 13500) return d; }
+  throw new Error('big');
+}
+$('photo-file').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { const url = await makeThumb(f); await update(ref(db), { ['directory/' + S.uid + '/photo']: url }); toast('تم حفظ الصورة'); }
+  catch { toast('تعذر معالجة الصورة'); }
+};
+function renderMePhoto() { const d = S.dir[S.uid] || {}; $('me-av').textContent = d.photo ? '' : initial(d.name || S.me?.name); $('me-av').style.cssText = avStyle(d); }
+
+/* ---------- استغاثة SOS ---------- */
+let sosTimer = null;
+const sosBtn = $('btn-sos');
+sosBtn.addEventListener('pointerdown', e => { e.preventDefault(); sosBtn.classList.add('hold'); sosTimer = setTimeout(() => { sosTimer = null; sosBtn.classList.remove('hold'); sendSos(); }, 1800); });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(evn => sosBtn.addEventListener(evn, () => {
+  if (!sosTimer) return; clearTimeout(sosTimer); sosTimer = null; sosBtn.classList.remove('hold');
+  if (evn === 'pointerup') toast('استمر بالضغط ثانيتين لإرسال الاستغاثة');
+}));
+sosBtn.addEventListener('contextmenu', e => e.preventDefault());
+async function sendSos() {
+  if (S.limited) return toast('الاستغاثة تتفعل بعد اعتماد حسابك');
+  const friends = Object.keys(S.mine).filter(u => u !== S.uid && connected(u));
+  if (!friends.length) return toast('لا يوجد أصدقاء متصلون ليصلهم التنبيه');
+  const l = S.locs[S.uid]; let la, ln;
+  if (l && typeof l.lat === 'number' && Date.now() - l.ts < 30 * 60e3) { la = l.lat; ln = l.lng; }
+  else {
+    try { const p = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 6000 })); la = p.coords.latitude; ln = p.coords.longitude; }
+    catch { return toast('تعذر تحديد موقعك لإرسال الاستغاثة'); }
+  }
+  const entry = { ts: Date.now(), lat: +la.toFixed(5), lng: +ln.toFixed(5), name: S.dir[S.uid]?.name || S.me.name };
+  const ups = {}; friends.forEach(f => { ups[`sosInbox/${f}/${S.uid}`] = entry; });
+  try { await update(ref(db), ups); } catch { return toast('تعذر إرسال الاستغاثة. تحقق من الاتصال.'); }
+  S.sosOut = { friends, ts: entry.ts }; try { localStorage.setItem('sosOut', JSON.stringify(S.sosOut)); } catch {}
+  renderSosBar(); toast('أُرسلت الاستغاثة إلى ' + friends.length + ' من أصدقائك');
+}
+async function cancelSos() {
+  const o = S.sosOut; if (!o) return;
+  const ups = {}; o.friends.forEach(f => { ups[`sosInbox/${f}/${S.uid}`] = null; });
+  try { await update(ref(db), ups); } catch {}
+  S.sosOut = null; try { localStorage.removeItem('sosOut'); } catch {}
+  renderSosBar(); toast('أُلغيت الاستغاثة');
+}
+function renderSosBar() {
+  const bar = $('sos-bar'); if (!bar) return;
+  let out = '';
+  if (S.sosOut && Date.now() - S.sosOut.ts < 6 * 3600e3) out += `<div class="sosrow"><span>استغاثتك فعّالة عند ${S.sosOut.friends.length} من أصدقائك</span><button class="btn" data-act="sos-cancel">أنا بخير، إلغاء</button></div>`;
+  const me = S.locs[S.uid];
+  for (const [from, e] of Object.entries(S.sosIn || {})) {
+    if (!e || typeof e.ts !== 'number' || Date.now() - e.ts > 6 * 3600e3) continue;
+    const far = me && typeof me.lat === 'number' && typeof e.lat === 'number' ? '، يبعد ' + fmtKm(haversine(me, e)) : '';
+    out += `<div class="sosrow"><span>SOS من ${esc(e.name || dispName(from))}${esc(far)}</span><button class="btn" data-act="sos-view" data-id="${esc(from)}">عرض</button><button class="btn" data-act="sos-dismiss" data-id="${esc(from)}">تم</button></div>`;
+  }
+  bar.innerHTML = out;
+}
+
+/* ---------- موقعي ---------- */
+$('btn-me').onclick = () => {
+  const l = S.locs[S.uid];
+  if (l && typeof l.lat === 'number' && Date.now() - l.ts < 5 * 60e3) { S.map.flyTo([l.lat, l.lng], 17, { duration: .8 }); return; }
+  if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => S.map.flyTo([p.coords.latitude, p.coords.longitude], 17, { duration: .8 }), () => toast(isNative ? 'لم يصل موقعك بعد. تأكد من تفعيل الإرسال.' : 'تعذر تحديد موقعك. اسمح للمتصفح بالموقع.'), { enableHighAccuracy: true, timeout: 8000 });
+  else toast('تعذر تحديد موقعك');
+};
+
+/* ---------- حذف الحساب ---------- */
+$('del-no').onclick = () => { $('modal-del').hidden = true; };
+$('del-ok').onclick = async () => {
+  const pass = $('del-pass').value; $('del-err').textContent = '';
+  if (!pass) { $('del-err').textContent = 'اكتب كلمة السر'; return; }
+  $('del-ok').disabled = true;
+  try { await deleteMyAccount(pass); }
+  catch (e) {
+    $('del-err').textContent = (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') ? 'كلمة السر غير صحيحة' : (e.message || 'تعذر الحذف');
+    if (S.deleting) setTimeout(() => location.reload(), 3000);
+  }
+  $('del-ok').disabled = false;
+};
+async function deleteMyAccount(pass) {
+  const u = auth.currentUser, uid = S.uid;
+  if (S.isAdmin) {
+    const others = Object.keys(S.users).filter(k => k !== uid && S.users[k].role === 'admin' && S.users[k].status === 'approved');
+    if (!others.length) throw { message: 'أنت المشرف الوحيد. رقِّ مشرفاً آخر أولاً من الإدارة.' };
+  }
+  await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pass));
+  const ups = {}, limited = S.limited;
+  ups['users/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null;
+  if (!limited) {
+    ups['alerts/' + uid] = null;
+    for (const id of Object.keys(S.places)) ups[`places/${uid}/${id}`] = null;
+    for (const f of Object.keys(S.nick)) ups[`nick/${uid}/${f}`] = null;
+    for (const v of Object.keys(S.hides)) ups[`hide/${uid}/${v}`] = null;
+    for (const f of Object.keys(S.mine)) { ups[`links/${uid}/${f}`] = null; ups[`requests/${f}/${uid}`] = null; ups[`sosInbox/${f}/${uid}`] = null; }
+    for (const f of Object.keys(S.reqs)) ups[`requests/${uid}/${f}`] = null;
+    for (const f of Object.keys(S.sosIn)) ups[`sosInbox/${uid}/${f}`] = null;
+    if (S.myHash) ups['phoneIndex/' + S.myHash] = null;
+    for (let k = 0; k <= 47; k++) ups[`history/${uid}/${dayKey(Date.now() - k * 864e5)}`] = null;
+  }
+  // نقطع المستمعين قبل الحذف حتى لا يُعاد إنشاء السجل تلقائياً
+  S.deleting = true;
+  stopMain(); if (S.meUn) { S.meUn(); S.meUn = null; } if (S.sessUn) { S.sessUn(); S.sessUn = null; }
+  await update(ref(db), ups);
+  if (isNative) { try { window.AndroidBridge.stopSharing(); } catch {} }
+  S.kickMsg = 'تم حذف حسابك نهائياً.';
+  await deleteUser(u);
+  S.deleting = false;
+}
+
+/* ---------- بيانات التشخيص ---------- */
+window.__diagExtra = () => `الحساب: ${S.me ? S.me.status + '/' + S.me.role : 'غير مسجّل'} | الوضع: ${S.mode || '-'} | المرجع: ${S.uid || '-'}`;
+async function sendDiag() {
+  const t = window.__diagText();
+  try { await navigator.clipboard.writeText(t); } catch {}
+  const wa = String(PUB.contactWhatsapp || '').replace(/\D/g, '');
+  if (wa) window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent('بيانات تشخيص مكاننا:\n' + t.slice(0, 1400)), '_blank');
+  else toast('نُسخ التشخيص. ألصقه في رسالة للمشرف.');
+}
+
 /* ---------- التبويبات ---------- */
 function setTab(t) {
   S.tab = t;
@@ -1562,7 +1976,7 @@ function setTab(t) {
   const mapMode = t === 'map';
   $('t-people').hidden = t !== 'people'; $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
   applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode;
-  if (!mapMode) $('style-menu').hidden = true;
+  if (!mapMode) { $('style-menu').hidden = true; endPick(); }
   if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
   renderAll(); updateSendBar();
 }
