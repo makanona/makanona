@@ -131,6 +131,9 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 #pick-bar span{flex:1}
 #pick-bar .btn{padding:6px 10px;font-size:12px}
 .pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#E9F0F7;font-size:12px;font-weight:600}
+#hsheet{max-height:62vh}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:11px;color:var(--ink2);margin-top:4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:-1px}
 .pwwrap{position:relative;display:block}
 .pwwrap input{padding-inline-end:46px}
 .pw-eye{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--ink2)}
@@ -314,6 +317,9 @@ window.APP_CONFIG = {
     <div id="h-scrub" hidden>
       <input id="h-slider" type="range" min="0" max="100" step="1" value="0" dir="ltr" aria-label="الوقت">
       <div id="h-tlabel"></div>
+      <canvas id="h-chart" style="width:100%;height:76px;display:block;margin-top:6px;touch-action:none;border-radius:10px;background:#fff" aria-label="مخطط السرعات على طول المسار"></canvas>
+      <div class="legend"><span><i style="background:#3A6EA5"></i>مشي أقل من 7</span><span><i style="background:#2F8F6B"></i>دراجة 7 إلى 25</span><span><i style="background:#E8A33D"></i>25 إلى 60</span><span><i style="background:#D2691E"></i>60 إلى 90</span><span><i style="background:#C4483B"></i>أكثر من 90</span></div>
+      <div id="h-chartinfo" class="hint" style="text-align:center;margin-top:2px"></div>
     </div>
     <div id="h-list"></div>
   </div>
@@ -565,7 +571,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '8';
+const UI_VERSION = '9';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -1238,8 +1244,69 @@ function scrub(v) {
   const st = pts.find(p => p.ets && p.ets - p.ts >= 5 * 60e3 && haversine(p, { lat, lng }) < 40);
   if (st) txt = 'وقفة من ' + fmtTime(st.ts) + ' إلى ' + fmtTime(st.ets);
   $('h-tlabel').textContent = txt;
+  drawChart(v);
 }
 $('h-slider').oninput = e => scrub(+e.target.value);
+
+/* ---------- مخطط السرعات تحت المنزلق (المحور الأفقي = طول المسار نفسه) ---------- */
+const SPD_COLORS = [[7, '#3A6EA5'], [25, '#2F8F6B'], [60, '#E8A33D'], [90, '#D2691E'], [Infinity, '#C4483B']];
+const spdColor = v => SPD_COLORS.find(c => v < c[0])[1];
+function speedSegs() {
+  const pts = S.hpts, cum = S.hcum, segs = [];
+  if (!cum || pts.length < 2) return segs;
+  for (let i = 1; i < pts.length; i++) {
+    const len = cum[i] - cum[i - 1]; if (len <= 0) continue;            // وقفة أو قفزة بلا اتصال
+    const dt = (pts[i].ts - (pts[i - 1].ets || pts[i - 1].ts)) / 1000;
+    segs.push({ x0: cum[i - 1], x1: cum[i], v: dt >= 1 ? Math.min(220, len / dt * 3.6) : 0 });
+  }
+  return segs.map((s, i) => {                                            // تنعيم بمتوسط ثلاث نقاط لتخفيف اهتزاز GPS
+    let sum = s.v * 2, w = 2;
+    if (segs[i - 1]) { sum += segs[i - 1].v; w++; }
+    if (segs[i + 1]) { sum += segs[i + 1].v; w++; }
+    return { x0: s.x0, x1: s.x1, v: sum / w };
+  });
+}
+function chartSetup() {
+  S.hsegs = speedSegs();
+  const sp = S.hsegs.map(s => s.v).sort((a, b) => a - b);
+  const p98 = sp.length ? sp[Math.min(sp.length - 1, Math.floor(sp.length * .98))] : 0;
+  S.hchartMax = Math.min(220, Math.max(40, Math.ceil(p98 / 20) * 20));
+  let mv = 0, mt = 0; const pts = S.hpts;
+  for (let i = 1; i < pts.length; i++) {
+    const len = S.hcum[i] - S.hcum[i - 1]; if (len <= 0) continue;
+    const dt = (pts[i].ts - (pts[i - 1].ets || pts[i - 1].ts)) / 1000;
+    if (dt > 0 && dt <= 600) { mv += len; mt += dt; }
+  }
+  const avg = mt ? mv / mt * 3.6 : 0;
+  $('h-chartinfo').textContent = 'أعلى سرعة تقريبية ' + Math.round((S.han && S.han.vmax) || p98) + ' كم/س، والمتوسط أثناء الحركة ' + Math.round(avg) + ' كم/س';
+}
+function drawChart(v) {
+  const cv = $('h-chart'); if (!cv || $('h-scrub').hidden || !S.hcum) return;
+  const w = cv.clientWidth || 300, h = 76, dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+  g.direction = 'ltr'; g.textAlign = 'left';
+  const total = S.hcum[S.hcum.length - 1], top = S.hchartMax || 60, base = h - 12, span = base - 8;
+  g.strokeStyle = '#E1E8EB'; g.lineWidth = 1; g.fillStyle = '#768B94'; g.font = '10px sans-serif';
+  [0.5, 1].forEach(f => { const y = Math.round(base - f * span) + .5; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); g.fillText(String(Math.round(top * f)), 3, y - 2); });
+  for (const s of (S.hsegs || [])) {
+    const x0 = s.x0 / total * w, x1 = s.x1 / total * w, bh = Math.min(s.v / top, 1) * span;
+    g.fillStyle = spdColor(s.v); g.fillRect(x0, base - bh, Math.max(1.2, x1 - x0 + .6), Math.max(bh, s.v > 0 ? 1 : 0));
+  }
+  g.strokeStyle = '#10272F'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, base + .5); g.lineTo(w, base + .5); g.stroke();
+  S.hpts.forEach((p, i) => { if (p.ets && p.ets - p.ts >= 5 * 60e3) { g.fillStyle = '#E8A33D'; g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.beginPath(); g.arc(S.hcum[i] / total * w, base + 4, 3.5, 0, 6.3); g.fill(); g.stroke(); } });
+  const px = Math.min(Math.max(v / 1000 * w, 1), w - 1);
+  g.strokeStyle = '#10272F'; g.lineWidth = 2; g.beginPath(); g.moveTo(px, 2); g.lineTo(px, base + 7); g.stroke();
+}
+{
+  const cv = $('h-chart'); let drag = false;
+  const at = e => { const r = cv.getBoundingClientRect(); return Math.round(Math.min(Math.max(e.clientX - r.left, 0), r.width) / (r.width || 1) * 1000); };
+  const go = e => { const v = at(e); $('h-slider').value = v; scrub(v); };
+  cv.addEventListener('pointerdown', e => { drag = true; try { cv.setPointerCapture(e.pointerId); } catch {} go(e); });
+  cv.addEventListener('pointermove', e => { if (drag) go(e); });
+  ['pointerup', 'pointercancel'].forEach(evn => cv.addEventListener(evn, () => { drag = false; }));
+  window.addEventListener('resize', () => { if (!$('h-scrub').hidden) drawChart(+$('h-slider').value); });
+}
 const fmtFull = ts => new Date(ts).toLocaleString('ar', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 /* علامات وقت على الرحلات الطويلة: كل 10 دقائق (أقل من ساعة) أو 15 (حتى 4 ساعات) أو 30 (أكثر) */
 function addMarks(an) {
@@ -1329,7 +1396,7 @@ async function loadHistory() {
   const cum = [0]; for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b); cum.push(cum[i - 1] + ((gap > 15 * 60e3 && d > 1000) ? 0 : d)); }
   S.hcum = cum;
   $('h-sum').innerHTML = `<b>${esc(fmtTime(first.ts))} حتى ${esc(fmtTime(end))}</b><span class="hint">المسافة ${(an.dist / 1000).toFixed(1)} كم، الرحلات ${trips.length}، الوقفات ${stops.length}${an.vmax >= 5 ? '، أسرع سرعة تقريبية ' + Math.round(an.vmax) + ' كم/س' : ''}</span>`;
-  if (cum[cum.length - 1] >= 50) { const sl = $('h-slider'); sl.min = 0; sl.max = 1000; sl.step = 1; sl.value = 0; $('h-scrub').hidden = false; scrub(0); }
+  if (cum[cum.length - 1] >= 50) { const sl = $('h-slider'); sl.min = 0; sl.max = 1000; sl.step = 1; sl.value = 0; $('h-scrub').hidden = false; chartSetup(); scrub(0); }
   $('h-list').innerHTML = an.items.map((it, i) => it.type === 'trip'
     ? `<div class="row tap" data-act="h-trip" data-id="${i}"><div class="grow"><div class="nm">${esc(MODE[it.mode])}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtKm(it.dist))}، ${esc(fmtDur(it.dur))}، متوسط ${Math.round(it.avg)} كم/س</div></div></div>`
     : `<div class="row tap" data-act="h-stop" data-id="${i}"><div class="grow"><div class="nm">وقفة</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st" id="hs-${i}"></div></div></div>`
@@ -1729,7 +1796,7 @@ function setSheetMin(m) {
   try { localStorage.setItem('sheetMin', m ? '1' : '0'); } catch {}
 }
 $('grab').onclick = () => setSheetMin(!S.sheetMin);
-$('hgrab').onclick = () => { S.hMin = !S.hMin; $('hsheet').classList.toggle('min', S.hMin); };
+$('hgrab').onclick = () => { S.hMin = !S.hMin; $('hsheet').classList.toggle('min', S.hMin); setTimeout(() => drawChart(+$('h-slider').value), 60); };
 
 /* ---------- إخفاء الموقع عن شخص بعينه ---------- */
 document.addEventListener('change', async ev => {
