@@ -63,7 +63,7 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .sheet.min .grab-btn svg{transform:rotate(180deg)}
 .sheet-sum{display:none;text-align:center;font-weight:600;padding:0 0 4px}
 .sheet.min .sheet-sum{display:block}
-.sheet.min #sheet-list,.sheet.min #h-list{display:none}
+.sheet.min #sheet-list,.sheet.min #h-list,.sheet.min #h-sum,.sheet.min #h-chartinfo{display:none}
 #upd-bar{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB));z-index:560;height:48px;background:var(--acc);color:var(--accInk);display:flex;align-items:center;gap:8px;padding:0 12px;font-weight:600;font-size:13px}
 #upd-bar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -132,7 +132,18 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 #pick-bar .btn{padding:6px 10px;font-size:12px}
 .pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#E9F0F7;font-size:12px;font-weight:600}
 #hsheet{max-height:62vh}
-.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:11px;color:var(--ink2);margin-top:4px}
+#hbar{position:absolute;inset-inline:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:530;background:var(--card);border-radius:16px;padding:8px 10px;box-shadow:0 2px 12px #0003;display:flex;flex-direction:column;gap:4px}
+#hbar .hrow{display:flex;align-items:center;gap:6px}
+#hbar input[type=date]{width:auto;flex:none;padding:6px 8px;font-size:14px}
+#hbar .btn.sm{padding:6px 10px}
+#hbar-sum{font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hshow{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB) + var(--ban) + 10px);z-index:520;display:flex;justify-content:center;pointer-events:none}
+#hshow .btn{pointer-events:auto;box-shadow:0 2px 10px #0003}
+#v-main.hmode #top,#v-main.hmode #send-bar{display:none}
+#v-main.hmode #fabs{top:calc(112px + env(safe-area-inset-top,0px))}
+#v-main.hmode #sos-bar{top:calc(176px + env(safe-area-inset-top,0px))}
+.hide-btn{position:absolute;top:4px;inset-inline-end:10px}
+.legend{display:flex;flex-wrap:wrap;gap:3px 9px;justify-content:center;font-size:10.5px;color:var(--ink2);margin-top:2px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:-1px}
 .pwwrap{position:relative;display:block}
 .pwwrap input{padding-inline-end:46px}
@@ -302,25 +313,29 @@ window.APP_CONFIG = {
     <div id="sheet-list"></div>
   </div>
 
-  <div id="hsheet" class="sheet" hidden>
-    <button class="grab-btn" id="hgrab" aria-label="تصغير القائمة"><span class="grab"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
-    <div class="inrow" style="align-items:center;margin-bottom:6px">
+  <div id="hbar" hidden>
+    <div class="hrow">
       <button class="btn sm" data-act="h-back">رجوع</button>
-      <b id="h-name" style="flex:1;text-align:center"></b>
-    </div>
-    <div class="inrow" style="align-items:center;margin-bottom:4px">
+      <span style="flex:1"></span><b id="h-name" hidden></b>
       <button class="btn sm" data-act="h-prev" aria-label="اليوم السابق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
       <input id="h-day" type="date" aria-label="اليوم">
       <button class="btn sm" data-act="h-next" aria-label="اليوم التالي"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
     </div>
-    <div id="h-sum" class="hsum"><p class="hint">اختر اليوم.</p></div>
+    <div id="hbar-sum"></div>
+  </div>
+  <div id="hshow" hidden><button class="btn sm primary" data-act="h-show">إظهار لوحة السجل</button></div>
+
+  <div id="hsheet" class="sheet min" hidden>
+    <button class="grab-btn" id="hgrab" aria-label="توسيع قائمة السجل"><span class="grab"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="btn sm hide-btn" data-act="h-hide">إخفاء</button>
     <div id="h-scrub" hidden>
-      <input id="h-slider" type="range" min="0" max="100" step="1" value="0" dir="ltr" aria-label="الوقت">
+      <input id="h-slider" type="range" min="0" max="1000" step="1" value="0" dir="ltr" aria-label="الوقت">
       <div id="h-tlabel"></div>
-      <canvas id="h-chart" style="width:100%;height:76px;display:block;margin-top:6px;touch-action:none;border-radius:10px;background:#fff" aria-label="مخطط السرعات على طول المسار"></canvas>
-      <div class="legend"><span><i style="background:#3A6EA5"></i>مشي أقل من 7</span><span><i style="background:#2F8F6B"></i>دراجة 7 إلى 25</span><span><i style="background:#E8A33D"></i>25 إلى 60</span><span><i style="background:#D2691E"></i>60 إلى 90</span><span><i style="background:#C4483B"></i>أكثر من 90</span></div>
+      <canvas id="h-chart" style="width:100%;height:64px;display:block;margin-top:4px;touch-action:none;border-radius:10px;background:#fff" aria-label="مخطط السرعات على طول المسار"></canvas>
+      <div class="legend"><span title="أقل من 7 كم/س"><i style="background:#3A6EA5"></i>مشي</span><span title="من 7 إلى 25 كم/س"><i style="background:#2F8F6B"></i>دراجة</span><span><i style="background:#E8A33D"></i>25-60</span><span><i style="background:#D2691E"></i>60-90</span><span><i style="background:#C4483B"></i>فوق 90</span></div>
       <div id="h-chartinfo" class="hint" style="text-align:center;margin-top:2px"></div>
     </div>
+    <div id="h-sum" class="hsum"></div>
     <div id="h-list"></div>
   </div>
 
@@ -342,6 +357,12 @@ window.APP_CONFIG = {
 
   <div id="t-people" class="panel" hidden>
     <h2>الأشخاص</h2>
+    <div class="card" id="hideall-card">
+      <div class="sw-row">
+        <div><b>إخفاء موقعي عن الجميع</b><p class="hint">يُخفيك عن كل أصدقائك الحاليين والمستقبليين دفعة واحدة، وتبقى اختياراتك الفردية محفوظة. يبقى المشرف قادراً على مساعدتك إن فُقد هاتفك، والاستغاثة تصل دائماً.</p></div>
+        <label class="switch"><input type="checkbox" id="hide-all" aria-label="إخفاء موقعي عن الجميع"><span></span></label>
+      </div>
+    </div>
     <div id="people-list"></div>
     <div class="card" id="contacts-card" hidden>
       <b>من جهات اتصالك</b>
@@ -362,6 +383,8 @@ window.APP_CONFIG = {
     <div class="card">
       <label>الاسم<input id="me-name"></label>
       <div class="hint">رقم الهاتف: <span id="me-phone" dir="ltr"></span></div>
+      <div id="phone-req" class="hint"></div>
+      <button class="btn sm" id="phone-btn" data-act="phone-change">طلب تعديل الرقم</button>
       <div style="font-weight:500;font-size:14px;color:var(--ink2)">اللون على الخريطة</div>
       <div id="me-colors" class="colors"></div>
       <button id="btn-save-profile" class="btn primary">حفظ</button>
@@ -556,6 +579,21 @@ window.APP_CONFIG = {
     <div class="acts"><button id="del-ok" class="btn danger">حذف نهائي</button><button id="del-no" class="btn">إلغاء</button></div>
   </div>
 </div>
+<div id="modal-phone" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b>طلب تعديل رقم الهاتف</b>
+    <label>الرقم الجديد<input id="ph-new" type="tel" inputmode="tel" dir="ltr" placeholder="09xxxxxxxx"></label>
+    <p class="hint" style="margin:0">يبقى الطلب معلّقاً حتى يوافق عليه المشرف، ويستمر رقمك القديم بالعمل إلى ذلك الحين. تصلك النتيجة والسبب إن رُفض.</p>
+    <div class="acts"><button id="ph-ok" class="btn primary">إرسال الطلب</button><button id="ph-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
+<div id="modal-text" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="tx-title"></b>
+    <label><span id="tx-label"></span><input id="tx-in" maxlength="120"></label>
+    <div class="acts"><button id="tx-ok" class="btn primary">تأكيد</button><button id="tx-no" class="btn">إلغاء</button></div>
+  </div>
+</div>
 <div id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -571,7 +609,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '9';
+const UI_VERSION = '10';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -589,6 +627,7 @@ $('brand').textContent = CFG.appName;
 const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
+  hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
@@ -600,6 +639,19 @@ const S = {
 
 /* ---------- أدوات ---------- */
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3600); }
+function info(msg, ok = 'حسناً') {
+  return new Promise(res => {
+    $('modal-msg').textContent = msg; $('modal-ok').textContent = ok; $('modal-no').hidden = true; $('modal').hidden = false;
+    $('modal-ok').onclick = () => { $('modal').hidden = true; $('modal-no').hidden = false; $('modal-ok').onclick = null; res(); };
+  });
+}
+function askText(title, label, max = 120) {
+  return new Promise(res => {
+    $('tx-title').textContent = title; $('tx-label').textContent = label; $('tx-in').value = ''; $('tx-in').maxLength = max; $('modal-text').hidden = false;
+    const done = v => { $('modal-text').hidden = true; $('tx-ok').onclick = $('tx-no').onclick = null; res(v); };
+    $('tx-ok').onclick = () => done($('tx-in').value.trim()); $('tx-no').onclick = () => done(null);
+  });
+}
 function ask(msg, ok = 'تأكيد') {
   return new Promise(res => {
     $('modal-msg').textContent = msg; $('modal-ok').textContent = ok; $('modal').hidden = false;
@@ -806,6 +858,7 @@ function route() {
     if (!S.me.phone || !S.me.birthYear) { if (S.started) stopMain(); showView('profile'); return; }
     if (!S.gateOk) { gate(); return; }
     S.minor = isMinor(S.me.birthYear);
+    if (S.me.phone && S._ph !== S.me.phone) { S._ph = S.me.phone; phoneHash(S.me.phone).then(hh => { S.myHash = hh; }); }
     const mode = st === 'approved' ? 'approved' : 'limited';
     if (S.started && S.mode !== mode) stopMain();
     S.mode = mode; S.limited = mode === 'limited';
@@ -866,6 +919,7 @@ function startMain() {
   if (S.isAdmin) {
     S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
     S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; renderMap(); renderSheet(); }, e => console.error('locs', e));
+    S.unsubs.phoneReqs = onValue(ref(db, 'phoneReq'), s => { S.phoneReqs = s.val() || {}; renderAdmin(); }, e => console.error('phoneReqs', e));
     S.unsubs.users = onValue(ref(db, 'users'), s => { S.users = s.val() || {}; renderAdmin(); }, e => console.error('users', e));
     S.unsubs.invites = onValue(ref(db, 'invites'), s => { S.invites = s.val() || {}; renderInvites(); }, e => console.error('invites', e));
     S.unsubs.settings = onValue(ref(db, 'settings/app'), s => { S.settings = s.val() || {}; fillSettings(); renderInvites(); }, e => console.error('settings', e));
@@ -876,9 +930,11 @@ function startMain() {
   }
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
+  S.unsubs.phoneReq = onValue(ref(db, 'phoneReq/' + S.uid), s => { S.phoneReq = s.val(); renderPhoneReq(); if (S.phoneReq && S.phoneReq.status !== 'pending') showPhoneResult(); }, e => console.error('phoneReq', e));
   try { S.sosOut = JSON.parse(localStorage.getItem('sosOut') || 'null'); } catch { S.sosOut = null; }
   if (!S.limited) {
     S.unsubs.places = onValue(ref(db, 'places/' + S.uid), s => { S.places = s.val() || {}; renderPlaces(); pushAlerts(); }, e => console.error('places', e));
+    S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; if (S.tab === 'people') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
     S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { S.sosIn = s.val() || {}; renderSosBar(); }, e => console.error('sosIn', e));
   }
@@ -894,7 +950,7 @@ function stopMain() {
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
-  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false;
+  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null;
 }
 function cleanup(all) {
@@ -986,7 +1042,7 @@ function initMap() {
   setTimeout(() => S.map.invalidateSize(), 100);
 }
 $('btn-style').onclick = () => { $('style-menu').hidden = !$('style-menu').hidden; };
-$('btn-fit').onclick = () => fitAll();
+$('btn-fit').onclick = () => (S.histFor ? fitHistory() : fitAll());
 
 /* ---------- أسماء مستعارة، صور، ونوع الحركة ---------- */
 const dispName = id => (S.nick && S.nick[id]) || S.dir[id]?.name || '—';
@@ -1117,6 +1173,7 @@ function renderSheet() {
   $('chip').textContent = online + ' متصل من ' + ids.length;
   let extra = '';
   if (S.limited) extra = '<p class="hint" style="padding:8px 0">حسابك قيد الاعتماد من المشرف. ستظهر بقية الميزات بعد اعتماده.</p>';
+  else if (S.hideAll) extra = '<p class="hint" style="padding:8px 0">موقعك مخفي عن الجميع حالياً. يمكنك إظهاره من تبويب «الأشخاص».</p>';
   else if (!S.isAdmin && ids.length <= 1) extra = '<p class="hint" style="padding:8px 0">لا أحد على خريطتك بعد. أضف أفراد العائلة من تبويب «الأشخاص».</p>';
   $('sheet-av').innerHTML = avs.join('');
   $('sheet-list').innerHTML = rows.join('') + extra;
@@ -1124,10 +1181,13 @@ function renderSheet() {
   renderSosBar();
 }
 function applyTabVisibility() {
-  const mapTab = S.tab === 'map';
+  const mapTab = S.tab === 'map', hist = mapTab && !!S.histFor;
   $('sheet').hidden = !(mapTab && !S.person && !S.histFor);
   $('psheet').hidden = !(mapTab && S.person && !S.histFor);
-  $('hsheet').hidden = !(mapTab && !!S.histFor);
+  $('hbar').hidden = !hist;
+  $('hsheet').hidden = !(hist && S.hState !== 'off');
+  $('hshow').hidden = !(hist && S.hState === 'off');
+  $('v-main').classList.toggle('hmode', hist);
 }
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
@@ -1240,6 +1300,7 @@ function scrub(v) {
   const d = S.dir[S.huid] || {};
   const icon = L.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d)}">${avText(d)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
   if (!S.hmark) S.hmark = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([lat, lng]);
+  if (S.histFor && S.map.panInside) { const i = histInsets(); S.map.panInside([lat, lng], { paddingTopLeft: [40, i.top + 24], paddingBottomRight: [40, i.bottom + 24], animate: false }); }
   let txt = fmtTime(t) + (spd >= 4 ? '، ' + Math.round(spd) + ' كم/س' : '');
   const st = pts.find(p => p.ets && p.ets - p.ts >= 5 * 60e3 && haversine(p, { lat, lng }) < 40);
   if (st) txt = 'وقفة من ' + fmtTime(st.ts) + ' إلى ' + fmtTime(st.ets);
@@ -1282,7 +1343,7 @@ function chartSetup() {
 }
 function drawChart(v) {
   const cv = $('h-chart'); if (!cv || $('h-scrub').hidden || !S.hcum) return;
-  const w = cv.clientWidth || 300, h = 76, dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth || 300, h = 64, dpr = window.devicePixelRatio || 1;
   if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
   const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
   g.direction = 'ltr'; g.textAlign = 'left';
@@ -1305,7 +1366,7 @@ function drawChart(v) {
   cv.addEventListener('pointerdown', e => { drag = true; try { cv.setPointerCapture(e.pointerId); } catch {} go(e); });
   cv.addEventListener('pointermove', e => { if (drag) go(e); });
   ['pointerup', 'pointercancel'].forEach(evn => cv.addEventListener(evn, () => { drag = false; }));
-  window.addEventListener('resize', () => { if (!$('h-scrub').hidden) drawChart(+$('h-slider').value); });
+  window.addEventListener('resize', () => { if (!$('h-scrub').hidden) drawChart(+$('h-slider').value); if (S.histFor) fitHistory(); });
 }
 const fmtFull = ts => new Date(ts).toLocaleString('ar', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 /* علامات وقت على الرحلات الطويلة: كل 10 دقائق (أقل من ساعة) أو 15 (حتى 4 ساعات) أو 30 (أكثر) */
@@ -1339,14 +1400,34 @@ function onRouteClick(e) {
 }
 function openHistory(id) {
   if (!id || S.limited) return;
-  S.histFor = id; S.hMin = false; $('hsheet').classList.remove('min');
-  $('h-name').textContent = id === S.uid ? 'سجلّي' : 'سجل ' + (S.dir[id]?.name || '');
+  S.histFor = id; S.hState = 'min'; S.hMin = true; $('hsheet').classList.add('min');
+  $('h-name').textContent = id === S.uid ? 'سجلّي' : dispName(id);
   const today = dayKey(Date.now());
   $('h-day').max = today; $('h-day').min = dayKey(Date.now() - PRUNE_DAYS * 864e5); $('h-day').value = today;
+  barSum('جارٍ التحميل...');
   applyTabVisibility(); loadHistory();
 }
+const barSum = t => { const n = $('h-name').textContent; $('hbar-sum').textContent = (n ? n + ': ' : '') + t; };
+/* الجزء الظاهر من الخريطة = ما بين الشريط العلوي واللوحة السفلية */
+function histInsets() {
+  const m = $('map').getBoundingClientRect(), bar = $('hbar'), sh = $('hsheet');
+  const top = bar.hidden ? 0 : Math.max(0, bar.getBoundingClientRect().bottom - m.top);
+  const bottom = sh.hidden ? 0 : Math.max(0, m.bottom - sh.getBoundingClientRect().top);
+  return { top, bottom };
+}
+function fitPad(bounds, maxZoom = 17) {
+  const i = histInsets();
+  S.map.fitBounds(bounds, { paddingTopLeft: [36, i.top + 12], paddingBottomRight: [36, i.bottom + 12], maxZoom });
+}
+function fitHistory() { if (S.histFor && S.hpts.length) fitPad(L.latLngBounds(S.hpts.map(p => [p.lat, p.lng]))); }
+function setHState(s) {
+  S.hState = s; S.hMin = s !== 'full';
+  $('hsheet').classList.toggle('min', s === 'min');
+  applyTabVisibility();
+  setTimeout(() => { fitHistory(); drawChart(+$('h-slider').value); }, 90);
+}
 function closeHistory() {
-  S.histFor = null; S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null; S.hpts = [];
+  S.histFor = null; S.hState = 'min'; S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null; S.hpts = [];
   applyTabVisibility();
 }
 function shiftDay(delta) {
@@ -1358,15 +1439,15 @@ $('h-day').onchange = () => loadHistory();
 async function loadHistory() {
   const uid = S.histFor, day = $('h-day').value;
   if (!uid || !day) return;
-  $('h-sum').innerHTML = '<p class="hint">جارٍ التحميل...</p>'; $('h-list').innerHTML = ''; $('h-scrub').hidden = true;
+  $('h-sum').innerHTML = '<p class="hint">جارٍ التحميل...</p>'; barSum('جارٍ التحميل...'); $('h-list').innerHTML = ''; $('h-scrub').hidden = true;
   let obj;
   try { obj = (await get(ref(db, `history/${uid}/${day}`))).val() || {}; }
-  catch { $('h-sum').innerHTML = '<p class="hint">لا تملك صلاحية عرض هذا السجل الآن.</p>'; return; }
+  catch { $('h-sum').innerHTML = '<p class="hint">لا تملك صلاحية عرض هذا السجل الآن.</p>'; barSum('لا تملك صلاحية عرض هذا السجل الآن'); return; }
   if (S.histFor !== uid) return;
   S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null;
   const pts = Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
   S.hpts = pts; S.huid = uid; S.hcum = null;
-  if (!pts.length) { $('h-sum').innerHTML = '<p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p>'; return; }
+  if (!pts.length) { $('h-sum').innerHTML = '<p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p>'; barSum('لا توجد حركة مسجلة في هذا اليوم'); return; }
 
   const color = S.dir[uid]?.color || '#3A6EA5';
   let cur = [[pts[0].lat, pts[0].lng]];
@@ -1389,12 +1470,12 @@ async function loadHistory() {
   const dot = (p, fill, tip, when) => L.circleMarker([p.lat, p.lng], { radius: 9, color: '#fff', weight: 3, fillColor: fill, fillOpacity: 1 }).bindTooltip(tip, { permanent: true, direction: 'top', offset: [0, -8] }).bindPopup('<b>' + esc(fmtFull(when)) + '</b>').addTo(S.hl);
   dot(first, '#2F8F6B', 'بداية ' + fmtTime(first.ts), first.ts); dot(last, '#C4483B', 'آخر نقطة ' + fmtTime(end), end);
   addMarks(an);
-  S.map.fitBounds(L.latLngBounds(pts.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 17 });
   syncMarks();
 
   // المنزلق بحسب طول المسار المقطوع، فتتساوى خطوات السحب مع الطريق
   const cum = [0]; for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b); cum.push(cum[i - 1] + ((gap > 15 * 60e3 && d > 1000) ? 0 : d)); }
   S.hcum = cum;
+  barSum(`${fmtTime(first.ts)} – ${fmtTime(end)}، ${(an.dist / 1000).toFixed(1)} كم، ${trips.length} رحلة، ${stops.length} وقفة`);
   $('h-sum').innerHTML = `<b>${esc(fmtTime(first.ts))} حتى ${esc(fmtTime(end))}</b><span class="hint">المسافة ${(an.dist / 1000).toFixed(1)} كم، الرحلات ${trips.length}، الوقفات ${stops.length}${an.vmax >= 5 ? '، أسرع سرعة تقريبية ' + Math.round(an.vmax) + ' كم/س' : ''}</span>`;
   if (cum[cum.length - 1] >= 50) { const sl = $('h-slider'); sl.min = 0; sl.max = 1000; sl.step = 1; sl.value = 0; $('h-scrub').hidden = false; chartSetup(); scrub(0); }
   $('h-list').innerHTML = an.items.map((it, i) => it.type === 'trip'
@@ -1402,7 +1483,7 @@ async function loadHistory() {
     : `<div class="row tap" data-act="h-stop" data-id="${i}"><div class="grow"><div class="nm">وقفة</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st" id="hs-${i}"></div></div></div>`
   ).join('') || '<p class="hint" style="padding:8px 0">لا رحلات ولا وقفات واضحة في هذا اليوم.</p>';
   an.items.forEach((it, i) => { if (it.type === 'stop' && i < 40) geocode(it.lat, it.lng).then(t => { const el = $('hs-' + i); if (el && t) el.textContent = t; }); });
-  S.hMin = true; $('hsheet').classList.add('min');
+  fitHistory();
 }
 async function prune(uid) {
   const cutoff = dayKey(Date.now() - (PRUNE_DAYS + 1) * 864e5);
@@ -1416,6 +1497,7 @@ async function prune(uid) {
 const prow = (name, color, sub, btns, photo) => `<div class="row"><div class="av" style="${avStyle({ color, photo })}">${photo ? '' : esc(initial(name))}</div><div class="grow"><div class="nm">${esc(name || '—')}</div>${sub || ''}</div><div class="acts">${btns || ''}</div></div>`;
 function updateBadge() { const n = Object.keys(S.reqs).length; $('tab-people').textContent = 'الأشخاص' + (n ? ' (' + n + ')' : ''); }
 function renderPeople() {
+  $('hideall-card').hidden = S.limited || S.minor; $('hide-all').checked = !!S.hideAll;
   if (S.limited) {
     $('people-list').innerHTML = '<div class="card"><b>حسابك قيد الاعتماد</b><p class="hint">يعمل التطبيق ويظهر موقعك للمشرف. تتفعل إضافة الأصدقاء والبحث ومشاهدتهم وتنبيه القرب بعد أن يعتمد المشرف حسابك.</p></div>';
     $('contacts-card').hidden = true; $('srch-card').hidden = true; return;
@@ -1530,7 +1612,9 @@ $('btn-save-profile').onclick = async () => {
 function renderAdmin() {
   const order = { limited: 0, pending: 0, approved: 1, disabled: 2 };
   const ids = Object.keys(S.users).sort((a, b) => (order[S.users[a].status] ?? 9) - (order[S.users[b].status] ?? 9));
-  $('adm-members').innerHTML = ids.length ? ids.map(u => {
+  const reqs = Object.entries(S.phoneReqs || {}).filter(([, r]) => r && r.status === 'pending');
+  const reqHtml = reqs.length ? '<div class="card"><b>طلبات تعديل الرقم</b>' + reqs.map(([u, r]) => `<div class="row"><div class="grow"><div class="nm">${esc(S.dir[u]?.name || S.users[u]?.name || u)}</div><div class="st" dir="ltr" style="text-align:right">${esc(r.old || '—')} → ${esc(r.phone)}</div></div><div class="acts"><button class="btn sm primary" data-act="ph-ok" data-id="${esc(u)}">قبول</button><button class="btn sm danger" data-act="ph-no" data-id="${esc(u)}">رفض</button></div></div>`).join('') + '</div>' : '';
+  $('adm-members').innerHTML = reqHtml + (ids.length ? ids.map(u => {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name, waiting = x.status === 'pending' || x.status === 'limited';
     const badge = x.status === 'limited' ? '<span class="badge warn">قيد الاعتماد</span>' : x.status === 'pending' ? '<span class="badge warn">بانتظار الموافقة</span>' : x.status === 'approved' ? '<span class="badge ok">مفعّل</span>' : '<span class="badge bad">معطّل</span>';
     const role = x.role === 'admin' ? ' <span class="badge">مشرف</span>' : '';
@@ -1542,7 +1626,7 @@ function renderAdmin() {
     b += `<button class="btn sm" data-act="edit" data-id="${esc(u)}">الرقم والميلاد</button>`;
     if (!self && x.status !== 'disabled') b += `<button class="btn sm" data-act="end-session" data-id="${esc(u)}">إنهاء جلسته</button>`;
     return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || 'بدون رقم')} / ${esc(x.birthYear || 'بدون سنة ميلاد')}</div></div>${badge}</div><div class="acts">${b}</div></div>`;
-  }).join('') : '<div class="card"><p class="hint">لا توجد حسابات.</p></div>';
+  }).join('') : '<div class="card"><p class="hint">لا توجد حسابات.</p></div>');
 }
 function setAdm(t) {
   S.adm = t;
@@ -1647,11 +1731,12 @@ const ACTIONS = {
     const it = S.han && S.han.items[+id]; if (!it) return;
     S.hsel.clearLayers();
     const seg = S.hpts.slice(it.s, it.e + 1).map(p => [p.lat, p.lng]);
-    const pl = L.polyline(chaikin(seg, 2), { color: '#E8A33D', weight: 9, opacity: .95, lineJoin: 'round', lineCap: 'round' }).addTo(S.hsel);
-    S.map.fitBounds(pl.getBounds(), { padding: [60, 60], maxZoom: 17 });
-    S.hMin = true; $('hsheet').classList.add('min');
+    L.polyline(chaikin(seg, 2), { color: '#E8A33D', weight: 9, opacity: .95, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hsel);
+    setHState('min'); setTimeout(() => fitPad(L.latLngBounds(seg)), 150);
   },
-  'h-stop': id => { const it = S.han && S.han.items[+id]; if (!it) return; S.map.flyTo([it.lat, it.lng], 17, { duration: .8 }); S.hMin = true; $('hsheet').classList.add('min'); },
+  'h-stop': id => { const it = S.han && S.han.items[+id]; if (!it) return; setHState('min'); setTimeout(() => fitPad(L.latLngBounds([[it.lat, it.lng]]), 17), 150); },
+  'h-hide': () => setHState('off'),
+  'h-show': () => setHState('min'),
   'inv-contact': id => {
     const url = S.upd && S.upd.url;
     if (!url) return toast('لم يضع المشرف رابط التحميل بعد. اطلبه منه.');
@@ -1677,6 +1762,23 @@ const ACTIONS = {
   'ask-contacts': () => {
     window.AndroidBridge.requestContacts();
     let n = 0; const t = setInterval(() => { const s = nat(); if ((s && s.contacts) || ++n > 40) { clearInterval(t); if (s && s.contacts) refreshContacts(); else renderContacts(); } }, 800);
+  },
+  'phone-change': () => { $('ph-new').value = ''; $('modal-phone').hidden = false; },
+  'phone-cancel': async () => { if (await ask('إلغاء طلب تعديل الرقم؟', 'إلغاء الطلب')) await remove(ref(db, 'phoneReq/' + S.uid)); },
+  'ph-ok': async id => {
+    const rq = S.phoneReqs[id]; if (!rq || rq.status !== 'pending') return;
+    const x = S.users[id], ix = await indexFor(id, rq.phone, S.dir[id]?.name || x?.name || '');
+    if (ix.conflict) return toast('هذا الرقم مسجّل لحساب آخر. ارفض الطلب مع ذكر السبب.');
+    const ups = { ['users/' + id + '/phone']: rq.phone, ['phoneReq/' + id]: { ...rq, status: 'approved', decidedAt: Date.now() } };
+    if (x?.phone) Object.assign(ups, await dropIndex(id, x.phone));
+    if (x?.status === 'approved') ups['phoneIndex/' + ix.h] = ix.value;
+    await update(ref(db), ups); toast('تم قبول الرقم الجديد');
+  },
+  'ph-no': async id => {
+    const rq = S.phoneReqs[id]; if (!rq || rq.status !== 'pending') return;
+    const why = await askText('سبب الرفض', 'يظهر للمستخدم مع الإشعار', 120); if (why === null) return;
+    await update(ref(db), { ['phoneReq/' + id]: { ...rq, status: 'rejected', reason: why, decidedAt: Date.now() } });
+    toast('تم رفض الطلب');
   },
   'al-save': async () => { try { await saveAlerts(); } catch { toast('تعذر الحفظ'); } },
   'pl-add': () => startPick(),
@@ -1796,9 +1898,14 @@ function setSheetMin(m) {
   try { localStorage.setItem('sheetMin', m ? '1' : '0'); } catch {}
 }
 $('grab').onclick = () => setSheetMin(!S.sheetMin);
-$('hgrab').onclick = () => { S.hMin = !S.hMin; $('hsheet').classList.toggle('min', S.hMin); setTimeout(() => drawChart(+$('h-slider').value), 60); };
+$('hgrab').onclick = () => setHState(S.hState === 'full' ? 'min' : 'full');
 
 /* ---------- إخفاء الموقع عن شخص بعينه ---------- */
+$('hide-all').onchange = async e => {
+  const on = e.target.checked;
+  try { await update(ref(db), { ['hideAll/' + S.uid]: on ? true : null }); toast(on ? 'موقعك مخفي عن الجميع الآن' : 'عاد موقعك ظاهراً لمن لم تخفِه عنهم'); }
+  catch { toast('تعذر التنفيذ'); e.target.checked = !on; }
+};
 document.addEventListener('change', async ev => {
   const t = ev.target; if (!t.matches || !t.matches('[data-hide]')) return;
   const u = t.dataset.hide;
@@ -2004,9 +2111,9 @@ async function deleteMyAccount(pass) {
   }
   await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pass));
   const ups = {}, limited = S.limited;
-  ups['users/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null;
+  ups['users/' + uid] = null; ups['phoneReq/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null;
   if (!limited) {
-    ups['alerts/' + uid] = null;
+    ups['alerts/' + uid] = null; ups['hideAll/' + uid] = null;
     for (const id of Object.keys(S.places)) ups[`places/${uid}/${id}`] = null;
     for (const f of Object.keys(S.nick)) ups[`nick/${uid}/${f}`] = null;
     for (const v of Object.keys(S.hides)) ups[`hide/${uid}/${v}`] = null;
@@ -2025,6 +2132,32 @@ async function deleteMyAccount(pass) {
   await deleteUser(u);
   S.deleting = false;
 }
+
+/* ---------- تعديل رقم الهاتف بموافقة المشرف ---------- */
+function renderPhoneReq() {
+  const r = S.phoneReq, box = $('phone-req'), btn = $('phone-btn'); if (!box) return;
+  if (r && r.status === 'pending') { box.textContent = 'طلب تعديل إلى ' + r.phone + ' بانتظار موافقة المشرف. رقمك الحالي يبقى فعّالاً.'; btn.textContent = 'إلغاء الطلب'; btn.dataset.act = 'phone-cancel'; }
+  else { box.textContent = ''; btn.textContent = 'طلب تعديل الرقم'; btn.dataset.act = 'phone-change'; }
+}
+async function showPhoneResult() {
+  if (S.phoneInfoShown) return; S.phoneInfoShown = true;
+  const r = S.phoneReq;
+  const msg = r.status === 'approved' ? 'تم قبول تعديل رقمك إلى ' + r.phone + '.' : 'رُفض طلب تعديل رقمك' + (r.reason ? '. السبب: ' + r.reason : '.');
+  await info(msg);
+  try { await remove(ref(db, 'phoneReq/' + S.uid)); } catch {}
+  S.phoneInfoShown = false;
+}
+$('ph-no').onclick = () => { $('modal-phone').hidden = true; };
+$('ph-ok').onclick = async () => {
+  const np = normPhone($('ph-new').value);
+  if (!np) return toast('رقم غير صحيح. اكتبه مثل 09xxxxxxxx');
+  if (np === S.me.phone) return toast('هذا رقمك الحالي');
+  if (!S.limited) {
+    try { const sn = await get(ref(db, 'phoneIndex/' + await phoneHash(np))); if (sn.exists() && sn.val().uid !== S.uid) return toast('هذا الرقم مسجّل لحساب آخر'); } catch {}
+  }
+  try { await set(ref(db, 'phoneReq/' + S.uid), { phone: np, old: S.me.phone || '', ts: Date.now(), status: 'pending' }); $('modal-phone').hidden = true; toast('أُرسل الطلب إلى المشرف'); }
+  catch { toast('تعذر إرسال الطلب'); }
+};
 
 /* ---------- بيانات التشخيص ---------- */
 window.__diagExtra = () => `الحساب: ${S.me ? S.me.status + '/' + S.me.role : 'غير مسجّل'} | الوضع: ${S.mode || '-'} | المرجع: ${S.uid || '-'}`;
