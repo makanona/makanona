@@ -398,6 +398,7 @@ window.APP_CONFIG = {
       <button class="btn sm" id="p-wa" data-act="p-wa" hidden>راسله واتساب</button>
       <span class="pchip" id="p-dist" hidden></span>
     </div>
+    <div id="p-gap" class="hint" hidden style="margin:0 0 8px"></div>
     <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b>الموقع مطفأ في هاتفه</b><span class="hint">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
     <div id="p-trip"></div>
   </div>
@@ -472,10 +473,12 @@ window.APP_CONFIG = {
       <div class="sw-row"><span>بطارية ضعيفة</span><label class="switch"><input type="checkbox" id="al-bat-on" aria-label="بطارية ضعيفة"><span></span></label></div>
       <label>عند نزولها إلى (٪)<input id="al-bat-pct" inputmode="numeric" dir="ltr" placeholder="15"></label>
       <div class="sw-row"><span>عدم نشاط (لم يتحدّث موقعه)</span><label class="switch"><input type="checkbox" id="al-idle-on" aria-label="عدم نشاط"><span></span></label></div>
-      <label>بعد (ساعات)<input id="al-idle-hrs" inputmode="numeric" dir="ltr" placeholder="3"></label>
+      <label>بعد (دقائق)<input id="al-idle-min" inputmode="numeric" dir="ltr" placeholder="15"></label>
+      <div class="sw-row"><span>صديق أطفأ الموقع في هاتفه</span><label class="switch"><input type="checkbox" id="al-off-on" aria-label="إطفاء الموقع"><span></span></label></div>
       <div class="sw-row"><span>بدء القيادة</span><label class="switch"><input type="checkbox" id="al-drive-on" aria-label="بدء القيادة"><span></span></label></div>
       <div class="sw-row"><span>سرعة عالية</span><label class="switch"><input type="checkbox" id="al-speed-on" aria-label="سرعة عالية"><span></span></label></div>
       <label>عند تجاوز (كم/س)<input id="al-speed-kmh" inputmode="numeric" dir="ltr" placeholder="120"></label>
+      <div class="sw-row"><span>تنبيهات تصلني على هاتفي عند توقف إرسال موقعي</span><label class="switch"><input type="checkbox" id="al-self-on" aria-label="تنبيهات عن هاتفي"><span></span></label></div>
       <div class="sw-row"><span>استقبال استغاثة SOS من أصدقائك</span><label class="switch"><input type="checkbox" id="al-sos-on" aria-label="استقبال SOS"><span></span></label></div>
       <button class="btn primary" data-act="al-save">حفظ التنبيهات</button>
     </div>
@@ -486,7 +489,7 @@ window.APP_CONFIG = {
       <button class="btn" data-act="pl-add">إضافة مكان</button>
     </div>
     <div class="card" id="native-card" hidden>
-      <b>حالة الإرسال من هذا الهاتف</b>
+      <b>صحة التطبيق على هذا الهاتف</b>
       <div id="native-status"></div>
       <button id="btn-wiz" class="btn">فتح معالج الإعداد</button>
       <button id="btn-notif-set" class="btn">إعدادات إشعار الإرسال</button>
@@ -661,7 +664,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '12';
+const UI_VERSION = '13';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -680,6 +683,7 @@ const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
+  gaps: {},
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
@@ -1215,7 +1219,10 @@ function describe(id) {
   if (!l || typeof l.ts !== 'number') txt = 'لا توجد بيانات بعد';
   else if (l.off === true) { cls = 'off'; txt = 'الموقع مطفأ في هاتفه'; }
   else if (Date.now() - l.ts < 180000) { cls = 'on'; txt = 'متصل الآن'; }
-  else { cls = 'off'; txt = 'آخر ظهور قبل ' + ago(l.ts); }
+  else {
+    cls = 'off'; txt = 'آخر ظهور قبل ' + ago(l.ts);
+    if (typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 5 && !l.chg) txt += ` (آخر بطارية ${l.bat}%، ربما نفدت)`;
+  }
   return { txt, cls };
 }
 function renderSheet() {
@@ -1254,7 +1261,7 @@ function applyTabVisibility() {
 }
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
-  S.person = id; applyTabVisibility(); renderPerson(); focusOn(id); loadLastTrip(id);
+  S.person = id; applyTabVisibility(); renderPerson(); focusOn(id); loadLastTrip(id); loadLastGap(id);
 }
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); }
 function renderPerson() {
@@ -1268,6 +1275,9 @@ function renderPerson() {
   const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
   $('p-off').hidden = !(l && l.off === true);
+  const gp = S.gaps[id];
+  if (gp && Date.now() - gp.to < 864e5) { $('p-gap').textContent = 'آخر انقطاع: قبل ' + ago(gp.to) + '، دام ' + fmtDur(gp.to - gp.from) + '، ' + gapText(gp); $('p-gap').hidden = false; }
+  else $('p-gap').hidden = true;
   $('p-wa').hidden = !(id !== S.uid && phoneOf(id));
   if (id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = 'المسافة منك ' + fmtKm(haversine(me, l)); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
@@ -1546,12 +1556,14 @@ async function loadHistory() {
     : `<div class="row tap" data-act="h-stop" data-id="${i}"><div class="grow"><div class="nm">وقفة</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st" id="hs-${i}"></div></div></div>`
   ).join('') || '<p class="hint" style="padding:8px 0">لا رحلات ولا وقفات واضحة في هذا اليوم.</p>';
   an.items.forEach((it, i) => { if (it.type === 'stop' && i < 40) geocode(it.lat, it.lng).then(t => { const el = $('hs-' + i); if (el && t) el.textContent = t; }); });
+  loadDayGaps(uid, day);
   fitHistory();
 }
 async function prune(uid) {
   const cutoff = dayKey(Date.now() - (PRUNE_DAYS + 1) * 864e5);
   const sn = await get(query(ref(db, 'history/' + uid), orderByKey(), endAt(cutoff)));
   const ups = {}; sn.forEach(c => { ups[`history/${uid}/${c.key}`] = null; });
+  try { const gs = await get(query(ref(db, 'gaps/' + uid), orderByKey(), endAt(cutoff))); gs.forEach(c => { ups[`gaps/${uid}/${c.key}`] = null; }); } catch {}
   const n = Object.keys(ups).length; if (n) await update(ref(db), ups);
   return n;
 }
@@ -1660,10 +1672,23 @@ $('prox-on').onchange = async e => {
 function renderNative() {
   if (!isNative) return;
   const s = nat(); if (!s) return;
-  const line = (t, ok) => `<div class="row" style="padding:6px 0"><div class="grow">${t}</div><span class="badge ${ok ? 'ok' : 'bad'}">${ok ? 'مفعّل' : 'غير مفعّل'}</span></div>`;
-  $('native-status').innerHTML = line('الموقع', s.fine) + line('الموقع طوال الوقت', s.bg) + line('الإشعارات', s.notif) + line('استثناء توفير البطارية', s.battery) + line('جهات الاتصال', s.contacts) +
-    `<p class="hint">${s.sharing ? (s.lastSend ? 'آخر إرسال قبل ' + ago(s.lastSend) : 'الخدمة تعمل ولم يُرسل موقع بعد') : 'الخدمة متوقفة'}</p>`;
+  const recent = s.sharing && s.lastSend && Date.now() - s.lastSend < 180000;
+  const items = [
+    ['الموقع', !!s.fine, false], ['الموقع طوال الوقت', !!s.bg, false], ['خدمة الموقع في الهاتف مفعّلة', s.locOn !== false, false],
+    ['الإشعارات', !!s.notif, false], ['استثناء توفير البطارية', !!s.battery, false], ['الإنترنت متاح', s.net !== false, false],
+    ['الإرسال حديث (آخر 3 دقائق)', !!recent, !s.sharing], ['جهات الاتصال (اختياري)', !!s.contacts, true]
+  ];
+  const line = ([t, ok, opt]) => `<div class="row" style="padding:6px 0"><div class="grow">${t}</div><span class="badge ${ok ? 'ok' : opt ? 'warn' : 'bad'}">${ok ? 'سليم' : opt ? 'غير مفعّل' : 'يحتاج إصلاحاً'}</span></div>`;
+  const bad = items.filter(i => !i[1] && !i[2]).length;
+  const wasOpen = $('native-status').querySelector('details')?.open;
+  const g = brandGuide(s.brand);
+  const ex = s.exitTxt && s.exitAt && Date.now() - s.exitAt < 7 * 864e5 ? `<p class="hint">آخر إغلاق للتطبيق: ${esc(s.exitTxt)} (قبل ${esc(ago(s.exitAt))})</p>` : '';
+  $('native-status').innerHTML = `<p class="hint" style="font-weight:700;color:var(--${bad ? 'bad' : 'ok'})">${bad ? bad + ' من البنود قد توقف إرسال موقعك' : 'كل شيء سليم'}</p>` + items.map(line).join('') +
+    `<p class="hint">${s.sharing ? (s.lastSend ? 'آخر إرسال قبل ' + ago(s.lastSend) : 'الخدمة تعمل ولم يُرسل موقع بعد') : 'الخدمة متوقفة'}</p>` + ex +
+    `<details ${wasOpen ? 'open' : ''}><summary class="hint" style="cursor:pointer;font-weight:700">هاتفي يوقف التطبيق، كيف أمنعه؟</summary><p class="hint">${esc(g.text)}</p><button class="btn sm" data-act="health-autostart">فتح إعداد التشغيل التلقائي</button> <button class="btn sm" data-act="health-dkma">تفاصيل أكثر عن هاتفي</button></details>`;
 }
+setInterval(() => { if (isNative && S.tab === 'me' && !document.hidden) renderNative(); }, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && isNative) renderNative(); });
 $('btn-save-profile').onclick = async () => {
   const name = $('me-name').value.trim(); if (!name) return toast('اكتب الاسم');
   const ups = { ['directory/' + S.uid + '/name']: name, ['directory/' + S.uid + '/color']: S.pickColor };
@@ -1843,6 +1868,8 @@ const ACTIONS = {
     await update(ref(db), { ['phoneReq/' + id]: { ...rq, status: 'rejected', reason: why, decidedAt: Date.now() } });
     toast('تم رفض الطلب');
   },
+  'health-autostart': () => { try { window.AndroidBridge.openAutoStart(); } catch {} },
+  'health-dkma': () => { const g = brandGuide((nat() || {}).brand); openExternal('https://dontkillmyapp.com/' + g.slug); },
   'al-save': async () => { try { await saveAlerts(); } catch { toast('تعذر الحفظ'); } },
   'pl-add': () => startPick(),
   'pl-del': async id => { if (await ask('حذف هذا المكان؟', 'حذف')) await remove(ref(db, `places/${S.uid}/${id}`)); },
@@ -2014,7 +2041,9 @@ function alertsConfig() {
   return {
     prox: { on: !!a.on, km: Number(a.km) || 50 },
     bat: { on: !!a.batOn, pct: Number(a.batPct) || 15 },
-    idle: { on: !!a.idleOn, hrs: Number(a.idleHrs) || 3 },
+    idle: { on: !!a.idleOn, min: Number(a.idleMin) || (a.idleHrs ? Number(a.idleHrs) * 60 : 15) },
+    off: { on: a.offOn !== false },
+    self: { on: a.selfOn !== false },
     drive: { on: !!a.driveOn },
     speed: { on: !!a.speedOn, kmh: Number(a.speedKmh) || 120 },
     sos: { on: a.sosOn !== false },
@@ -2033,19 +2062,20 @@ function renderAlerts() {
   const a = S.alerts || {};
   const setv = (id, v) => { const e = $(id); if (!e || document.activeElement === e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; };
   setv('al-bat-on', a.batOn); setv('al-bat-pct', a.batPct || 15);
-  setv('al-idle-on', a.idleOn); setv('al-idle-hrs', a.idleHrs || 3);
+  setv('al-idle-on', a.idleOn); setv('al-idle-min', a.idleMin || (a.idleHrs ? a.idleHrs * 60 : 15));
+  setv('al-off-on', a.offOn !== false); setv('al-self-on', a.selfOn !== false);
   setv('al-drive-on', a.driveOn);
   setv('al-speed-on', a.speedOn); setv('al-speed-kmh', a.speedKmh || 120);
   setv('al-sos-on', a.sosOn !== false);
 }
 async function saveAlerts() {
   const num = (id, min, max) => { const v = Number(toLatin($(id).value)); return (v >= min && v <= max) ? v : null; };
-  const batPct = num('al-bat-pct', 5, 50), idleHrs = num('al-idle-hrs', 1, 72), speedKmh = num('al-speed-kmh', 40, 250);
+  const batPct = num('al-bat-pct', 5, 50), idleMin = num('al-idle-min', 10, 4320), speedKmh = num('al-speed-kmh', 40, 250);
   if (batPct === null) return toast('نسبة البطارية من 5 إلى 50');
-  if (idleHrs === null) return toast('ساعات عدم النشاط من 1 إلى 72');
+  if (idleMin === null) return toast('دقائق عدم النشاط من 10 إلى 4320');
   if (speedKmh === null) return toast('السرعة من 40 إلى 250 كم/س');
   const p = 'alerts/' + S.uid + '/';
-  await update(ref(db), { [p + 'batOn']: $('al-bat-on').checked, [p + 'batPct']: batPct, [p + 'idleOn']: $('al-idle-on').checked, [p + 'idleHrs']: idleHrs, [p + 'driveOn']: $('al-drive-on').checked, [p + 'speedOn']: $('al-speed-on').checked, [p + 'speedKmh']: speedKmh, [p + 'sosOn']: $('al-sos-on').checked });
+  await update(ref(db), { [p + 'batOn']: $('al-bat-on').checked, [p + 'batPct']: batPct, [p + 'idleOn']: $('al-idle-on').checked, [p + 'idleMin']: idleMin, [p + 'idleHrs']: null, [p + 'offOn']: $('al-off-on').checked, [p + 'selfOn']: $('al-self-on').checked, [p + 'driveOn']: $('al-drive-on').checked, [p + 'speedOn']: $('al-speed-on').checked, [p + 'speedKmh']: speedKmh, [p + 'sosOn']: $('al-sos-on').checked });
   toast('تم حفظ التنبيهات');
 }
 function renderPlaces() {
@@ -2191,7 +2221,7 @@ async function deleteMyAccount(pass) {
     for (const f of Object.keys(S.reqs)) ups[`requests/${uid}/${f}`] = null;
     for (const f of Object.keys(S.sosIn)) ups[`sosInbox/${uid}/${f}`] = null;
     if (S.myHash) ups['phoneIndex/' + S.myHash] = null;
-    for (let k = 0; k <= 47; k++) ups[`history/${uid}/${dayKey(Date.now() - k * 864e5)}`] = null;
+    for (let k = 0; k <= 47; k++) { const dk = dayKey(Date.now() - k * 864e5); ups[`history/${uid}/${dk}`] = null; ups[`gaps/${uid}/${dk}`] = null; }
   }
   // نقطع المستمعين قبل الحذف حتى لا يُعاد إنشاء السجل تلقائياً
   S.deleting = true;
@@ -2228,6 +2258,38 @@ $('ph-ok').onclick = async () => {
   try { await set(ref(db, 'phoneReq/' + S.uid), { phone: np, old: S.me.phone || '', ts: Date.now(), status: 'pending' }); $('modal-phone').hidden = true; toast('أُرسل الطلب إلى المشرف'); }
   catch { toast('تعذر إرسال الطلب'); }
 };
+
+/* ---------- أسباب الانقطاع ---------- */
+const GAP_WHY = { net: 'انقطع الإنترنت عن الهاتف', sys: 'أغلق النظام التطبيق', user: 'أُوقف التطبيق يدوياً', loc: 'أُطفئ الموقع في الهاتف', boot: 'أُطفئ الهاتف أو أُعيد تشغيله', unk: 'السبب غير معروف' };
+const gapText = g => (GAP_WHY[g.why] || GAP_WHY.unk) + (g.note ? ' (' + g.note + ')' : '') + (typeof g.bat === 'number' && g.bat >= 0 && g.bat <= 15 ? '، آخر بطارية ' + g.bat + '%' : '');
+const gapRow = g => `<div class="row"><div class="grow"><div class="nm">انقطاع ${esc(fmtDur(g.to - g.from))}</div><div class="st">${esc(fmtTime(g.from))} – ${esc(fmtTime(g.to))}، ${esc(gapText(g))}</div></div></div>`;
+async function loadLastGap(id) {
+  if (S.limited) return;
+  const days = [dayKey(Date.now()), dayKey(Date.now() - 864e5)];
+  let best = null;
+  for (const d of days) {
+    try { const v = (await get(ref(db, `gaps/${id}/${d}`))).val(); for (const g of Object.values(v || {})) if (g && typeof g.to === 'number' && (!best || g.to > best.to)) best = g; } catch {}
+  }
+  S.gaps[id] = best; if (S.person === id) renderPerson();
+}
+async function loadDayGaps(uid, day) {
+  let obj = null; try { obj = (await get(ref(db, `gaps/${uid}/${day}`))).val(); } catch {}
+  if (S.histFor !== uid || $('h-day').value !== day) return;
+  const gaps = Object.values(obj || {}).filter(g => g && typeof g.from === 'number' && typeof g.to === 'number').sort((a, b) => a.from - b.from);
+  if (!gaps.length) return;
+  $('h-list').insertAdjacentHTML('beforeend', '<div class="nm" style="padding:10px 0 4px">انقطاعات التسجيل</div>' + gaps.map(gapRow).join(''));
+}
+
+/* ---------- صحة التطبيق على هذا الهاتف ---------- */
+const BRAND_GUIDE = [
+  [['xiaomi', 'redmi', 'poco'], 'xiaomi', 'الأمان ثم التطبيقات ثم الأذونات ثم «التشغيل التلقائي»: فعّله لمكاننا. ثم افتح التطبيقات الأخيرة واضغط مطولاً على بطاقة التطبيق واختر القفل. وفي البطارية اجعله «بلا قيود».'],
+  [['oppo', 'realme', 'oneplus'], 'oppo', 'إعدادات التطبيق ثم استخدام البطارية: اسمح بالنشاط في الخلفية، وفعّل «التشغيل التلقائي»، وأقفل التطبيق في التطبيقات الأخيرة.'],
+  [['vivo', 'iqoo'], 'vivo', 'البطارية ثم نشاط الخلفية: اسمح، وفعّل «التشغيل التلقائي»، وأقفل التطبيق في التطبيقات الأخيرة.'],
+  [['huawei', 'honor'], 'huawei', 'إطلاق التطبيقات: ألغِ «الإدارة التلقائية» وفعّل الثلاثة: التشغيل التلقائي، والتشغيل الثانوي، والعمل في الخلفية.'],
+  [['samsung'], 'samsung', 'البطارية ثم حدود الاستخدام في الخلفية: أزل التطبيق من «التطبيقات النائمة» وأضفه إلى «لا تنام أبداً»، وأقفل التطبيق في الأخيرة.'],
+  [['infinix', 'tecno', 'itel', 'transsion'], 'tecno', 'مدير الهاتف ثم التشغيل التلقائي: فعّله لمكاننا. وفي البطارية اجعله بلا قيود، وأقفل التطبيق في التطبيقات الأخيرة.']
+];
+const brandGuide = b => { b = String(b || '').toLowerCase(); const g = BRAND_GUIDE.find(x => x[0].some(k => b.includes(k))); return g ? { slug: g[1], text: g[2] } : { slug: '', text: 'اجعل استخدام البطارية للتطبيق «بلا قيود»، وأقفله في قائمة التطبيقات الأخيرة بالضغط المطول على بطاقته.' }; };
 
 /* ---------- بيانات التشخيص ---------- */
 window.__diagExtra = () => `الحساب: ${S.me ? S.me.status + '/' + S.me.role : 'غير مسجّل'} | الوضع: ${S.mode || '-'} | المرجع: ${S.uid || '-'}`;
