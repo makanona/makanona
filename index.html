@@ -183,17 +183,64 @@ window.__diagText = function () {
   L1.push('المتصفح: ' + navigator.userAgent);
   try { if (window.AndroidBridge) L1.push('التطبيق: ' + window.AndroidBridge.status()); } catch (x) {}
   try { if (window.__diagExtra) L1.push(window.__diagExtra()); } catch (x) {}
+  var STEPS = { html: 'تحميل المكتبات', 'auth-wait': 'انتظار الجلسة المحفوظة', profile: 'قراءة الحساب', auth: 'شاشة الدخول' };
+  L1.push('مرحلة البداية: ' + (STEPS[b.step] || b.step || '-') + ' منذ ' + Math.round((Date.now() - (b.stepAt || b.t0)) / 1000) + ' ث، محاولة الإصلاح: ' + (b.heal || 0) + (b.ok ? ' (اكتملت البداية)' : ''));
   L1.push('الأخطاء: ' + (b.errors.length ? b.errors.join(' | ') : 'لا شيء'));
   L1.push('الزمن منذ الفتح: ' + Math.round((Date.now() - b.t0) / 1000) + ' ث');
   return L1.join('\n');
 };
-setTimeout(function () {
-  if (window.__boot.ok) return;
-  var m = document.getElementById('modal'); if (m && !m.hidden) return;
-  var d = document.getElementById('v-diag'); if (!d) return;
-  document.getElementById('diag-text').textContent = window.__diagText();
-  d.hidden = false;
-}, 15000);
+/* إصلاح ذاتي متدرج: يعيد التحميل، ثم يمسح البيانات المؤقتة، ثم يمسح الجلسة التالفة، ثم يعرض التشخيص */
+(function () {
+  var q = new URLSearchParams(location.search);
+  var heal = parseInt(q.get('heal') || '0', 10) || 0, b = window.__boot;
+  b.heal = heal; b.step = 'html'; b.stepAt = Date.now();
+  window.__setStep = function (s) { b.step = s; b.stepAt = Date.now(); };
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  // حذف قاعدة الجلسة قبل أن تفتحها مكتبة Firebase (المرحلة الثالثة)
+  if (q.get('wipe') === '1') { try { indexedDB.deleteDatabase('firebaseLocalStorageDb'); } catch (e) {} }
+  // تقرير تلقائي للمشرف: مرة في الساعة لكل نوع ولكل جهاز
+  window.__report = function (kind) {
+    try {
+      var url = lsGet('mk_script'); if (!url) return;
+      var key = 'mk_rep_' + kind; if (Date.now() - (+(lsGet(key) || 0)) < 3600e3) return;
+      lsSet(key, String(Date.now()));
+      var body = JSON.stringify({ action: 'diag', kind: kind, who: lsGet('mk_last_email') || '', text: window.__diagText().slice(0, 3000) });
+      var sent = false;
+      try { sent = !!(navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=utf-8' }))); } catch (e) {}
+      if (!sent) { try { fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body }); } catch (e) {} }
+    } catch (e) {}
+  };
+  function go(n, extra) { location.replace(location.pathname + '?heal=' + n + '&v=' + Date.now() + (extra || '')); }
+  function clearLocal() {
+    try { var ks = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('mk_') !== 0) ks.push(k); } ks.forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+    try { if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }); } catch (e) {}
+    try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}
+  }
+  var done = false;
+  function showDiag() {
+    done = true; window.__report('failed');
+    var d = document.getElementById('v-diag'); if (!d) return;
+    document.getElementById('diag-text').textContent = window.__diagText();
+    d.hidden = false;
+  }
+  setInterval(function () {
+    if (b.ok || done) return;
+    var m = document.getElementById('modal'); if (m && !m.hidden) { b.stepAt = Date.now(); return; }
+    var since = Date.now() - b.stepAt, total = Date.now() - b.t0, online = navigator.onLine !== false;
+    var kind = '';
+    if (b.step === 'auth-wait' && since > 6000) kind = 'session';         // الجلسة المحفوظة لا تستجيب
+    else if (b.step === 'profile' && since > 20000) kind = 'data';        // قراءة الحساب لا تكتمل
+    else if (b.step === 'html' && total > 25000) kind = 'net';            // مكتبات Firebase لم تُحمَّل
+    if (!kind) return;
+    if (kind === 'net' || !online) { showDiag(); return; }                // ضعف اتصال: لا نمسح شيئاً
+    if (heal === 0) { window.__report('stuck'); go(1); }
+    else if (heal === 1) { clearLocal(); go(2); }
+    else if (heal === 2 && kind === 'session') { lsSet('mk_ls_auth', '1'); go(3, '&wipe=1'); }
+    else showDiag();
+  }, 1000);
+})();
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('diag-retry').onclick = function () { location.reload(); };
   document.getElementById('diag-copy').onclick = function () {
@@ -223,7 +270,7 @@ window.APP_CONFIG = {
 <div id="v-diag" class="view" hidden style="z-index:2000;background:var(--bg)">
   <div class="auth">
     <h2>تعذر إكمال تشغيل التطبيق</h2>
-    <p class="lead">لم تكتمل بداية الصفحة خلال 15 ثانية. هذا ملخص يساعد في معرفة السبب.</p>
+    <p class="lead">لم تكتمل بداية الصفحة رغم محاولات الإصلاح التلقائي. هذا ملخص يساعد في معرفة السبب، وقد أُرسل نسخة منه للمشرف تلقائياً.</p>
     <pre id="diag-text" style="white-space:pre-wrap;direction:ltr;text-align:left;font-size:12px;background:#fff;border-radius:12px;padding:10px;max-height:40vh;overflow:auto;margin:0"></pre>
     <button class="btn primary block" id="diag-retry">إعادة المحاولة</button>
     <button class="btn block" id="diag-copy">نسخ التشخيص</button>
@@ -454,7 +501,7 @@ window.APP_CONFIG = {
     </div>
     <div class="card">
       <p class="hint" id="ver-line"></p>
-      <a class="link" href="privacy.html" target="_blank">سياسة الخصوصية</a>
+      <button class="link" data-act="open-privacy">سياسة الخصوصية</button>
       <button class="btn" data-act="diag-send">إرسال بيانات التشخيص للمشرف</button>
       <button id="btn-pw" class="btn">إرسال رابط تغيير كلمة السر</button>
       <button id="btn-out2" class="btn danger">تسجيل الخروج</button>
@@ -599,17 +646,22 @@ window.APP_CONFIG = {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const CFG = window.APP_CONFIG;
 const app = initializeApp(CFG.firebase);
-const auth = getAuth(app);
+/* الجلسة في IndexedDB مع بديل localStorage. وإن تلفت IndexedDB على هذا الجهاز سابقاً نستعمل localStorage وحدها */
+const useLsAuth = (() => { try { return localStorage.getItem('mk_ls_auth') === '1'; } catch { return false; } })();
+let auth;
+try { auth = initializeAuth(app, { persistence: useLsAuth ? [browserLocalPersistence] : [indexedDBLocalPersistence, browserLocalPersistence] }); }
+catch { auth = getAuth(app); }
+if (window.__setStep) window.__setStep('auth-wait');
 const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '10';
+const UI_VERSION = '12';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -639,6 +691,14 @@ const S = {
 
 /* ---------- أدوات ---------- */
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3600); }
+/* فتح الروابط خارج التطبيق: عبر جسر أندرويد إن وُجد، وإلا نافذة جديدة */
+function openExternal(url) {
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function') { window.AndroidBridge.openUrl(url); return true; }
+  } catch {}
+  window.open(url, '_blank', 'noopener');
+  return true;
+}
 function info(msg, ok = 'حسناً') {
   return new Promise(res => {
     $('modal-msg').textContent = msg; $('modal-ok').textContent = ok; $('modal-no').hidden = true; $('modal').hidden = false;
@@ -672,7 +732,7 @@ function ago(ts) {
   return Math.round(s / 86400) + ' يوم';
 }
 const fmtDate = ts => new Date(ts).toLocaleDateString('ar', { day: 'numeric', month: 'short' });
-function showView(v) { for (const id of ['loading', 'auth', 'profile', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; if (v !== 'loading') { window.__boot.ok = true; $('v-diag').hidden = true; } }
+function showView(v) { for (const id of ['loading', 'auth', 'profile', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; if (v !== 'loading' && !window.__boot.ok) { window.__boot.ok = true; $('v-diag').hidden = true; if (window.__boot.heal > 0) { window.__report && window.__report('healed'); try { history.replaceState(null, '', location.pathname); } catch {} } } }
 function authErr(e) {
   if (!e.code) return e.message || 'تعذر تنفيذ الطلب';
   const m = {
@@ -715,6 +775,7 @@ const PUB = {};
 async function loadPublic() {
   try {
     Object.assign(PUB, (await get(ref(db, 'publicConfig'))).val() || {});
+    try { if (PUB.scriptUrl) localStorage.setItem('mk_script', PUB.scriptUrl); } catch {}
     const parts = [];
     if (PUB.contactWhatsapp) parts.push(`<a href="https://wa.me/${esc(String(PUB.contactWhatsapp).replace(/\D/g, ''))}" target="_blank">واتساب المشرف</a>`);
     if (PUB.contactEmail) parts.push(`<a href="mailto:${esc(PUB.contactEmail)}">${esc(PUB.contactEmail)}</a>`);
@@ -841,8 +902,10 @@ $('pf-save').onclick = async () => {
 };
 
 onAuthStateChanged(auth, u => {
+  if (window.__setStep) window.__setStep(u ? 'profile' : 'auth');
+  if (u && u.email) { try { localStorage.setItem('mk_last_email', u.email); } catch {} }
   cleanup(true);
-  if (!u) { S.uid = null; showView('auth'); if (S.kickMsg) { $('auth-err').textContent = S.kickMsg; S.kickMsg = ''; } return; }
+  if (!u) { S.uid = null; showView('auth'); if ((window.__boot.heal || 0) >= 3 && !S.kickMsg) S.kickMsg = 'أُعيد ضبط الجلسة تلقائياً لإصلاح مشكلة في التشغيل. سجّل الدخول من جديد.'; if (S.kickMsg) { $('auth-err').textContent = S.kickMsg; S.kickMsg = ''; } return; }
   S.uid = u.uid; showView('loading');
   S.meUn = onValue(ref(db, 'users/' + u.uid), snap => {
     S.me = snap.val();
@@ -1063,7 +1126,7 @@ const phoneOf = id => String(S.users[id]?.phone || (S.phones[id] ? '+' + S.phone
 
 /* ---------- العنوان (حي أو شارع) من OpenStreetMap Nominatim ---------- */
 const ADDR = { cache: {}, fail: {}, q: [], busy: false, asked: new Set(), last: {} };
-try { ADDR.cache = JSON.parse(localStorage.getItem('addrCache') || '{}'); } catch {}
+try { const raw = localStorage.getItem('addrCache') || '{}'; ADDR.cache = raw.length > 200000 ? {} : JSON.parse(raw); if (!ADDR.cache || typeof ADDR.cache !== 'object') ADDR.cache = {}; } catch { ADDR.cache = {}; try { localStorage.removeItem('addrCache'); } catch {} }
 const addrKey = (la, ln) => la.toFixed(3) + ',' + ln.toFixed(3);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function fmtAddr(d) {
@@ -1740,7 +1803,7 @@ const ACTIONS = {
   'inv-contact': id => {
     const url = S.upd && S.upd.url;
     if (!url) return toast('لم يضع المشرف رابط التحميل بعد. اطلبه منه.');
-    window.open('https://wa.me/' + id + '?text=' + encodeURIComponent('جرّب تطبيق ' + CFG.appName + ' لمشاركة الموقع مع العائلة. حمّله من: ' + url), '_blank');
+    openExternal('https://wa.me/' + id + '?text=' + encodeURIComponent('جرّب تطبيق ' + CFG.appName + ' لمشاركة الموقع مع العائلة. حمّله من: ' + url));
   },
   'hist-load': () => loadHistory(),
   style: id => { setStyle(id); $('style-menu').hidden = true; },
@@ -1788,7 +1851,7 @@ const ACTIONS = {
   nick: id => openNick(id),
   'photo-pick': () => $('photo-file').click(),
   'photo-del': async () => { await update(ref(db), { ['directory/' + S.uid + '/photo']: null }); toast('أُزيلت الصورة'); },
-  'p-wa': () => { const ph = phoneOf(S.person); if (ph) window.open('https://wa.me/' + ph, '_blank'); },
+  'p-wa': () => { const ph = phoneOf(S.person); if (ph) openExternal('https://wa.me/' + ph); },
   'del-open': () => { $('del-pass').value = ''; $('del-err').textContent = ''; $('modal-del').hidden = false; },
   'diag-send': () => sendDiag(),
   'sos-cancel': () => cancelSos(),
@@ -1801,7 +1864,14 @@ const ACTIONS = {
   },
   'sos-dismiss': id => remove(ref(db, `sosInbox/${S.uid}/${id}`)),
   'refresh-contacts': () => refreshContacts(),
-  'upd-go': () => { if (S.upd && S.upd.url) window.open(S.upd.url, '_blank'); else toast('رابط التحميل غير محدد بعد'); },
+  'upd-go': async () => {
+    const url = S.upd && S.upd.url; if (!url) return toast('رابط التحميل غير محدد بعد');
+    const bridge = isNative && window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function';
+    let same = false; try { same = new URL(url, location.href).host === location.host; } catch {}
+    if (isNative && !bridge && same) { await copy(url); await info('هذه النسخة من التطبيق لا تستطيع فتح الملف مباشرة. نُسخ رابط التحميل، فافتح Chrome والصقه في شريط العنوان لتنزيل التحديث.'); return; }
+    openExternal(url);
+  },
+  'open-privacy': () => openExternal(new URL('privacy.html', location.href).href),
   'upd-later': () => { S.updDismissed = true; renderUpdate(); },
   'prox-pick': async id => { $('prox-km').value = id; if (await saveProx($('prox-on').checked, id)) toast('تم حفظ المسافة: ' + id + ' كم'); },
   'prox-save': async () => { if (await saveProx($('prox-on').checked, $('prox-km').value)) toast('تم حفظ المسافة'); },
@@ -1834,7 +1904,7 @@ const ACTIONS = {
     $('inv-name').value = $('inv-email').value = $('inv-phone').value = '';
     if (email && mailReady()) await mailInvite(code); else toast('أُنشئت الدعوة: ' + code);
   },
-  'inv-wa': id => { const i = S.invites[id]; window.open('https://wa.me/' + i.phone + '?text=' + encodeURIComponent(inviteMsg(i, id)), '_blank'); },
+  'inv-wa': id => { const i = S.invites[id]; openExternal('https://wa.me/' + i.phone + '?text=' + encodeURIComponent(inviteMsg(i, id))); },
   'inv-mail': id => mailInvite(id),
   'inv-copy': id => copy(inviteMsg(S.invites[id], id)),
   'inv-del': async id => { if (await ask('حذف هذه الدعوة؟', 'حذف')) await remove(ref(db, 'invites/' + id)); },
@@ -2165,7 +2235,7 @@ async function sendDiag() {
   const t = window.__diagText();
   try { await navigator.clipboard.writeText(t); } catch {}
   const wa = String(PUB.contactWhatsapp || '').replace(/\D/g, '');
-  if (wa) window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent('بيانات تشخيص مكاننا:\n' + t.slice(0, 1400)), '_blank');
+  if (wa) openExternal('https://wa.me/' + wa + '?text=' + encodeURIComponent('بيانات تشخيص مكاننا:\n' + t.slice(0, 1400)));
   else toast('نُسخ التشخيص. ألصقه في رسالة للمشرف.');
 }
 
@@ -2191,7 +2261,7 @@ function renderAll() {
 }
 
 /* ---------- تطبيق أندرويد: معالج الإعداد ---------- */
-const flag = k => localStorage.getItem(k) === '1';
+const flag = k => { try { return localStorage.getItem(k) === '1'; } catch { return false; } };
 const STEPS = [
   { id: 'fine', title: 'السماح بالوصول إلى الموقع', text: 'يحتاج التطبيق موقع هاتفك ليظهر على خريطة العائلة. اضغط الزر ثم اختر «أثناء استخدام التطبيق» أو «السماح».', btn: 'السماح بالموقع', act: () => AndroidBridge.requestLocation(), done: s => s.fine, skipLabel: 'لاحقاً (لن يعمل الإرسال)', onSkip: () => localStorage.setItem('skip_fine', '1'), skipped: () => flag('skip_fine') },
   { id: 'bg', only: s => s.fine, title: 'الموقع طوال الوقت', text: 'ليستمر الإرسال والشاشة مطفأة، افتح الأذونات ثم الموقع واختر «السماح طوال الوقت».', btn: 'فتح الإعداد', act: () => AndroidBridge.requestBackground(), done: s => s.bg, skipLabel: 'لاحقاً (يتوقف الإرسال عند إغلاق التطبيق)', onSkip: () => localStorage.setItem('skip_bg', '1'), skipped: () => flag('skip_bg') },
