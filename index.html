@@ -132,6 +132,30 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 #pick-bar .btn{padding:6px 10px;font-size:12px}
 .pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#E9F0F7;font-size:12px;font-weight:600}
 #hsheet{max-height:62vh}
+#h-slider{margin-top:8px}
+#sos-confirm{position:fixed;inset-inline:20px;top:50%;transform:translateY(-50%);z-index:1250;background:#fff;border-radius:20px;padding:18px;text-align:center;box-shadow:0 8px 40px #0006;display:flex;flex-direction:column;gap:8px;max-width:420px;margin-inline:auto}
+#sos-confirm p{margin:0;font-size:13.5px;color:var(--ink2)}
+#sos-n{font-size:64px;font-weight:800;color:var(--bad);line-height:1}
+.sosrow.big{flex-wrap:wrap}
+.sosrow small{font-weight:500;opacity:.9}
+.subview{position:fixed;inset:0;z-index:700;background:var(--bg);overflow-y:auto;padding:calc(12px + env(safe-area-inset-top,0px)) 14px calc(28px + env(safe-area-inset-bottom,0px))}
+.sv-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sv-head b{flex:1;font-size:18px}
+.seg{display:flex;background:#fff;border-radius:12px;padding:3px;gap:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;padding:8px;border-radius:9px;font:inherit;font-weight:600;color:var(--ink2);cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.rbox{background:#fff;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.rbox b{font-size:20px}.rbox span{font-size:12px;color:var(--ink2)}
+.bars{display:flex;align-items:flex-end;gap:3px;height:100px;margin:6px 0}
+.bar{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;min-width:0}
+.bar i{display:block;width:100%;background:#3A6EA5;border-radius:4px 4px 0 0;min-height:2px}
+.bar em{font-size:9.5px;font-style:normal;color:var(--ink2);height:12px;white-space:nowrap}
+#rpt-bar{position:absolute;inset-inline:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:515;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
+#rpt-bar span{flex:1}
+#rpt-bar .btn{padding:5px 10px;font-size:12px}
+#v-main.hmode #rpt-bar{display:none}
+.plfr{padding:2px 0 8px;border-bottom:1px solid #0001;margin-bottom:6px}
 #hbar{position:absolute;inset-inline:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:530;background:var(--card);border-radius:16px;padding:8px 10px;box-shadow:0 2px 12px #0003;display:flex;flex-direction:column;gap:4px}
 #hbar .hrow{display:flex;align-items:center;gap:6px}
 #hbar input[type=date]{width:auto;flex:none;padding:6px 8px;font-size:14px}
@@ -349,6 +373,7 @@ window.APP_CONFIG = {
     <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
     <button class="fab sos" id="btn-sos" aria-label="استغاثة SOS">SOS</button>
   </div>
+  <div id="rpt-bar" hidden><span id="rpt-bar-t"></span><button class="btn sm" data-act="rpt-bar-open">عرض</button><button class="btn sm" data-act="rpt-bar-x">×</button></div>
   <div id="pick-bar" hidden><span>اضغط على الخريطة لتحديد المكان</span><button class="btn sm" data-act="pick-me">موقعي</button><button class="btn sm" data-act="pick-cancel">إلغاء</button></div>
   <div id="sos-bar"></div>
   <div id="send-bar" hidden><span>الإرسال متوقف: موقعك لا يصل للعائلة.</span><button class="btn sm" data-act="send-fix">إعداد</button></div>
@@ -376,10 +401,10 @@ window.APP_CONFIG = {
     <button class="grab-btn" id="hgrab" aria-label="توسيع قائمة السجل"><span class="grab"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <button class="btn sm hide-btn" data-act="h-hide">إخفاء</button>
     <div id="h-scrub" hidden>
-      <input id="h-slider" type="range" min="0" max="1000" step="1" value="0" dir="ltr" aria-label="الوقت">
       <div id="h-tlabel"></div>
       <canvas id="h-chart" style="width:100%;height:64px;display:block;margin-top:4px;touch-action:none;border-radius:10px;background:#fff" aria-label="مخطط السرعات على طول المسار"></canvas>
       <div class="legend"><span title="أقل من 7 كم/س"><i style="background:#3A6EA5"></i>مشي</span><span title="من 7 إلى 25 كم/س"><i style="background:#2F8F6B"></i>دراجة</span><span><i style="background:#E8A33D"></i>25-60</span><span><i style="background:#D2691E"></i>60-90</span><span><i style="background:#C4483B"></i>فوق 90</span></div>
+      <input id="h-slider" type="range" min="0" max="1000" step="1" value="0" dir="ltr" aria-label="الوقت">
       <div id="h-chartinfo" class="hint" style="text-align:center;margin-top:2px"></div>
     </div>
     <div id="h-sum" class="hsum"></div>
@@ -391,7 +416,6 @@ window.APP_CONFIG = {
       <div class="av" id="p-av"></div>
       <div class="grow"><div class="nm" id="p-name"></div><div class="st" id="p-st"></div><div class="st" id="p-addr"></div></div>
       <span class="badge" id="p-bat" hidden></span>
-      <button class="btn sm" data-act="p-close" aria-label="إغلاق">إغلاق</button>
     </div>
     <div class="pbtns">
       <button class="btn sm" id="p-hist-btn" data-act="p-hist">السجل</button>
@@ -475,16 +499,24 @@ window.APP_CONFIG = {
       <div class="sw-row"><span>عدم نشاط (لم يتحدّث موقعه)</span><label class="switch"><input type="checkbox" id="al-idle-on" aria-label="عدم نشاط"><span></span></label></div>
       <label>بعد (دقائق)<input id="al-idle-min" inputmode="numeric" dir="ltr" placeholder="15"></label>
       <div class="sw-row"><span>صديق أطفأ الموقع في هاتفه</span><label class="switch"><input type="checkbox" id="al-off-on" aria-label="إطفاء الموقع"><span></span></label></div>
-      <div class="sw-row"><span>بدء القيادة</span><label class="switch"><input type="checkbox" id="al-drive-on" aria-label="بدء القيادة"><span></span></label></div>
       <div class="sw-row"><span>سرعة عالية</span><label class="switch"><input type="checkbox" id="al-speed-on" aria-label="سرعة عالية"><span></span></label></div>
-      <label>عند تجاوز (كم/س)<input id="al-speed-kmh" inputmode="numeric" dir="ltr" placeholder="120"></label>
+      <label>عند تجاوز (كم/س، من 120 فأكثر فقط)<input id="al-speed-kmh" inputmode="numeric" dir="ltr" placeholder="140"></label>
       <div class="sw-row"><span>تنبيهات تصلني على هاتفي عند توقف إرسال موقعي</span><label class="switch"><input type="checkbox" id="al-self-on" aria-label="تنبيهات عن هاتفي"><span></span></label></div>
       <div class="sw-row"><span>استقبال استغاثة SOS من أصدقائك</span><label class="switch"><input type="checkbox" id="al-sos-on" aria-label="استقبال SOS"><span></span></label></div>
       <button class="btn primary" data-act="al-save">حفظ التنبيهات</button>
     </div>
+    <div class="card" id="rpt-card">
+      <b>التقرير اليومي</b>
+      <p class="hint">مسافة القيادة والمشي والمسارات التي سلكتها، يومياً وأسبوعياً وشهرياً. خاص بك افتراضياً، وتتحكم في مشاركته من صفحة الخصوصية.</p>
+      <button class="btn primary" data-act="rpt-open">عرض تقريري</button>
+      <div class="sw-row"><span>إشعار التقرير في نهاية اليوم</span><label class="switch"><input type="checkbox" id="rpt-on" aria-label="إشعار التقرير"><span></span></label></div>
+      <label>وقت الإشعار<input id="rpt-time" type="time" dir="ltr" value="23:59"></label>
+      <button class="btn sm" data-act="rpt-save">حفظ</button>
+      <button class="btn" data-act="pv-open">صفحة الخصوصية</button>
+    </div>
     <div class="card" id="places-card">
       <b>أماكني</b>
-      <p class="hint">احفظ البيت أو المدرسة أو العمل، فيصلك تنبيه عند وصول أي صديق متصل إليه أو مغادرته.</p>
+      <p class="hint">احفظ البيت أو المدرسة أو العمل. التنبيهات متوقفة افتراضياً، وتشغّلها أنت لكل صديق على حدة، فيصلك إشعار عند وصوله إلى المكان أو مغادرته.</p>
       <div id="places-list"></div>
       <button class="btn" data-act="pl-add">إضافة مكان</button>
     </div>
@@ -492,8 +524,8 @@ window.APP_CONFIG = {
       <b>صحة التطبيق على هذا الهاتف</b>
       <div id="native-status"></div>
       <button id="btn-wiz" class="btn">فتح معالج الإعداد</button>
-      <button id="btn-notif-set" class="btn">إعدادات إشعار الإرسال</button>
-      <p class="hint">يظهر إشعار الإرسال 10 ثوانٍ ثم يتحول إلى إشعار مصغّر صامت. من هنا يمكنك إغلاقه تماماً، وتبقى تنبيهات القرب في قناة منفصلة.</p>
+      <button id="btn-notif-set" class="btn">إخفاء إشعار الإرسال أو تغييره</button>
+      <p class="hint">الإشعار شرط من أندرويد لأي تطبيق يرسل الموقع في الخلفية، ولا يمكن حذفه من التطبيق. يظهر 10 ثوانٍ ثم يتحول إلى إشعار صغير صامت فيه اسم المكان الذي أنت فيه (من «أماكني») وآخر وقت تحديث. وتستطيع إخفاءه بنفسك: اضغط الزر أعلاه ثم أوقف إظهار هذه القناة. يستمر الإرسال في الأغلب، وإن لاحظت أن موقعك تأخر فأعد تفعيلها. تنبيهاتك في قنوات منفصلة فلا تتأثر.</p>
     </div>
     <div class="card" id="web-note" hidden>
       <p class="hint">إرسال الموقع يعمل من تطبيق أندرويد فقط. هذه الصفحة للعرض.</p>
@@ -605,6 +637,53 @@ window.APP_CONFIG = {
     <div class="acts"><button id="ed-ok" class="btn primary">حفظ</button><button id="ed-no" class="btn">إلغاء</button></div>
   </div>
 </div>
+<div id="v-report" class="subview" hidden>
+  <div class="sv-head"><button class="btn sm" data-act="rpt-close">رجوع</button><b id="rpt-title">التقرير</b></div>
+  <div class="seg" id="rpt-seg"><button data-act="rpt-mode" data-id="day">يومي</button><button data-act="rpt-mode" data-id="week">أسبوعي</button><button data-act="rpt-mode" data-id="month">شهري</button></div>
+  <div class="card" id="rpt-who-card" hidden><label>التقرير لـ<select id="rpt-who"></select></label></div>
+  <div class="inrow" style="align-items:center;margin-bottom:8px">
+    <button class="btn sm" data-act="rpt-prev" aria-label="السابق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <input id="rpt-day" type="date" aria-label="اليوم">
+    <button class="btn sm" data-act="rpt-next" aria-label="التالي"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+  </div>
+  <div id="rpt-body"></div>
+  <div class="card">
+    <div class="acts">
+      <button class="btn sm" data-act="rpt-share">مشاركة</button>
+      <button class="btn sm" data-act="rpt-copy">نسخ</button>
+      <button class="btn sm" data-act="rpt-img" id="rpt-img">حفظ كصورة</button>
+      <button class="btn sm" data-act="rpt-csv" id="rpt-csv">تصدير CSV</button>
+    </div>
+  </div>
+  <div class="card">
+    <label>حد السرعة لحساب «فوق السرعة» (كم/س)<input id="rpt-speed" inputmode="numeric" dir="ltr" placeholder="120"></label>
+    <div id="rpt-follow"></div>
+  </div>
+</div>
+<div id="v-privacy" class="subview" hidden>
+  <div class="sv-head"><button class="btn sm" data-act="pv-close">رجوع</button><b>الخصوصية</b></div>
+  <p class="hint">كل ما يتعلق بمن يراك وماذا يرى، في مكان واحد.</p>
+  <div class="card">
+    <div class="sw-row"><div><b>إخفاء موقعي عن الجميع</b><p class="hint">يُخفيك عن كل أصدقائك الحاليين والمستقبليين دفعة واحدة، وتبقى اختياراتك الفردية محفوظة. يبقى المشرف قادراً على مساعدتك إن فُقد هاتفك، والاستغاثة تصل دائماً.</p></div><label class="switch"><input type="checkbox" id="pv-hide-all" aria-label="إخفاء موقعي عن الجميع"><span></span></label></div>
+  </div>
+  <div class="card">
+    <div class="sw-row"><div><b>إخفاء سجل تنقلاتي عن أصدقائي</b><p class="hint">يبقى موقعك الحي ظاهراً لهم، لكن لا يستطيعون فتح مساراتك السابقة. يراه المشرف فقط.</p></div><label class="switch"><input type="checkbox" id="pv-hpriv" aria-label="إخفاء السجل"><span></span></label></div>
+    <div class="sw-row"><div><b>مشاركة ملخص تقريري اليومي مع أصدقائي</b><p class="hint">متوقفة افتراضياً. إن فعّلتها يرى أصدقاؤك المتصلون ملخصك (المسافة وعدد الرحلات) دون تفاصيل المسارات، ومن يختار منهم متابعتك يصله ملخص يومي. لا تعمل إن أخفيتَ سجلك أو موقعك.</p></div><label class="switch"><input type="checkbox" id="pv-rshare" aria-label="مشاركة التقرير"><span></span></label></div>
+  </div>
+  <div class="card"><b>من يرى ماذا الآن</b><div id="pv-who"></div></div>
+  <div class="card">
+    <b>بياناتك</b>
+    <p class="hint">يُحفظ مسار تنقلاتك 45 يوماً ثم يُحذف تلقائياً. حذف الحساب يمحو كل بياناتك نهائياً.</p>
+    <button class="btn sm" data-act="open-privacy">سياسة الخصوصية</button>
+    <button class="btn sm danger" data-act="del-open">حذف حسابي</button>
+  </div>
+</div>
+<div id="sos-confirm" hidden role="alertdialog" aria-live="assertive">
+  <b>استغاثة SOS</b>
+  <div id="sos-n">5</div>
+  <p>سيصل تنبيه عاجل بموقعك إلى <span id="sos-c-friends">0</span> من أصدقائك المتصلين بعد ثوانٍ، حتى من أخفيتَ موقعك عنه. ليست بديلاً عن الاتصال بالطوارئ.</p>
+  <div class="acts"><button class="btn danger" data-act="sos-now">أرسل الآن</button><button class="btn" data-act="sos-no">إلغاء</button></div>
+</div>
 <div id="modal-nick" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b id="nick-title">اسم مستعار</b>
@@ -664,7 +743,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '13';
+const UI_VERSION = '16';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -683,7 +762,8 @@ const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
-  gaps: {},
+  sosAck: {}, sosSeen: {}, pendingSos: null, appInfo: {}, _infoAt: 0,
+  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false,
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
@@ -986,6 +1066,7 @@ function startMain() {
   if (S.isAdmin) {
     S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
     S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; renderMap(); renderSheet(); }, e => console.error('locs', e));
+    S.unsubs.appInfo = onValue(ref(db, 'appInfo'), s => { S.appInfo = s.val() || {}; renderAdmin(); }, e => console.error('appInfo', e));
     S.unsubs.phoneReqs = onValue(ref(db, 'phoneReq'), s => { S.phoneReqs = s.val() || {}; renderAdmin(); }, e => console.error('phoneReqs', e));
     S.unsubs.users = onValue(ref(db, 'users'), s => { S.users = s.val() || {}; renderAdmin(); }, e => console.error('users', e));
     S.unsubs.invites = onValue(ref(db, 'invites'), s => { S.invites = s.val() || {}; renderInvites(); }, e => console.error('invites', e));
@@ -997,13 +1078,23 @@ function startMain() {
   }
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
+  setTimeout(() => {
+    reportAppInfo(true);
+    if (DEEP_SOS && !S.deepDone) { S.deepDone = true; S.pendingSos = DEEP_SOS; try { history.replaceState(null, '', location.pathname); } catch {} handleSosIncoming(S.sosIn || {}); }
+    else if (DEEP && !S.deepDone) { S.deepDone = true; openReport('day', DEEP); try { history.replaceState(null, '', location.pathname); } catch {} }
+    else maybeReportBanner();
+  }, 1200);
   S.unsubs.phoneReq = onValue(ref(db, 'phoneReq/' + S.uid), s => { S.phoneReq = s.val(); renderPhoneReq(); if (S.phoneReq && S.phoneReq.status !== 'pending') showPhoneResult(); }, e => console.error('phoneReq', e));
   try { S.sosOut = JSON.parse(localStorage.getItem('sosOut') || 'null'); } catch { S.sosOut = null; }
   if (!S.limited) {
     S.unsubs.places = onValue(ref(db, 'places/' + S.uid), s => { S.places = s.val() || {}; renderPlaces(); pushAlerts(); }, e => console.error('places', e));
     S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; if (S.tab === 'people') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
+    S.unsubs.histPriv = onValue(ref(db, 'histPrivate/' + S.uid), s => { S.histPriv = s.val() === true; renderPrivacy(); }, e => console.error('histPriv', e));
+    S.unsubs.reportShare = onValue(ref(db, 'reportShare/' + S.uid), s => { S.reportShare = s.val() === true; renderPrivacy(); }, e => console.error('reportShare', e));
+    S.unsubs.follow = onValue(ref(db, 'follow/' + S.uid), s => { S.follow = s.val() || {}; pushAlerts(); }, e => console.error('follow', e));
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
-    S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { S.sosIn = s.val() || {}; renderSosBar(); }, e => console.error('sosIn', e));
+    S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); }, e => console.error('sosIn', e));
+    S.unsubs.sosAck = onValue(ref(db, 'sosAck/' + S.uid), s => { S.sosAck = s.val() || {}; renderSosBar(); }, e => console.error('sosAck', e));
   }
   let mn = false; try { mn = localStorage.getItem('sheetMin') === '1'; } catch {}
   setSheetMin(mn);
@@ -1017,7 +1108,7 @@ function stopMain() {
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
-  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {};
+  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null;
 }
 function cleanup(all) {
@@ -1103,7 +1194,7 @@ function initMap() {
   S.hmk = L.layerGroup();
   S.plg = L.layerGroup().addTo(S.map);
   S.map.on('zoomend', syncMarks);
-  S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng); });
+  S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng); else mapTap(); });
   let k = 'osm'; try { k = localStorage.getItem('mapStyle') || 'osm'; } catch {}
   setStyle(k);
   setTimeout(() => S.map.invalidateSize(), 100);
@@ -1471,12 +1562,12 @@ function onRouteClick(e) {
   const t = a1 + best.f * gap, kmh = (gap > 0 && !(gap > 15 * 60e3 && dd > 1000)) ? dd / (gap / 1000) * 3.6 : 0;
   L.popup().setLatLng(e.latlng).setContent('<b>' + esc(fmtFull(t)) + '</b>' + (kmh >= 3 ? '<br>السرعة التقريبية ' + Math.round(kmh) + ' كم/س' : '')).openOn(S.map);
 }
-function openHistory(id) {
+function openHistory(id, day) {
   if (!id || S.limited) return;
   S.histFor = id; S.hState = 'min'; S.hMin = true; $('hsheet').classList.add('min');
   $('h-name').textContent = id === S.uid ? 'سجلّي' : dispName(id);
   const today = dayKey(Date.now());
-  $('h-day').max = today; $('h-day').min = dayKey(Date.now() - PRUNE_DAYS * 864e5); $('h-day').value = today;
+  $('h-day').max = today; $('h-day').min = dayKey(Date.now() - PRUNE_DAYS * 864e5); $('h-day').value = day || today;
   barSum('جارٍ التحميل...');
   applyTabVisibility(); loadHistory();
 }
@@ -1527,7 +1618,7 @@ async function loadHistory() {
   const flush = () => {
     if (cur.length < 2) return;
     const line = chaikin(cur, cur.length > 400 ? 2 : 3);
-    L.polyline(line, { color: '#000', weight: 24, opacity: 0, interactive: true }).on('click', onRouteClick).addTo(S.hl);   // منطقة لمس أوسع
+    L.polyline(line, { color: '#000', weight: 24, opacity: 0, interactive: true, bubblingMouseEvents: false }).on('click', onRouteClick).addTo(S.hl);   // منطقة لمس أوسع
     L.polyline(line, { color, weight: 5, opacity: .9, smoothFactor: 0.5, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hl);
   };
   for (let i = 1; i < pts.length; i++) {
@@ -1558,12 +1649,14 @@ async function loadHistory() {
   an.items.forEach((it, i) => { if (it.type === 'stop' && i < 40) geocode(it.lat, it.lng).then(t => { const el = $('hs-' + i); if (el && t) el.textContent = t; }); });
   loadDayGaps(uid, day);
   fitHistory();
+  if (S.pendingTrip != null) { const k = S.pendingTrip; S.pendingTrip = null; ACTIONS['h-trip'](k); }
 }
 async function prune(uid) {
   const cutoff = dayKey(Date.now() - (PRUNE_DAYS + 1) * 864e5);
   const sn = await get(query(ref(db, 'history/' + uid), orderByKey(), endAt(cutoff)));
   const ups = {}; sn.forEach(c => { ups[`history/${uid}/${c.key}`] = null; });
   try { const gs = await get(query(ref(db, 'gaps/' + uid), orderByKey(), endAt(cutoff))); gs.forEach(c => { ups[`gaps/${uid}/${c.key}`] = null; }); } catch {}
+  try { const rs = await get(query(ref(db, 'reports/' + uid), orderByKey(), endAt(cutoff))); rs.forEach(c => { ups[`reports/${uid}/${c.key}`] = null; }); } catch {}
   const n = Object.keys(ups).length; if (n) await update(ref(db), ups);
   return n;
 }
@@ -1572,6 +1665,7 @@ async function prune(uid) {
 const prow = (name, color, sub, btns, photo) => `<div class="row"><div class="av" style="${avStyle({ color, photo })}">${photo ? '' : esc(initial(name))}</div><div class="grow"><div class="nm">${esc(name || '—')}</div>${sub || ''}</div><div class="acts">${btns || ''}</div></div>`;
 function updateBadge() { const n = Object.keys(S.reqs).length; $('tab-people').textContent = 'الأشخاص' + (n ? ' (' + n + ')' : ''); }
 function renderPeople() {
+  renderPrivacy();
   $('hideall-card').hidden = S.limited || S.minor; $('hide-all').checked = !!S.hideAll;
   if (S.limited) {
     $('people-list').innerHTML = '<div class="card"><b>حسابك قيد الاعتماد</b><p class="hint">يعمل التطبيق ويظهر موقعك للمشرف. تتفعل إضافة الأصدقاء والبحث ومشاهدتهم وتنبيه القرب بعد أن يعتمد المشرف حسابك.</p></div>';
@@ -1702,7 +1796,16 @@ function renderAdmin() {
   const ids = Object.keys(S.users).sort((a, b) => (order[S.users[a].status] ?? 9) - (order[S.users[b].status] ?? 9));
   const reqs = Object.entries(S.phoneReqs || {}).filter(([, r]) => r && r.status === 'pending');
   const reqHtml = reqs.length ? '<div class="card"><b>طلبات تعديل الرقم</b>' + reqs.map(([u, r]) => `<div class="row"><div class="grow"><div class="nm">${esc(S.dir[u]?.name || S.users[u]?.name || u)}</div><div class="st" dir="ltr" style="text-align:right">${esc(r.old || '—')} → ${esc(r.phone)}</div></div><div class="acts"><button class="btn sm primary" data-act="ph-ok" data-id="${esc(u)}">قبول</button><button class="btn sm danger" data-act="ph-no" data-id="${esc(u)}">رفض</button></div></div>`).join('') + '</div>' : '';
-  $('adm-members').innerHTML = reqHtml + (ids.length ? ids.map(u => {
+  const latest = Number((S.upd || {}).version) || 0;
+  const isOld = u => { const a = S.appInfo[u]; return !!(a && a.code && latest && a.code < latest); };
+  const oldN = ids.filter(isOld).length, noInfo = ids.filter(u => !S.appInfo[u] && S.users[u].status !== 'disabled').length;
+  const verCard = latest ? `<div class="card"><b>نسخ التطبيق</b><p class="hint">آخر إصدار مسجّل في الإعدادات: ${esc(latest)}. ${oldN} من ${ids.length} على نسخة أقدم. ${noInfo} لم يفتحوا نسخة تسجّل معلوماتها بعد.</p></div>` : '';
+  const infoLine = u => {
+    const a = S.appInfo[u]; if (!a) return '<div class="hint">لم تُسجَّل معلومات التطبيق بعد</div>';
+    return `<div class="hint">${a.code ? 'التطبيق ' + esc(a.app) + ' (' + esc(a.code) + ')' : esc(a.app)} · الواجهة ${esc(a.ui)}${a.model ? ' · ' + esc(a.model) : ''}${a.sdk ? ' · أندرويد ' + esc(a.sdk) : ''} · آخر فتح قبل ${esc(ago(a.at))}${isOld(u) ? ' <span class="badge bad">يحتاج تحديثاً</span>' : ''}</div>` +
+      (a.bad ? `<div class="hint" style="color:var(--bad)">مشاكل: ${esc(a.bad)}</div>` : '') + (a.ex ? `<div class="hint">آخر إغلاق: ${esc(a.ex)}</div>` : '');
+  };
+  $('adm-members').innerHTML = reqHtml + verCard + (ids.length ? ids.map(u => {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name, waiting = x.status === 'pending' || x.status === 'limited';
     const badge = x.status === 'limited' ? '<span class="badge warn">قيد الاعتماد</span>' : x.status === 'pending' ? '<span class="badge warn">بانتظار الموافقة</span>' : x.status === 'approved' ? '<span class="badge ok">مفعّل</span>' : '<span class="badge bad">معطّل</span>';
     const role = x.role === 'admin' ? ' <span class="badge">مشرف</span>' : '';
@@ -1713,7 +1816,7 @@ function renderAdmin() {
     else if (x.status === 'disabled') b = `<button class="btn sm primary" data-act="enable" data-id="${esc(u)}">إعادة تفعيل</button>`;
     b += `<button class="btn sm" data-act="edit" data-id="${esc(u)}">الرقم والميلاد</button>`;
     if (!self && x.status !== 'disabled') b += `<button class="btn sm" data-act="end-session" data-id="${esc(u)}">إنهاء جلسته</button>`;
-    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || 'بدون رقم')} / ${esc(x.birthYear || 'بدون سنة ميلاد')}</div></div>${badge}</div><div class="acts">${b}</div></div>`;
+    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || 'بدون رقم')} / ${esc(x.birthYear || 'بدون سنة ميلاد')}</div>${infoLine(u)}</div>${badge}</div><div class="acts">${b}</div></div>`;
   }).join('') : '<div class="card"><p class="hint">لا توجد حسابات.</p></div>');
 }
 function setAdm(t) {
@@ -1868,6 +1971,25 @@ const ACTIONS = {
     await update(ref(db), { ['phoneReq/' + id]: { ...rq, status: 'rejected', reason: why, decidedAt: Date.now() } });
     toast('تم رفض الطلب');
   },
+  'rpt-open': () => openReport('day'),
+  'rpt-close': () => { $('v-report').hidden = true; },
+  'rpt-mode': id => { RPT.mode = id; renderReport(); },
+  'rpt-prev': () => shiftRpt(-1),
+  'rpt-next': () => shiftRpt(1),
+  'rpt-save': async () => {
+    const t = $('rpt-time').value || '23:59'; if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(t)) return toast('وقت غير صحيح');
+    try { await update(ref(db), { ['alerts/' + S.uid + '/rptOn']: $('rpt-on').checked, ['alerts/' + S.uid + '/rptTime']: t }); toast('تم حفظ إعداد التقرير'); } catch { toast('تعذر الحفظ'); }
+  },
+  'rpt-share': () => { const t = RPT.text; if (!t) return toast('لا يوجد تقرير لمشاركته'); if (isNative && window.AndroidBridge && typeof window.AndroidBridge.shareText === 'function') window.AndroidBridge.shareText(t); else openExternal('https://wa.me/?text=' + encodeURIComponent(t)); },
+  'rpt-copy': async () => { if (!RPT.text) return toast('لا يوجد تقرير لنسخه'); await copy(RPT.text); toast('تم النسخ'); },
+  'rpt-img': () => rptImage(),
+  'rpt-csv': () => rptCsv(),
+  'rpt-trip': idx => { const L = RPT.last; if (!L || !L.uid) return; $('v-report').hidden = true; setTab('map'); S.pendingTrip = +idx; openHistory(L.uid, L.day); },
+  'rpt-save-place': i => { const c = RPT.sugg[+i]; if (c) askPlace(c.lat, c.lng, ''); },
+  'rpt-bar-open': () => openReport('day', $('rpt-bar').dataset.day),
+  'rpt-bar-x': () => { try { localStorage.setItem('mk_rpt_seen_' + $('rpt-bar').dataset.day, '1'); } catch {} $('rpt-bar').hidden = true; },
+  'pv-open': () => { $('v-privacy').hidden = false; renderPrivacy(); },
+  'pv-close': () => { $('v-privacy').hidden = true; },
   'health-autostart': () => { try { window.AndroidBridge.openAutoStart(); } catch {} },
   'health-dkma': () => { const g = brandGuide((nat() || {}).brand); openExternal('https://dontkillmyapp.com/' + g.slug); },
   'al-save': async () => { try { await saveAlerts(); } catch { toast('تعذر الحفظ'); } },
@@ -1889,7 +2011,16 @@ const ACTIONS = {
     L.circleMarker([e.lat, e.lng], { radius: 13, color: '#fff', weight: 3, fillColor: '#C4483B', fillOpacity: 1 }).bindPopup('<b>SOS: ' + esc(e.name || '') + '</b><br>' + esc(fmtFull(e.ts))).addTo(S.sosg).openPopup();
     S.map.flyTo([e.lat, e.lng], 16, { duration: .8 });
   },
-  'sos-dismiss': id => remove(ref(db, `sosInbox/${S.uid}/${id}`)),
+  'sos-dismiss': id => { if (isNative) { try { window.AndroidBridge.sosSeen(id); } catch {} } return remove(ref(db, `sosInbox/${S.uid}/${id}`)); },
+  'sos-seen': async id => {
+    try { await set(ref(db, `sosAck/${id}/${S.uid}`), { ts: Date.now(), st: 'seen' }); S.sosSeen[id] = true; toast('أُبلغ بأنك ستستجيب'); }
+    catch { toast('تعذر إبلاغه. اتصل به مباشرة.'); }
+    if (isNative) { try { window.AndroidBridge.sosSeen(id); } catch {} }
+    renderSosBar();
+  },
+  'sos-call': id => { const ph = phoneOf(id); if (ph) openExternal('tel:+' + ph); },
+  'sos-now': () => { closeSosConfirm(); sendSos(); },
+  'sos-no': () => closeSosConfirm(),
   'refresh-contacts': () => refreshContacts(),
   'upd-go': async () => {
     const url = S.upd && S.upd.url; if (!url) return toast('رابط التحميل غير محدد بعد');
@@ -1998,11 +2129,18 @@ $('grab').onclick = () => setSheetMin(!S.sheetMin);
 $('hgrab').onclick = () => setHState(S.hState === 'full' ? 'min' : 'full');
 
 /* ---------- إخفاء الموقع عن شخص بعينه ---------- */
-$('hide-all').onchange = async e => {
-  const on = e.target.checked;
+const setHideAll = async (on, el) => {
   try { await update(ref(db), { ['hideAll/' + S.uid]: on ? true : null }); toast(on ? 'موقعك مخفي عن الجميع الآن' : 'عاد موقعك ظاهراً لمن لم تخفِه عنهم'); }
-  catch { toast('تعذر التنفيذ'); e.target.checked = !on; }
+  catch { toast('تعذر التنفيذ'); el.checked = !on; }
 };
+$('hide-all').onchange = e => setHideAll(e.target.checked, e.target);
+$('pv-hide-all').onchange = e => setHideAll(e.target.checked, e.target);
+const setFlag = async (path, on, el, okOn, okOff) => {
+  try { await update(ref(db), { [path]: on ? true : null }); toast(on ? okOn : okOff); }
+  catch { toast('تعذر التنفيذ'); el.checked = !on; }
+};
+$('pv-hpriv').onchange = e => setFlag('histPrivate/' + S.uid, e.target.checked, e.target, 'سجل تنقلاتك صار خاصاً', 'يستطيع أصدقاؤك المتصلون رؤية سجلك');
+$('pv-rshare').onchange = e => setFlag('reportShare/' + S.uid, e.target.checked, e.target, 'يرى أصدقاؤك ملخص تقريرك', 'تقريرك خاص بك الآن');
 document.addEventListener('change', async ev => {
   const t = ev.target; if (!t.matches || !t.matches('[data-hide]')) return;
   const u = t.dataset.hide;
@@ -2038,16 +2176,19 @@ function renderUpdate() {
 /* ---------- إعدادات التنبيهات والأماكن ---------- */
 function alertsConfig() {
   const a = S.alerts || {};
+  const digest = Object.keys(S.follow || {}).filter(u => S.follow[u] && connected(u)).map(u => ({ u, n: dispName(u) }));
   return {
     prox: { on: !!a.on, km: Number(a.km) || 50 },
     bat: { on: !!a.batOn, pct: Number(a.batPct) || 15 },
     idle: { on: !!a.idleOn, min: Number(a.idleMin) || (a.idleHrs ? Number(a.idleHrs) * 60 : 15) },
     off: { on: a.offOn !== false },
     self: { on: a.selfOn !== false },
-    drive: { on: !!a.driveOn },
-    speed: { on: !!a.speedOn, kmh: Number(a.speedKmh) || 120 },
+    drive: { on: false },
+    speed: { on: !!a.speedOn, kmh: Math.max(120, Number(a.speedKmh) || 140) },
     sos: { on: a.sosOn !== false },
-    places: Object.entries(S.places || {}).map(([id, p]) => ({ id, name: p.name, lat: p.lat, lng: p.lng, r: p.r, on: p.on !== false }))
+    report: { on: a.rptOn !== false, time: a.rptTime || '23:59' },
+    digest,
+    places: Object.entries(S.places || {}).map(([id, p]) => ({ id, name: p.name, lat: p.lat, lng: p.lng, r: p.r, on: p.on !== false, fr: Object.keys(p.fr || {}).filter(k => p.fr[k]) }))
   };
 }
 function pushAlerts() {
@@ -2058,30 +2199,35 @@ function pushAlerts() {
   } catch {}
 }
 function renderAlerts() {
-  $('alerts-card').hidden = S.limited; if (S.limited) return;
+  $('alerts-card').hidden = S.limited; $('rpt-card').hidden = S.limited; if (S.limited) return;
   const a = S.alerts || {};
   const setv = (id, v) => { const e = $(id); if (!e || document.activeElement === e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; };
   setv('al-bat-on', a.batOn); setv('al-bat-pct', a.batPct || 15);
   setv('al-idle-on', a.idleOn); setv('al-idle-min', a.idleMin || (a.idleHrs ? a.idleHrs * 60 : 15));
   setv('al-off-on', a.offOn !== false); setv('al-self-on', a.selfOn !== false);
-  setv('al-drive-on', a.driveOn);
-  setv('al-speed-on', a.speedOn); setv('al-speed-kmh', a.speedKmh || 120);
+  setv('al-speed-on', a.speedOn); setv('al-speed-kmh', Math.max(120, a.speedKmh || 140));
   setv('al-sos-on', a.sosOn !== false);
+  setv('rpt-on', a.rptOn !== false); setv('rpt-time', a.rptTime || '23:59');
 }
 async function saveAlerts() {
   const num = (id, min, max) => { const v = Number(toLatin($(id).value)); return (v >= min && v <= max) ? v : null; };
-  const batPct = num('al-bat-pct', 5, 50), idleMin = num('al-idle-min', 10, 4320), speedKmh = num('al-speed-kmh', 40, 250);
+  const batPct = num('al-bat-pct', 5, 50), idleMin = num('al-idle-min', 10, 4320), speedKmh = num('al-speed-kmh', 120, 250);
   if (batPct === null) return toast('نسبة البطارية من 5 إلى 50');
   if (idleMin === null) return toast('دقائق عدم النشاط من 10 إلى 4320');
-  if (speedKmh === null) return toast('السرعة من 40 إلى 250 كم/س');
+  if (speedKmh === null) return toast('تنبيه السرعة للسرعات العالية فقط: من 120 إلى 250 كم/س');
   const p = 'alerts/' + S.uid + '/';
-  await update(ref(db), { [p + 'batOn']: $('al-bat-on').checked, [p + 'batPct']: batPct, [p + 'idleOn']: $('al-idle-on').checked, [p + 'idleMin']: idleMin, [p + 'idleHrs']: null, [p + 'offOn']: $('al-off-on').checked, [p + 'selfOn']: $('al-self-on').checked, [p + 'driveOn']: $('al-drive-on').checked, [p + 'speedOn']: $('al-speed-on').checked, [p + 'speedKmh']: speedKmh, [p + 'sosOn']: $('al-sos-on').checked });
+  await update(ref(db), { [p + 'batOn']: $('al-bat-on').checked, [p + 'batPct']: batPct, [p + 'idleOn']: $('al-idle-on').checked, [p + 'idleMin']: idleMin, [p + 'idleHrs']: null, [p + 'offOn']: $('al-off-on').checked, [p + 'selfOn']: $('al-self-on').checked, [p + 'driveOn']: null, [p + 'speedOn']: $('al-speed-on').checked, [p + 'speedKmh']: speedKmh, [p + 'sosOn']: $('al-sos-on').checked });
   toast('تم حفظ التنبيهات');
 }
 function renderPlaces() {
   $('places-card').hidden = S.limited; if (S.limited) return;
   const ids = Object.keys(S.places || {});
-  $('places-list').innerHTML = ids.length ? ids.map(id => { const p = S.places[id]; return `<div class="row"><div class="grow"><div class="nm">${esc(p.name)}</div><div class="st">نصف القطر ${esc(p.r)} م</div></div><label class="switch"><input type="checkbox" data-place-on="${esc(id)}" ${p.on !== false ? 'checked' : ''} aria-label="تفعيل"><span></span></label><button class="btn sm danger" data-act="pl-del" data-id="${esc(id)}">حذف</button></div>`; }).join('') : '<p class="hint">لا توجد أماكن بعد.</p>';
+  const friends = Object.keys(S.mine).filter(u => u !== S.uid && connected(u));
+  $('places-list').innerHTML = ids.length ? ids.map(id => {
+    const p = S.places[id];
+    const fr = friends.length ? friends.map(u => `<label class="sw-row st" style="margin-top:2px"><span>تنبيه عند وصول ${esc(dispName(u))} أو مغادرته</span><span class="switch"><input type="checkbox" data-pl-fr="${esc(id)}|${esc(u)}" ${p.fr && p.fr[u] ? 'checked' : ''} aria-label="تنبيه"><span></span></span></label>`).join('') : '<p class="hint">أضف أصدقاء متصلين لتشغّل التنبيه لهم.</p>';
+    return `<div class="row" style="padding-bottom:0"><div class="grow"><div class="nm">${esc(p.name)}</div><div class="st">نصف القطر ${esc(p.r)} م</div></div><button class="btn sm danger" data-act="pl-del" data-id="${esc(id)}">حذف</button></div><div class="plfr">${fr}</div>`;
+  }).join('') : '<p class="hint">لا توجد أماكن بعد.</p>';
   drawPlaces();
 }
 function drawPlaces() {
@@ -2094,7 +2240,7 @@ function drawPlaces() {
 let placeAt = null;
 function startPick() { setTab('map'); S.pickPlace = true; $('pick-bar').hidden = false; }
 function endPick() { S.pickPlace = false; $('pick-bar').hidden = true; }
-function askPlace(la, ln) { placeAt = { la, ln }; $('pl-name').value = ''; $('pl-r').value = '200'; $('modal-place').hidden = false; }
+function askPlace(la, ln, name = '') { placeAt = { la, ln }; $('pl-name').value = name; $('pl-r').value = '200'; $('modal-place').hidden = false; }
 $('pl-no').onclick = () => { $('modal-place').hidden = true; };
 $('pl-ok').onclick = async () => {
   const name = $('pl-name').value.trim(), r = Number(toLatin($('pl-r').value));
@@ -2106,8 +2252,13 @@ $('pl-ok').onclick = async () => {
   catch { toast('تعذر الحفظ'); }
 };
 document.addEventListener('change', ev => {
-  const t = ev.target; if (!t.matches || !t.matches('[data-place-on]')) return;
-  update(ref(db), { [`places/${S.uid}/${t.dataset.placeOn}/on`]: t.checked }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
+  const t = ev.target; if (!t.matches) return;
+  if (t.matches('[data-pl-fr]')) {
+    const [pid, f] = t.dataset.plFr.split('|');
+    update(ref(db), { [`places/${S.uid}/${pid}/fr/${f}`]: t.checked ? true : null }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
+  } else if (t.matches('[data-follow]')) {
+    update(ref(db), { [`follow/${S.uid}/${t.dataset.follow}`]: t.checked ? true : null }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
+  }
 });
 
 /* ---------- اسم مستعار للصديق (يظهر عندك وحدك) ---------- */
@@ -2138,13 +2289,19 @@ $('photo-file').onchange = async e => {
 function renderMePhoto() { const d = S.dir[S.uid] || {}; $('me-av').textContent = d.photo ? '' : initial(d.name || S.me?.name); $('me-av').style.cssText = avStyle(d); }
 
 /* ---------- استغاثة SOS ---------- */
-let sosTimer = null;
+let sosCd = null;
 const sosBtn = $('btn-sos');
-sosBtn.addEventListener('pointerdown', e => { e.preventDefault(); sosBtn.classList.add('hold'); sosTimer = setTimeout(() => { sosTimer = null; sosBtn.classList.remove('hold'); sendSos(); }, 1800); });
-['pointerup', 'pointerleave', 'pointercancel'].forEach(evn => sosBtn.addEventListener(evn, () => {
-  if (!sosTimer) return; clearTimeout(sosTimer); sosTimer = null; sosBtn.classList.remove('hold');
-  if (evn === 'pointerup') toast('استمر بالضغط ثانيتين لإرسال الاستغاثة');
-}));
+function closeSosConfirm() { clearInterval(sosCd); sosCd = null; $('sos-confirm').hidden = true; }
+function openSosConfirm() {
+  if (S.limited) return toast('الاستغاثة تتفعل بعد اعتماد حسابك');
+  const friends = Object.keys(S.mine).filter(u => u !== S.uid && connected(u));
+  if (!friends.length) return toast('لا يوجد أصدقاء متصلون ليصلهم التنبيه');
+  if (S.sosOut && Date.now() - S.sosOut.ts < 6 * 3600e3) return toast('استغاثتك فعّالة بالفعل');
+  let n = 5; $('sos-n').textContent = n; $('sos-c-friends').textContent = friends.length; $('sos-confirm').hidden = false;
+  clearInterval(sosCd);
+  sosCd = setInterval(() => { n--; if (n <= 0) { closeSosConfirm(); sendSos(); } else $('sos-n').textContent = n; }, 1000);
+}
+sosBtn.addEventListener('click', openSosConfirm);
 sosBtn.addEventListener('contextmenu', e => e.preventDefault());
 async function sendSos() {
   if (S.limited) return toast('الاستغاثة تتفعل بعد اعتماد حسابك');
@@ -2159,28 +2316,81 @@ async function sendSos() {
   const entry = { ts: Date.now(), lat: +la.toFixed(5), lng: +ln.toFixed(5), name: S.dir[S.uid]?.name || S.me.name };
   const ups = {}; friends.forEach(f => { ups[`sosInbox/${f}/${S.uid}`] = entry; });
   try { await update(ref(db), ups); } catch { return toast('تعذر إرسال الاستغاثة. تحقق من الاتصال.'); }
-  S.sosOut = { friends, ts: entry.ts }; try { localStorage.setItem('sosOut', JSON.stringify(S.sosOut)); } catch {}
+  S.sosOut = { friends, ts: entry.ts }; S.sosAck = {}; try { localStorage.setItem('sosOut', JSON.stringify(S.sosOut)); } catch {}
+  if (isNative) { try { window.AndroidBridge.sosActive(true); } catch {} }
   renderSosBar(); toast('أُرسلت الاستغاثة إلى ' + friends.length + ' من أصدقائك');
 }
 async function cancelSos() {
   const o = S.sosOut; if (!o) return;
-  const ups = {}; o.friends.forEach(f => { ups[`sosInbox/${f}/${S.uid}`] = null; });
+  const ups = {}; o.friends.forEach(f => { ups[`sosInbox/${f}/${S.uid}`] = null; ups[`sosAck/${S.uid}/${f}`] = null; });
   try { await update(ref(db), ups); } catch {}
-  S.sosOut = null; try { localStorage.removeItem('sosOut'); } catch {}
+  S.sosOut = null; S.sosAck = {}; try { localStorage.removeItem('sosOut'); } catch {}
+  if (isNative) { try { window.AndroidBridge.sosActive(false); } catch {} }
   renderSosBar(); toast('أُلغيت الاستغاثة');
 }
 function renderSosBar() {
   const bar = $('sos-bar'); if (!bar) return;
   let out = '';
-  if (S.sosOut && Date.now() - S.sosOut.ts < 6 * 3600e3) out += `<div class="sosrow"><span>استغاثتك فعّالة عند ${S.sosOut.friends.length} من أصدقائك</span><button class="btn" data-act="sos-cancel">أنا بخير، إلغاء</button></div>`;
+  if (S.sosOut && Date.now() - S.sosOut.ts < 6 * 3600e3) {
+    const fr = S.sosOut.friends, acks = S.sosAck || {};
+    const got = fr.filter(u => acks[u]).length, seen = fr.filter(u => acks[u] && acks[u].st === 'seen');
+    out += `<div class="sosrow big"><span>استغاثتك فعّالة. وصلت إلى ${got} من ${fr.length}${seen.length ? '<br><small>شاهدها ' + esc(seen.map(dispName).join('، ')) + ' وسيستجيب بأسرع وقت</small>' : ''}</span><button class="btn" data-act="sos-cancel">أنا بخير، إلغاء</button></div>`;
+  }
   const me = S.locs[S.uid];
   for (const [from, e] of Object.entries(S.sosIn || {})) {
     if (!e || typeof e.ts !== 'number' || Date.now() - e.ts > 6 * 3600e3) continue;
     const far = me && typeof me.lat === 'number' && typeof e.lat === 'number' ? '، يبعد ' + fmtKm(haversine(me, e)) : '';
-    out += `<div class="sosrow"><span>SOS من ${esc(e.name || dispName(from))}${esc(far)}</span><button class="btn" data-act="sos-view" data-id="${esc(from)}">عرض</button><button class="btn" data-act="sos-dismiss" data-id="${esc(from)}">تم</button></div>`;
+    const seen = !!S.sosSeen[from], ph = phoneOf(from);
+    out += `<div class="sosrow big"><span>SOS من ${esc(e.name || dispName(from))}${esc(far)}${seen ? '<br><small>أبلغتَه أنك ستستجيب</small>' : ''}</span>` +
+      (seen ? '' : `<button class="btn" data-act="sos-seen" data-id="${esc(from)}">شاهدت وسأستجيب</button>`) +
+      `<button class="btn" data-act="sos-view" data-id="${esc(from)}">عرض موقعه</button>` +
+      (ph ? `<button class="btn" data-act="sos-call" data-id="${esc(from)}">اتصال</button>` : '') +
+      (seen ? `<button class="btn" data-act="sos-dismiss" data-id="${esc(from)}">تم</button>` : '') + '</div>';
   }
   bar.innerHTML = out;
 }
+/* إنذار جديد وصلني: أُبلغ المرسل بالوصول، وأهتز إن لم يكن التطبيق الأصلي يفعل ذلك */
+async function handleSosIncoming(prev) {
+  for (const [from, e] of Object.entries(S.sosIn || {})) {
+    if (!e || (prev[from] && prev[from].ts === e.ts)) continue;
+    if (!isNative && navigator.vibrate) { try { navigator.vibrate(3000); } catch {} }
+    try {
+      const a = (await get(ref(db, `sosAck/${from}/${S.uid}`))).val();
+      if (a && a.ts >= e.ts) { if (a.st === 'seen') S.sosSeen[from] = true; }
+      else await set(ref(db, `sosAck/${from}/${S.uid}`), { ts: Date.now(), st: 'got' });
+    } catch {}
+    renderSosBar();
+  }
+  if (S.pendingSos && S.sosIn[S.pendingSos]) { const f = S.pendingSos; S.pendingSos = null; await ACTIONS['sos-seen'](f); ACTIONS['sos-view'](f); }
+}
+
+/* ---------- الرجوع بخطوة: لمسة على الخريطة وزر الرجوع في أندرويد ---------- */
+function mapTap() {
+  if (S.histFor) { if (S.hState === 'full') setHState('min'); return; }
+  if (S.person) { closePerson(); return; }
+  if (S.tab === 'map' && !S.sheetMin) setSheetMin(true);
+}
+window.__back = () => {
+  const vis = id => { const e = $(id); return !!e && !e.hidden; };
+  if (vis('modal-text')) { $('tx-no').click(); return true; }
+  if (vis('modal-place')) { $('pl-no').click(); return true; }
+  if (vis('modal-nick')) { $('nick-no').click(); return true; }
+  if (vis('modal-phone')) { $('ph-no').click(); return true; }
+  if (vis('modal-del')) { $('del-no').click(); return true; }
+  if (vis('modal')) { ($('modal-no').hidden ? $('modal-ok') : $('modal-no')).click(); return true; }
+  if (vis('sos-confirm')) { closeSosConfirm(); return true; }
+  if (vis('v-report')) { $('v-report').hidden = true; return true; }
+  if (vis('v-privacy')) { $('v-privacy').hidden = true; return true; }
+  if (vis('v-wizard')) return false;
+  if (vis('v-main')) {
+    if (S.pickPlace) { endPick(); return true; }
+    if (S.histFor) { if (S.hState === 'full') setHState('min'); else closeHistory(); return true; }
+    if (S.person) { closePerson(); return true; }
+    if (S.tab !== 'map') { setTab('map'); return true; }
+    if (!S.sheetMin) { setSheetMin(true); return true; }
+  }
+  return false;
+};
 
 /* ---------- موقعي ---------- */
 $('btn-me').onclick = () => {
@@ -2211,17 +2421,18 @@ async function deleteMyAccount(pass) {
   }
   await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pass));
   const ups = {}, limited = S.limited;
-  ups['users/' + uid] = null; ups['phoneReq/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null;
+  ups['users/' + uid] = null; ups['appInfo/' + uid] = null; ups['phoneReq/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null;
   if (!limited) {
-    ups['alerts/' + uid] = null; ups['hideAll/' + uid] = null;
+    ups['alerts/' + uid] = null; ups['hideAll/' + uid] = null; ups['histPrivate/' + uid] = null; ups['reportShare/' + uid] = null;
+    for (const f of Object.keys(S.follow)) ups[`follow/${uid}/${f}`] = null;
     for (const id of Object.keys(S.places)) ups[`places/${uid}/${id}`] = null;
     for (const f of Object.keys(S.nick)) ups[`nick/${uid}/${f}`] = null;
     for (const v of Object.keys(S.hides)) ups[`hide/${uid}/${v}`] = null;
-    for (const f of Object.keys(S.mine)) { ups[`links/${uid}/${f}`] = null; ups[`requests/${f}/${uid}`] = null; ups[`sosInbox/${f}/${uid}`] = null; }
+    for (const f of Object.keys(S.mine)) { ups[`links/${uid}/${f}`] = null; ups[`requests/${f}/${uid}`] = null; ups[`sosInbox/${f}/${uid}`] = null; ups[`sosAck/${uid}/${f}`] = null; ups[`sosAck/${f}/${uid}`] = null; }
     for (const f of Object.keys(S.reqs)) ups[`requests/${uid}/${f}`] = null;
     for (const f of Object.keys(S.sosIn)) ups[`sosInbox/${uid}/${f}`] = null;
     if (S.myHash) ups['phoneIndex/' + S.myHash] = null;
-    for (let k = 0; k <= 47; k++) { const dk = dayKey(Date.now() - k * 864e5); ups[`history/${uid}/${dk}`] = null; ups[`gaps/${uid}/${dk}`] = null; }
+    for (let k = 0; k <= 47; k++) { const dk = dayKey(Date.now() - k * 864e5); ups[`history/${uid}/${dk}`] = null; ups[`gaps/${uid}/${dk}`] = null; ups[`reports/${uid}/${dk}`] = null; }
   }
   // نقطع المستمعين قبل الحذف حتى لا يُعاد إنشاء السجل تلقائياً
   S.deleting = true;
@@ -2291,6 +2502,22 @@ const BRAND_GUIDE = [
 ];
 const brandGuide = b => { b = String(b || '').toLowerCase(); const g = BRAND_GUIDE.find(x => x[0].some(k => b.includes(k))); return g ? { slug: g[1], text: g[2] } : { slug: '', text: 'اجعل استخدام البطارية للتطبيق «بلا قيود»، وأقفله في قائمة التطبيقات الأخيرة بالضغط المطول على بطاقته.' }; };
 
+async function reportAppInfo(force) {
+  if (!S.uid || S.deleting || !S.started) return;
+  const now = Date.now(); if (!force && now - S._infoAt < 10 * 60e3) return; S._infoAt = now;
+  const s = isNative ? nat() : null, bad = [];
+  if (s) {
+    if (!s.fine) bad.push('الموقع'); else if (!s.bg) bad.push('طوال الوقت');
+    if (s.locOn === false) bad.push('خدمة الموقع مطفأة');
+    if (!s.notif) bad.push('الإشعارات'); if (!s.battery) bad.push('البطارية');
+    if (s.net === false) bad.push('بلا إنترنت'); if (!s.sharing) bad.push('الإرسال متوقف');
+  }
+  let model = ''; try { model = isNative ? (JSON.parse(window.AndroidBridge.deviceInfo()).model || '') : (navigator.platform || ''); } catch {}
+  const info = { app: s ? String(s.verName || '') : 'متصفح', code: s ? Number(s.ver) || 0 : 0, ui: UI_VERSION, model: String(model).slice(0, 40), brand: s ? String(s.brand || '').slice(0, 24) : '', sdk: s ? Number(s.sdk) || 0 : 0, at: now, bad: bad.join('، ').slice(0, 80), ex: s && s.exitTxt ? String(s.exitTxt).slice(0, 90) : '', ls: s ? Number(s.lastSend) || 0 : 0 };
+  try { await set(ref(db, 'appInfo/' + S.uid), info); } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) reportAppInfo(false); });
+
 /* ---------- بيانات التشخيص ---------- */
 window.__diagExtra = () => `الحساب: ${S.me ? S.me.status + '/' + S.me.role : 'غير مسجّل'} | الوضع: ${S.mode || '-'} | المرجع: ${S.uid || '-'}`;
 async function sendDiag() {
@@ -2299,6 +2526,247 @@ async function sendDiag() {
   const wa = String(PUB.contactWhatsapp || '').replace(/\D/g, '');
   if (wa) openExternal('https://wa.me/' + wa + '?text=' + encodeURIComponent('بيانات تشخيص مكاننا:\n' + t.slice(0, 1400)));
   else toast('نُسخ التشخيص. ألصقه في رسالة للمشرف.');
+}
+
+/* ---------- التقارير: يومي وأسبوعي وشهري ---------- */
+const DEEP = (location.hash.match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1];
+const DEEP_SOS = (location.hash.match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
+const RPT = { mode: 'day', who: null, day: null, shared: {}, token: 0, last: null, text: '', csv: '', sugg: [] };
+const rptWho = () => RPT.who || S.uid;
+const rptThr = () => Math.min(250, Math.max(60, Number((S.alerts || {}).rptSpeed) || 120));
+const dayEnd = d => new Date(d + 'T23:59:59').getTime();
+const shiftDayKey = (d, n) => dayKey(new Date(d + 'T12:00:00').getTime() + n * 864e5);
+const dayLabel = d => new Date(d + 'T12:00:00').toLocaleDateString('ar', { weekday: 'long', day: 'numeric', month: 'long' });
+const km1 = m => (m / 1000).toFixed(1);
+
+async function fetchDayPts(uid, day) {
+  const obj = (await get(ref(db, `history/${uid}/${day}`))).val() || {};
+  return Object.values(obj).filter(p => p && typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
+}
+async function fetchDayGaps(uid, day) {
+  try { return Object.values((await get(ref(db, `gaps/${uid}/${day}`))).val() || {}).filter(g => g && typeof g.from === 'number' && typeof g.to === 'number'); } catch { return []; }
+}
+/* ملخص يوم واحد من نقاط السجل (الخوارزمية نفسها المستعملة في السجل) */
+function summarize(pts, gaps, thr) {
+  const an = analyzeDay(pts);
+  const trips = an.items.filter(i => i.type === 'trip'), stops = an.items.filter(i => i.type === 'stop');
+  const by = { car: { d: 0, ms: 0 }, bike: { d: 0, ms: 0 }, walk: { d: 0, ms: 0 } };
+  let longest = 0;
+  for (const t of trips) { by[t.mode].d += t.dist; by[t.mode].ms += t.dur; longest = Math.max(longest, t.dist); }
+  let os = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], dt = (b.ts - (a.ets || a.ts)) / 1000, dd = haversine(a, b);
+    if (dt >= 3 && dt <= 120 && dd >= 30) { const v = dd / dt * 3.6; if (v < 220 && v > thr) os += dt; }
+  }
+  const first = pts.length ? pts[0].ts : 0, lastP = pts[pts.length - 1], last = pts.length ? (lastP.ets || lastP.ts) : 0;
+  let gapMs = 0; for (const g of gaps) gapMs += Math.max(0, Math.min(g.to, last) - Math.max(g.from, first));
+  const cv = pts.length ? Math.max(0, Math.round((1 - gapMs / Math.max(1, last - first)) * 100)) : 100;
+  const longStops = stops.filter(s => s.t1 - s.t0 >= 10 * 60e3).sort((a, b) => (b.t1 - b.t0) - (a.t1 - a.t0)).slice(0, 6);
+  return { total: by.car.d + by.bike.d + by.walk.d, by, n: trips.length, longest, vmax: an.vmax, first, last, os: Math.round(os / 60), cv, gapMs,
+    stops: longStops.map(s => ({ la: +s.lat.toFixed(5), ln: +s.lng.toFixed(5), m: Math.round((s.t1 - s.t0) / 60e3) })), an };
+}
+const packSum = s => ({ d: Math.round(s.total), dr: Math.round(s.by.car.d), bk: Math.round(s.by.bike.d), wk: Math.round(s.by.walk.d), td: Math.round(s.by.car.ms / 60e3), tb: Math.round(s.by.bike.ms / 60e3), tw: Math.round(s.by.walk.ms / 60e3), n: s.n, mx: Math.min(400, Math.round(s.vmax)), f: s.first, l: s.last, lg: Math.round(s.longest), os: s.os, cv: s.cv, c: Date.now(), ...(s.stops.length ? { st: Object.fromEntries(s.stops.map((x, i) => ['s' + i, x])) } : {}) });
+const unpackSum = r => ({ total: r.d || 0, by: { car: { d: r.dr || 0, ms: (r.td || 0) * 60e3 }, bike: { d: r.bk || 0, ms: (r.tb || 0) * 60e3 }, walk: { d: r.wk || 0, ms: (r.tw || 0) * 60e3 } }, n: r.n || 0, longest: r.lg || 0, vmax: r.mx || 0, first: r.f || 0, last: r.l || 0, os: r.os || 0, cv: r.cv ?? 100, gapMs: 0, stops: Object.values(r.st || {}).map(x => ({ la: x.la, ln: x.ln, m: x.m })), packed: true });
+/* ملخصات عدة أيام: المحفوظ منها يُقرأ، والناقص يُحسب من السجل (لصاحبه أو المشرف) ويُحفظ لصاحبه */
+async function ensureSummaries(uid, days, opt, onProgress) {
+  let stored = {}; try { stored = (await get(ref(db, 'reports/' + uid))).val() || {}; } catch {}
+  const today = dayKey(Date.now()), out = {}, todo = [];
+  for (const d of days) {
+    const r = stored[d];
+    if (r && (!opt.write || (d < today && (r.c || 0) >= dayEnd(d) - 120000))) out[d] = unpackSum(r);
+    else if (opt.compute) todo.push(d);
+    else if (r) out[d] = unpackSum(r);
+  }
+  let i = 0;
+  for (const d of todo) {
+    if (onProgress) onProgress(++i, todo.length);
+    const pts = await fetchDayPts(uid, d).catch(() => []);
+    const gaps = pts.length ? await fetchDayGaps(uid, d) : [];
+    const s = summarize(pts, gaps, rptThr()); out[d] = s;
+    if (opt.write && d < today) { try { await set(ref(db, `reports/${uid}/${d}`), packSum(s)); } catch {} }
+  }
+  return out;
+}
+const savedPlaceAt = (la, ln) => { for (const p of Object.values(S.places || {})) if (typeof p.lat === 'number' && haversine({ lat: la, lng: ln }, p) <= (p.r || 200) + 60) return p.name; return null; };
+const nameAt = async (la, ln) => savedPlaceAt(la, ln) || (await geocode(la, ln)) || null;
+const cmpText = (cur, ref, label) => ref < 1 ? label + ': لا حركة' : (cur >= ref ? 'أكثر من ' : 'أقل من ') + label + ' بـ ' + fmtKm(Math.abs(cur - ref));
+function clusterStops(rows) {
+  const cl = [];
+  for (const r of rows) for (const st of ((r.s && r.s.stops) || [])) {
+    let c = cl.find(x => haversine(x, { lat: st.la, lng: st.ln }) <= 150);
+    if (!c) { c = { lat: st.la, lng: st.ln, days: new Set(), mins: 0 }; cl.push(c); }
+    c.days.add(r.d); c.mins += st.m;
+  }
+  return cl.sort((a, b) => b.days.size - a.days.size || b.mins - a.mins);
+}
+
+async function loadShared() {
+  const out = {};
+  const ids = Object.keys(S.mine).filter(u => u !== S.uid && connected(u));
+  await Promise.all(ids.map(async u => { try { if ((await get(ref(db, 'reportShare/' + u))).val() === true) out[u] = true; } catch {} }));
+  RPT.shared = out;
+}
+function fillWho() {
+  const opts = [['me', 'تقريري']];
+  const seen = new Set([S.uid]);
+  for (const u of Object.keys(RPT.shared)) { opts.push([u, 'تقرير ' + dispName(u)]); seen.add(u); }
+  if (S.isAdmin) for (const u of Object.keys(S.users)) if (!seen.has(u) && S.users[u].status === 'approved') opts.push([u, 'تقرير ' + (S.dir[u]?.name || S.users[u].name) + ' (مشرف)']);
+  $('rpt-who').innerHTML = opts.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+  $('rpt-who').value = RPT.who || 'me';
+  $('rpt-who-card').hidden = opts.length < 2;
+}
+function renderFollow() {
+  const ids = Object.keys(RPT.shared);
+  $('rpt-follow').innerHTML = ids.length ? '<b>ملخص يومي عن أصدقائي</b><p class="hint">يصلك إشعار صباحاً بملخص أمس لمن تختاره منهم. ويظهر هنا من وافق على مشاركة تقريره.</p>' + ids.map(u => `<label class="sw-row st"><span>${esc(dispName(u))}</span><span class="switch"><input type="checkbox" data-follow="${esc(u)}" ${S.follow[u] ? 'checked' : ''} aria-label="متابعة"><span></span></span></label>`).join('') : '<p class="hint">لا أحد من أصدقائك شارك تقريره معك بعد.</p>';
+}
+async function openReport(mode = 'day', day) {
+  if (S.limited) return toast('التقارير تتفعل بعد اعتماد حسابك');
+  RPT.mode = mode; RPT.who = null; RPT.day = day || dayKey(Date.now());
+  $('v-report').hidden = false; $('rpt-day').max = dayKey(Date.now()); $('rpt-day').value = RPT.day; $('rpt-speed').value = rptThr();
+  $('rpt-img').hidden = isNative; $('rpt-csv').hidden = isNative;
+  try { localStorage.setItem('mk_rpt_seen_' + RPT.day, '1'); } catch {}
+  $('rpt-bar').hidden = true;
+  renderReport();
+  await loadShared(); fillWho(); renderFollow();
+}
+function shiftRpt(dir) {
+  const step = RPT.mode === 'day' ? 1 : RPT.mode === 'week' ? 7 : 30;
+  const nd = shiftDayKey(RPT.day, dir * step), today = dayKey(Date.now());
+  RPT.day = nd > today ? today : nd; $('rpt-day').value = RPT.day; renderReport();
+}
+async function renderReport() {
+  const tok = ++RPT.token, uid = rptWho(), own = uid === S.uid, full = own || S.isAdmin;
+  document.querySelectorAll('#rpt-seg button').forEach(b => b.classList.toggle('on', b.dataset.id === RPT.mode));
+  $('rpt-title').textContent = own ? 'تقريري' : 'تقرير ' + dispName(uid);
+  $('rpt-body').innerHTML = '<div class="card"><p class="hint">جارٍ الحساب...</p></div>';
+  try { if (RPT.mode === 'day') await renderDay(tok, uid, own, full); else await renderRange(tok, uid, own, full); }
+  catch { if (tok === RPT.token) $('rpt-body').innerHTML = '<div class="card"><p class="hint">تعذر تحميل التقرير. تحقق من الاتصال أو من صلاحية العرض.</p></div>'; }
+}
+async function renderDay(tok, uid, own, full) {
+  const day = RPT.day, body = $('rpt-body'), thr = rptThr();
+  let s;
+  if (full) { const pts = await fetchDayPts(uid, day); const gaps = pts.length ? await fetchDayGaps(uid, day) : []; s = summarize(pts, gaps, thr); s.pts = pts; }
+  else s = (await ensureSummaries(uid, [day], { compute: false, write: false }))[day];
+  if (tok !== RPT.token) return;
+  RPT.last = { uid, day, s, mode: 'day' }; RPT.csv = '';
+  if (!s) { RPT.text = ''; body.innerHTML = '<div class="card"><p class="hint">لا يوجد ملخص محفوظ لهذا اليوم. يُنشأ كل ليلة من تطبيق صاحبه، ولا يظهر إن لم يشاركه.</p></div>'; return; }
+  const by = s.by, who = own ? '' : dispName(uid);
+  if (s.total < 1 && !s.n) { RPT.text = ''; body.innerHTML = `<div class="card"><b>${esc(dayLabel(day))}</b><p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p></div>`; return; }
+  const box = (v, l) => `<div class="rbox"><b>${v}</b><span>${l}</span></div>`;
+  const lines = [`تقرير مكاننا اليومي، ${dayLabel(day)}`, who, `المسافة الإجمالية: ${km1(s.total)} كم`,
+    by.car.d >= 1 ? `قيادة: ${km1(by.car.d)} كم (${fmtDur(by.car.ms)})` : '', by.walk.d >= 1 ? `مشي: ${km1(by.walk.d)} كم (${fmtDur(by.walk.ms)})` : '', by.bike.d >= 1 ? `دراجة: ${km1(by.bike.d)} كم (${fmtDur(by.bike.ms)})` : '',
+    `الرحلات: ${s.n}${s.longest > 0 ? '، أطولها ' + km1(s.longest) + ' كم' : ''}`, s.vmax >= 5 ? `أعلى سرعة تقريبية: ${Math.round(s.vmax)} كم/س` : '', s.first ? `أول حركة ${fmtTime(s.first)}، آخر حركة ${fmtTime(s.last)}` : ''].filter(Boolean);
+  RPT.text = lines.join('\n');
+  let html = `<div class="card"><b>${esc(dayLabel(day))}</b><div class="rgrid" style="margin-top:8px">` +
+    box(fmtKm(s.total), 'المسافة الإجمالية') + box(fmtKm(by.car.d), 'قيادة' + (by.car.d >= 1 ? ' · ' + fmtDur(by.car.ms) : '')) + box(fmtKm(by.walk.d), 'مشي' + (by.walk.d >= 1 ? ' · ' + fmtDur(by.walk.ms) : '')) + box(fmtKm(by.bike.d), 'دراجة' + (by.bike.d >= 1 ? ' · ' + fmtDur(by.bike.ms) : '')) + '</div>' +
+    `<p class="hint">الرحلات ${s.n}${s.longest > 0 ? '، أطولها ' + esc(fmtKm(s.longest)) : ''}${s.vmax >= 5 ? '، أعلى سرعة تقريبية ' + Math.round(s.vmax) + ' كم/س' : ''}.${s.first ? ' أول حركة ' + esc(fmtTime(s.first)) + ' وآخر حركة ' + esc(fmtTime(s.last)) + '.' : ''}</p>` +
+    '<p class="hint" id="rpt-cmp"></p>';
+  if (!s.packed) {
+    html += `<p class="hint">${s.os > 0 ? 'فوق ' + thr + ' كم/س: ' + s.os + ' دقيقة تقريباً.' : 'لم تتجاوز ' + thr + ' كم/س.'}</p>`;
+    html += `<p class="hint">اكتمال البيانات ${s.cv}%${s.gapMs > 6e4 ? '، بسبب انقطاعات الإرسال: ' + esc(fmtDur(s.gapMs)) : ''}. المسافة تقدير من نقاط التتبع، وقد تقل عن عداد السيارة.</p>`;
+  } else html += '<p class="hint">ملخص مشارَك بموافقة صاحبه، دون تفاصيل المسارات.</p>';
+  html += '</div>';
+  const items = s.an ? s.an.items : [];
+  const tripRows = items.map((it, idx) => it.type === 'trip' ? `<div class="row tap" data-act="rpt-trip" data-id="${idx}"><div class="grow"><div class="nm">${esc(MODE[it.mode])} · ${esc(fmtKm(it.dist))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))} · ${esc(fmtDur(it.dur))}</div><div class="st" id="rt-${idx}"></div></div></div>` : '').join('');
+  if (tripRows) html += `<div class="card"><b>المسارات التي سلكتها</b>${tripRows}<p class="hint">اضغط على مسار لعرضه على الخريطة.</p></div>`;
+  const stopRows = items.map((it, idx) => (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) ? `<div class="row"><div class="grow"><div class="nm">وقفة ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}</div><div class="st" id="rs-${idx}"></div></div></div>` : '').join('');
+  if (stopRows) html += `<div class="card"><b>الوقفات الطويلة</b>${stopRows}</div>`;
+  body.innerHTML = html;
+  RPT.csv = 'النوع,من,إلى,كم,دقائق\n' + items.filter(i => i.type === 'trip').map(t => [MODE[t.mode], fmtTime(t.t0), fmtTime(t.t1), km1(t.dist), Math.round(t.dur / 60e3)].join(',')).join('\n');
+  // مقارنة بالأمس وبمتوسط آخر 7 أيام
+  const prev = Array.from({ length: 7 }, (_, i) => shiftDayKey(day, -(i + 1)));
+  ensureSummaries(uid, prev, { compute: full, write: own }).then(m => {
+    if (tok !== RPT.token || !$('rpt-cmp')) return;
+    const have = prev.filter(d => m[d]), parts = [];
+    if (m[prev[0]]) parts.push(cmpText(s.total, m[prev[0]].total, 'أمس'));
+    if (have.length >= 3) parts.push(cmpText(s.total, have.reduce((a, d) => a + m[d].total, 0) / have.length, 'متوسط آخر ' + have.length + ' أيام'));
+    $('rpt-cmp').textContent = parts.length ? parts.join('، و') + '.' : '';
+  }).catch(() => {});
+  // أسماء الأماكن (المحفوظة أولاً ثم العنوان)
+  (async () => {
+    let n = 0;
+    for (let idx = 0; idx < items.length && n < 10; idx++) {
+      const it = items[idx]; if (tok !== RPT.token) return;
+      if (it.type === 'trip' && s.pts) { n++; const a = s.pts[it.s], b = s.pts[it.e]; const [f, t] = await Promise.all([nameAt(a.lat, a.lng), nameAt(b.lat, b.lng)]); const el = $('rt-' + idx); if (el && (f || t)) el.textContent = 'من ' + (f || 'مكان غير مسمّى') + ' إلى ' + (t || 'مكان غير مسمّى'); }
+      else if (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) { n++; const nm = await nameAt(it.lat, it.lng); const el = $('rs-' + idx); if (el && nm) el.textContent = nm; }
+    }
+  })();
+}
+async function renderRange(tok, uid, own, full) {
+  const n = RPT.mode === 'week' ? 7 : 30, end = RPT.day, body = $('rpt-body');
+  const days = Array.from({ length: n }, (_, i) => shiftDayKey(end, -(n - 1 - i)));
+  const m = await ensureSummaries(uid, days, { compute: full, write: own }, (i, t) => { if (tok === RPT.token) body.innerHTML = `<div class="card"><p class="hint">جارٍ تحليل الأيام ${i} من ${t}...</p></div>`; });
+  if (tok !== RPT.token) return;
+  const rows = days.map(d => ({ d, s: m[d] || null }));
+  const sum = k => rows.reduce((a, r) => a + (r.s ? (k === 'total' ? r.s.total : r.s.by[k].d) : 0), 0);
+  const total = sum('total'), car = sum('car'), bike = sum('bike'), walk = sum('walk');
+  const trips = rows.reduce((a, r) => a + ((r.s && r.s.n) || 0), 0), active = rows.filter(r => r.s && r.s.total > 0).length;
+  const maxCar = rows.reduce((b, r) => (r.s && r.s.by.car.d > 0 && (!b || r.s.by.car.d > b.s.by.car.d)) ? r : b, null);
+  const mx = Math.max(1, ...rows.map(r => (r.s && r.s.total) || 0));
+  const label = r => RPT.mode === 'week' ? new Date(r.d + 'T12:00:00').toLocaleDateString('ar', { weekday: 'narrow' }) : (Number(r.d.slice(8)) % 5 === 0 ? String(Number(r.d.slice(8))) : '');
+  const bars = rows.map(r => `<div class="bar" title="${esc(dayLabel(r.d) + ': ' + fmtKm((r.s && r.s.total) || 0))}"><i style="height:${Math.max(2, Math.round(((r.s && r.s.total) || 0) / mx * 100))}%"></i><em>${esc(label(r))}</em></div>`).join('');
+  const box = (v, l) => `<div class="rbox"><b>${v}</b><span>${l}</span></div>`;
+  const title = RPT.mode === 'week' ? 'آخر 7 أيام' : 'آخر 30 يوماً';
+  const clusters = clusterStops(rows);
+  RPT.sugg = own ? clusters.filter(c => c.days.size >= 3 && !savedPlaceAt(c.lat, c.lng)).slice(0, 3) : [];
+  let html = `<div class="card"><b>${title} حتى ${esc(dayLabel(end))}</b><div class="bars">${bars}</div><div class="rgrid">` +
+    box(fmtKm(total), 'المسافة الإجمالية') + box(fmtKm(car), 'قيادة') + box(fmtKm(walk), 'مشي') + box(fmtKm(bike), 'دراجة') + box(trips, 'عدد الرحلات') + box(active ? fmtKm(total / active) : '0 م', 'متوسط اليوم النشط') + '</div>' +
+    `<p class="hint">${maxCar ? 'أكثر الأيام قيادة: ' + esc(dayLabel(maxCar.d)) + ' (' + esc(fmtKm(maxCar.s.by.car.d)) + ').' : 'لا قيادة في هذه الفترة.'} الأيام النشطة ${active} من ${n}.</p></div>`;
+  if (clusters.length) html += `<div class="card"><b>أكثر الأماكن زيارة</b>` + clusters.slice(0, 5).map((c, i) => `<div class="row"><div class="grow"><div class="nm" id="cl-${i}">مكان</div><div class="st">${c.days.size} أيام · ${esc(fmtDur(c.mins * 60e3))}</div></div></div>`).join('') + '</div>';
+  if (RPT.sugg.length) html += `<div class="card"><b>أماكن متكررة</b><p class="hint">توقفتَ في هذه الأماكن في أيام كثيرة. هل هي البيت أو العمل؟ احفظها لتُسمّى مساراتك.</p>` + RPT.sugg.map((c, i) => `<div class="row"><div class="grow"><div class="nm">مكان متكرر</div><div class="st">${c.days.size} أيام · ${esc(fmtDur(c.mins * 60e3))}</div></div><button class="btn sm" data-act="rpt-save-place" data-id="${i}">حفظ كمكان</button></div>`).join('') + '</div>';
+  body.innerHTML = html;
+  RPT.last = { uid, mode: RPT.mode, rows }; 
+  RPT.text = [`تقرير مكاننا، ${title}`, own ? '' : dispName(uid), `المسافة الإجمالية: ${km1(total)} كم`, `قيادة: ${km1(car)} كم، مشي: ${km1(walk)} كم، دراجة: ${km1(bike)} كم`, `الرحلات: ${trips}، الأيام النشطة ${active} من ${n}`, maxCar ? `أكثر الأيام قيادة: ${dayLabel(maxCar.d)}` : ''].filter(Boolean).join('\n');
+  RPT.csv = 'اليوم,الإجمالي كم,قيادة كم,مشي كم,دراجة كم,رحلات\n' + rows.map(r => [r.d, km1((r.s && r.s.total) || 0), km1((r.s && r.s.by.car.d) || 0), km1((r.s && r.s.by.walk.d) || 0), km1((r.s && r.s.by.bike.d) || 0), (r.s && r.s.n) || 0].join(',')).join('\n');
+  (async () => { for (let i = 0; i < Math.min(5, clusters.length); i++) { if (tok !== RPT.token) return; const nm = await nameAt(clusters[i].lat, clusters[i].lng); const el = $('cl-' + i); if (el && nm) el.textContent = nm; } })();
+}
+function rptImage() {
+  const lines = RPT.text.split('\n').filter(Boolean); if (!lines.length) return toast('لا يوجد تقرير لحفظه');
+  const c = document.createElement('canvas'), W = 900, H = 150 + lines.length * 52; c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.fillStyle = '#E6ECEE'; g.fillRect(0, 0, W, H); g.fillStyle = '#10272F'; g.fillRect(0, 0, W, 90);
+  g.direction = 'rtl'; g.textAlign = 'right'; g.fillStyle = '#fff'; g.font = 'bold 36px sans-serif'; g.fillText('مكاننا', W - 40, 58);
+  g.fillStyle = '#10272F'; g.font = '28px sans-serif'; lines.forEach((t, i) => g.fillText(t, W - 40, 150 + i * 52));
+  c.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'makanona-report.png'; document.body.appendChild(a); a.click(); a.remove(); }, 'image/png');
+}
+function rptCsv() {
+  if (!RPT.csv) return toast('لا يوجد تقرير لتصديره');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + RPT.csv], { type: 'text/csv;charset=utf-8' })); a.download = 'makanona-report.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+$('rpt-day').onchange = () => { const v = $('rpt-day').value, t = dayKey(Date.now()); if (!v) return; RPT.day = v > t ? t : v; renderReport(); };
+$('rpt-who').onchange = () => { const v = $('rpt-who').value; RPT.who = v === 'me' ? null : v; renderReport(); };
+$('rpt-speed').onchange = async () => {
+  const v = Number(toLatin($('rpt-speed').value)); if (!(v >= 60 && v <= 250)) return toast('من 60 إلى 250 كم/س');
+  S.alerts = { ...(S.alerts || {}), rptSpeed: v };
+  try { await update(ref(db), { ['alerts/' + S.uid + '/rptSpeed']: v }); } catch {}
+  renderReport();
+};
+/* لافتة «تقرير جاهز» عند فتح التطبيق، للهواتف التي لم تثبّت التطبيق الجديد */
+function maybeReportBanner() {
+  if (S.limited || !$('rpt-bar')) return;
+  const seen = d => { try { return !!localStorage.getItem('mk_rpt_seen_' + d); } catch { return true; } };
+  const now = new Date(), today = dayKey(now.getTime()), yest = dayKey(now.getTime() - 864e5);
+  const [hh, mm] = String((S.alerts || {}).rptTime || '23:59').split(':').map(Number);
+  let day = null, label = '';
+  if (now.getHours() < 14 && !seen(yest)) { day = yest; label = 'تقرير أمس جاهز'; }
+  else if (now.getHours() * 60 + now.getMinutes() >= hh * 60 + mm && !seen(today)) { day = today; label = 'تقرير اليوم جاهز'; }
+  if (!day) return;
+  $('rpt-bar-t').textContent = label; $('rpt-bar').dataset.day = day; $('rpt-bar').hidden = false;
+}
+
+/* ---------- صفحة الخصوصية ---------- */
+function renderPrivacy() {
+  if (!$('v-privacy') || $('v-privacy').hidden) return;
+  const minor = !!S.minor;
+  $('pv-hide-all').checked = !!S.hideAll; $('pv-hide-all').disabled = minor;
+  $('pv-hpriv').checked = !!S.histPriv; $('pv-hpriv').disabled = minor;
+  $('pv-rshare').checked = !!S.reportShare;
+  const ids = Object.keys(S.mine).filter(u => u !== S.uid);
+  $('pv-who').innerHTML = (minor ? '<p class="hint">حسابات الأطفال لا تستطيع إخفاء موقعها عن أهلها.</p>' : '') + (ids.length ? ids.map(u => {
+    const ok = connected(u), d = S.dir[u] || {};
+    const st = !ok ? 'لم يوافق بعد، لا يرى شيئاً' : (S.hideAll || S.hides[u]) ? 'موقعك مخفي عنه' : 'يرى موقعك الحي' + (S.histPriv ? '' : ' وسجل تنقلاتك') + (S.reportShare ? ' وملخص تقريرك' : '');
+    const sw = (!ok || minor) ? '' : `<label class="sw-row st" style="margin-top:4px"><span>إخفاء موقعي عنه</span><span class="switch"><input type="checkbox" data-hide="${esc(u)}" ${S.hides[u] ? 'checked' : ''} aria-label="إخفاء موقعي عنه"><span></span></span></label>`;
+    return prow(dispName(u), d.color, `<div class="st">${esc(st)}</div>` + sw, '', d.photo);
+  }).join('') : '<p class="hint">لا أصدقاء بعد.</p>');
 }
 
 /* ---------- التبويبات ---------- */
@@ -2315,6 +2783,7 @@ function setTab(t) {
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b) setTab(b.dataset.tab); };
 function renderAll() {
   if (!S.started) return;
+  renderPrivacy();
   migratePause();
   renderMap(); renderSheet(); updateBadge();
   if (S.tab === 'people') renderPeople();
@@ -2327,7 +2796,7 @@ const flag = k => { try { return localStorage.getItem(k) === '1'; } catch { retu
 const STEPS = [
   { id: 'fine', title: 'السماح بالوصول إلى الموقع', text: 'يحتاج التطبيق موقع هاتفك ليظهر على خريطة العائلة. اضغط الزر ثم اختر «أثناء استخدام التطبيق» أو «السماح».', btn: 'السماح بالموقع', act: () => AndroidBridge.requestLocation(), done: s => s.fine, skipLabel: 'لاحقاً (لن يعمل الإرسال)', onSkip: () => localStorage.setItem('skip_fine', '1'), skipped: () => flag('skip_fine') },
   { id: 'bg', only: s => s.fine, title: 'الموقع طوال الوقت', text: 'ليستمر الإرسال والشاشة مطفأة، افتح الأذونات ثم الموقع واختر «السماح طوال الوقت».', btn: 'فتح الإعداد', act: () => AndroidBridge.requestBackground(), done: s => s.bg, skipLabel: 'لاحقاً (يتوقف الإرسال عند إغلاق التطبيق)', onSkip: () => localStorage.setItem('skip_bg', '1'), skipped: () => flag('skip_bg') },
-  { id: 'notif', title: 'الإشعارات (اختياري)', text: 'يعرض أندرويد إشعاراً صغيراً أثناء الإرسال، وتنبيهات القرب تصلك عبره. يمكنك تخطيه فيعمل التطبيق، لكن لن تصلك التنبيهات.', btn: 'السماح بالإشعارات', act: () => AndroidBridge.requestNotifications(), done: s => s.notif, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_notif', '1'), skipped: () => flag('skip_notif') },
+  { id: 'notif', title: 'الإشعارات (اختياري)', text: 'يعرض أندرويد إشعاراً صغيراً أثناء الإرسال، وتنبيهاتك تصلك عبره. يظهر الإشعار صامتاً ومصغّراً، ويمكنك إخفاءه لاحقاً من حسابي. يمكنك تخطي هذه الخطوة فيعمل التطبيق، لكن لن تصلك التنبيهات.', btn: 'السماح بالإشعارات', act: () => AndroidBridge.requestNotifications(), done: s => s.notif, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_notif', '1'), skipped: () => flag('skip_notif') },
   { id: 'battery', title: 'عدم تقييد البطارية', text: 'اسمح للتطبيق بالعمل في الخلفية دون أن يوقفه توفير الطاقة. هذا يمنع انقطاع الموقع.', btn: 'السماح', act: () => AndroidBridge.ignoreBattery(), done: s => s.battery, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_battery', '1'), skipped: () => flag('skip_battery') },
   { id: 'contacts', title: 'جهات الاتصال', text: 'ليجد التطبيق أهلك وأصدقاءك المشتركين من أرقام هاتفك. تبقى أسماء جهاتك على هاتفك، وتُرسل بصمات مشفّرة لأرقامك للمطابقة فقط.', btn: 'السماح', act: () => AndroidBridge.requestContacts(), done: s => s.contacts, skipLabel: 'لاحقاً', onSkip: () => localStorage.setItem('skip_contacts', '1'), skipped: () => flag('skip_contacts') },
   { id: 'auto', only: s => s.oem, title: 'التشغيل التلقائي', text: 'هاتفك من نوع يوقف التطبيقات في الخلفية. افتح الإعداد وفعّل «التشغيل التلقائي» أو «السماح بالعمل في الخلفية» لهذا التطبيق.', btn: 'فتح الإعداد', act: () => AndroidBridge.openAutoStart(), done: () => flag('auto_done'), skipLabel: 'تم، فعّلته', onSkip: () => localStorage.setItem('auto_done', '1'), skipped: () => false }
