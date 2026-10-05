@@ -64,8 +64,9 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .sheet-sum{display:none;text-align:center;font-weight:600;padding:0 0 4px}
 .sheet.min .sheet-sum{display:block}
 .sheet.min #sheet-list,.sheet.min #h-list,.sheet.min #h-sum,.sheet.min #h-chartinfo{display:none}
-#upd-bar{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB));z-index:560;height:48px;background:var(--acc);color:var(--accInk);display:flex;align-items:center;gap:8px;padding:0 12px;font-weight:600;font-size:13px}
-#upd-bar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#upd-bar{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB));z-index:560;min-height:48px;background:var(--acc);color:var(--accInk);display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:8px 12px;font-weight:600;font-size:13.5px}
+#upd-bar span{flex:1 1 100%;min-width:0;white-space:normal;line-height:1.5}
+#upd-bar .btn{flex:1}
 .row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
 .row.tap{cursor:pointer}
@@ -132,6 +133,8 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 #pick-bar .btn{padding:6px 10px;font-size:12px}
 .pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#E9F0F7;font-size:12px;font-weight:600}
 #hsheet{max-height:62vh}
+#upd-notes,#upd-force-notes{white-space:pre-wrap;overflow-y:auto;max-height:46vh;font-size:14.5px;line-height:1.9;background:#fff;border-radius:12px;padding:12px;text-align:start;margin:6px 0}
+#upd-force-notes{width:100%}
 #h-slider{margin-top:8px}
 #sos-confirm{position:fixed;inset-inline:20px;top:50%;transform:translateY(-50%);z-index:1250;background:#fff;border-radius:20px;padding:18px;text-align:center;box-shadow:0 8px 40px #0006;display:flex;flex-direction:column;gap:8px;max-width:420px;margin-inline:auto}
 #sos-confirm p{margin:0;font-size:13.5px;color:var(--ink2)}
@@ -350,6 +353,7 @@ window.APP_CONFIG = {
   <div class="auth">
     <h2>يلزم تحديث التطبيق</h2>
     <p class="lead" id="upd-force-text"></p>
+    <div id="upd-force-notes" hidden></div>
     <button class="btn acc block" data-act="upd-go">تحديث الآن</button>
   </div>
 </div>
@@ -591,7 +595,9 @@ window.APP_CONFIG = {
         <p class="hint">يظهران في شاشة الدخول لمن يحتاج مساعدة.</p>
         <b style="margin-top:6px">تحديث التطبيق</b>
         <label>رقم الإصدار الأحدث (versionCode)<input id="st-ver" inputmode="numeric" dir="ltr" placeholder="2"></label>
-        <label>ملاحظات التحديث (اختياري)<input id="st-notes"></label>
+        <label>اسم الإصدار (يظهر للمستخدمين، مثل 2.0)<input id="st-vname" maxlength="20" dir="ltr" placeholder="2.0"></label>
+        <label>ملاحظات التحديث (اختياري، تقبل عدة أسطر)<textarea id="st-notes" rows="7" maxlength="1500" placeholder="ما تم إصلاحه:&#10;• ...&#10;&#10;جديد:&#10;• ..."></textarea></label>
+        <span class="hint" id="st-notes-n"></span>
         <div class="sw-row"><span>تحديث إلزامي (يمنع استخدام النسخ الأقدم)</span><label class="switch"><input type="checkbox" id="st-force" aria-label="تحديث إلزامي"><span></span></label></div>
         <p class="hint">بعد بناء نسخة جديدة: ارفع الـ APK، ضع رابطه أعلاه، واكتب رقم إصدارها هنا. يظهر شريط تحديث لكل من يملك نسخة أقدم.</p>
         <b style="margin-top:6px">الإرسال بالإيميل</b>
@@ -614,7 +620,7 @@ window.APP_CONFIG = {
     </div>
   </div>
 
-  <div id="upd-bar" hidden><span id="upd-text"></span><button class="btn sm" data-act="upd-go">تحديث</button><button class="btn sm" data-act="upd-later">لاحقاً</button></div>
+  <div id="upd-bar" hidden><span id="upd-text"></span><button class="btn sm" id="upd-info-btn" data-act="upd-info">التفاصيل</button><button class="btn sm" data-act="upd-go">تحديث</button><button class="btn sm" data-act="upd-later">لاحقاً</button></div>
 
   <nav class="tabs" id="tabs">
     <button data-tab="map" class="on">الخريطة</button>
@@ -685,6 +691,14 @@ window.APP_CONFIG = {
   <p>سيصل تنبيه عاجل بموقعك إلى <span id="sos-c-friends">0</span> من أصدقائك المتصلين بعد ثوانٍ، حتى من أخفيتَ موقعك عنه. ليست بديلاً عن الاتصال بالطوارئ.</p>
   <div class="acts"><button class="btn danger" data-act="sos-now">أرسل الآن</button><button class="btn" data-act="sos-no">إلغاء</button></div>
 </div>
+<div id="modal-upd" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="upd-title"></b>
+    <span class="hint" id="upd-sub"></span>
+    <div id="upd-notes"></div>
+    <div class="acts"><button id="upd-go2" class="btn primary" data-act="upd-go">تحديث الآن</button><button id="upd-close" class="btn" data-act="upd-close">إغلاق</button></div>
+  </div>
+</div>
 <div id="modal-nick" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b id="nick-title">اسم مستعار</b>
@@ -744,7 +758,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '18';
+const UI_VERSION = '19';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -769,7 +783,7 @@ const S = {
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
-  hides: {}, upd: {}, updDismissed: false, mineLoaded: false, migrated: false, tickN: 0, sheetMin: false, hMin: false,
+  hides: {}, upd: {}, updLoaded: false, wnDone: false, updDismissed: false, mineLoaded: false, migrated: false, tickN: 0, sheetMin: false, hMin: false,
   alerts: { on: false, km: 50 }, matches: [], matchDone: false, matchBusy: false, srch: null, myHash: null,
   meUn: null, unsubs: {}, linkUn: {}, dirUn: {}, locUn: {}, markers: {}, map: null, hl: null, base: [],
   fitted: false, registering: false, authMode: 'login', pickColor: null, tick: null, editId: null
@@ -1078,7 +1092,7 @@ function startMain() {
     S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') { renderProx(); renderAlerts(); } pushProx(); }, e => console.error('alerts', e));
     S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; if (S.tab === 'people') renderPeople(); }, e => console.error('hide', e));
   }
-  S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; renderUpdate(); }, e => console.error('upd', e));
+  S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; S.updLoaded = true; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
   setTimeout(() => {
     reportAppInfo(true);
@@ -1909,7 +1923,7 @@ function fillSettings() {
   $('st-sender').value = s.senderName || CFG.appName; $('st-reply').value = s.replyTo || ''; $('st-from').value = s.fromAlias || '';
   $('st-subject').value = s.subject || DEFAULT_SUBJECT; $('st-body').value = s.body || DEFAULT_BODY;
   $('st-cemail').value = s.contactEmail || ''; $('st-cwa').value = s.contactWhatsapp || '';
-  $('st-ver').value = s.version || ''; $('st-notes').value = s.notes || ''; $('st-force').checked = !!s.force;
+  $('st-ver').value = s.version || ''; $('st-vname').value = s.vname || ''; $('st-notes').value = s.notes || ''; $('st-notes-n').textContent = ($('st-notes').value.length) + ' / 1500'; $('st-force').checked = !!s.force;
 }
 
 /* ---------- الأوامر (تفويض النقرات) ---------- */
@@ -2062,7 +2076,10 @@ const ACTIONS = {
   'sos-now': () => { closeSosConfirm(); sendSos(); },
   'sos-no': () => closeSosConfirm(),
   'refresh-contacts': () => refreshContacts(),
+  'upd-info': () => { const u = S.upd || {}; showUpdInfo('تحديث جديد', verLine(u), u.notes, true); },
+  'upd-close': () => { $('modal-upd').hidden = true; },
   'upd-go': async () => {
+    $('modal-upd').hidden = true;
     const url = S.upd && S.upd.url; if (!url) return toast('رابط التحميل غير محدد بعد');
     const bridge = isNative && window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function';
     let same = false; try { same = new URL(url, location.href).host === location.host; } catch {}
@@ -2131,13 +2148,18 @@ const ACTIONS = {
     for (const id of ['new-name', 'new-email', 'new-pass', 'new-phone', 'new-birth']) $(id).value = '';
   },
   'st-save': async () => {
-    const ver = Number(toLatin($('st-ver').value)) || 0, url = $('st-apk').value.trim(), notes = $('st-notes').value.trim(), force = $('st-force').checked;
-    const settings = { apkUrl: url, version: ver, notes, force, mailEnabled: $('st-mail-on').checked, scriptUrl: $('st-script').value.trim(), senderName: $('st-sender').value.trim(), replyTo: $('st-reply').value.trim(), fromAlias: $('st-from').value.trim(), subject: $('st-subject').value.trim(), body: $('st-body').value };
+    const ver = Number(toLatin($('st-ver').value)) || 0, url = $('st-apk').value.trim(), notes = $('st-notes').value.replace(/\r\n/g, '\n').trim().slice(0, 1500), force = $('st-force').checked, vname = $('st-vname').value.trim().slice(0, 20);
+    const settings = { apkUrl: url, version: ver, vname, notes, force, mailEnabled: $('st-mail-on').checked, scriptUrl: $('st-script').value.trim(), senderName: $('st-sender').value.trim(), replyTo: $('st-reply').value.trim(), fromAlias: $('st-from').value.trim(), subject: $('st-subject').value.trim(), body: $('st-body').value };
     const cEmail = $('st-cemail').value.trim(), cWa = $('st-cwa').value.replace(/\D/g, '');
     settings.contactEmail = cEmail; settings.contactWhatsapp = cWa;
     const ups = { 'settings/app': settings, publicConfig: { scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa } };
-    if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force }; else ups['appUpdate'] = null;
-    await update(ref(db), ups);
+    if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname }; else ups['appUpdate'] = null;
+    try { await update(ref(db), ups); }
+    catch {
+      // القواعد الجديدة لم تُنشر بعد: نحفظ دون اسم الإصدار حتى لا يضيع باقي الإعدادات
+      if (ups.appUpdate) { delete ups.appUpdate.name; try { await update(ref(db), ups); return toast('حُفظت الإعدادات دون اسم الإصدار. انشر القواعد الجديدة ليعمل.'); } catch {} }
+      return toast('تعذر حفظ الإعدادات');
+    }
     toast('تم حفظ الإعدادات');
   },
   'st-test': async () => {
@@ -2204,13 +2226,31 @@ function renderUpdate() {
   const need = !!(s && Number(u.version) > (s.ver || 0));
   const force = need && !!u.force, soft = need && !force && !S.updDismissed;
   $('upd-bar').hidden = !soft;
-  document.documentElement.style.setProperty('--ban', soft ? '48px' : '0px');
+  document.documentElement.style.setProperty('--ban', soft ? '84px' : '0px');
+  if (soft) requestAnimationFrame(() => document.documentElement.style.setProperty('--ban', $('upd-bar').offsetHeight + 'px'));
   $('v-update').hidden = !force;
   if (need) {
-    const txt = 'يتوفر تحديث للتطبيق' + (u.notes ? '، ' + u.notes : '');
-    $('upd-text').textContent = txt;
-    $('upd-force-text').textContent = 'هذه النسخة قديمة ولا تعمل مع آخر تحديثات الخدمة.' + (u.notes ? ' ' + u.notes : '') + ' حمّل النسخة الجديدة وثبّتها فوق القديمة.';
+    $('upd-text').textContent = 'يتوفر تحديث جديد' + (u.name ? ' · ' + u.name : '');
+    $('upd-info-btn').hidden = !u.notes;
+    $('upd-force-text').textContent = 'هذه النسخة قديمة ولا تعمل مع آخر تحديثات الخدمة. حمّل النسخة الجديدة' + (u.name ? ' (' + u.name + ')' : '') + ' وثبّتها فوق القديمة.';
+    $('upd-force-notes').textContent = u.notes || ''; $('upd-force-notes').hidden = !u.notes;
   }
+  maybeWhatsNew(s, u);
+}
+const verLine = u => 'الإصدار ' + (u.name ? u.name + ' (رقم ' + u.version + ')' : u.version);
+function showUpdInfo(title, sub, notes, canUpdate) {
+  $('upd-title').textContent = title; $('upd-sub').textContent = sub; $('upd-notes').textContent = notes || 'لا توجد ملاحظات.';
+  $('upd-go2').hidden = !canUpdate; $('upd-close').textContent = canUpdate ? 'إغلاق' : 'حسناً';
+  $('modal-upd').hidden = false;
+}
+/* «ما الجديد»: مرة واحدة بعد أن يثبّت المستخدم نسخة أحدث من التي فتحها آخر مرة */
+function maybeWhatsNew(s, u) {
+  if (!s || !s.ver || S.wnDone || !S.updLoaded) return;
+  S.wnDone = true;
+  let seen = null; try { seen = localStorage.getItem('mk_seen_ver'); } catch { return; }
+  try { localStorage.setItem('mk_seen_ver', String(s.ver)); } catch {}
+  if (seen === null || Number(seen) >= s.ver) return;                // أول تشغيل، أو لم تتغير النسخة
+  if (Number(u.version) === s.ver && u.notes) showUpdInfo('ما الجديد', verLine(u), u.notes, false);
 }
 
 /* ---------- إعدادات التنبيهات والأماكن ---------- */
@@ -2824,6 +2864,7 @@ function rptCsv() {
   if (!RPT.csv) return toast('لا يوجد تقرير لتصديره');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + RPT.csv], { type: 'text/csv;charset=utf-8' })); a.download = 'makanona-report.csv'; document.body.appendChild(a); a.click(); a.remove();
 }
+$('st-notes').addEventListener('input', () => { $('st-notes-n').textContent = $('st-notes').value.length + ' / 1500'; });
 $('rpt-day').onchange = () => { const v = $('rpt-day').value, t = dayKey(Date.now()); if (!v) return; RPT.day = v > t ? t : v; renderReport(); };
 $('rpt-who').onchange = () => { const v = $('rpt-who').value; RPT.who = v === 'me' ? null : v; renderReport(); };
 $('rpt-speed').onchange = async () => {
