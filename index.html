@@ -423,6 +423,7 @@ window.APP_CONFIG = {
       <span class="pchip" id="p-dist" hidden></span>
     </div>
     <div id="p-gap" class="hint" hidden style="margin:0 0 8px"></div>
+    <div id="p-home" class="trip-card" hidden style="margin-bottom:8px"><b id="p-home-t"></b><span class="hint" id="p-home-s"></span><div class="acts"><button class="btn sm primary" data-act="home-yes">نعم، نبّهني</button><button class="btn sm" data-act="home-edit">تعديل المكان</button><button class="btn sm" data-act="home-no">لا تعرض مجدداً</button></div></div>
     <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b>الموقع مطفأ في هاتفه</b><span class="hint">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
     <div id="p-trip"></div>
   </div>
@@ -743,7 +744,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '16';
+const UI_VERSION = '18';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -762,7 +763,8 @@ const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
-  sosAck: {}, sosSeen: {}, pendingSos: null, appInfo: {}, _infoAt: 0,
+  sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null,
+  adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
   gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false,
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
@@ -1157,7 +1159,7 @@ function syncLocs() {
 }
 function visibleIds() {
   if (S.limited) return [S.uid];
-  if (S.isAdmin) return Object.keys(S.dir);
+  if (S.isAdmin && S.adminAll) return Object.keys(S.dir);
   const ids = [S.uid];
   for (const u of Object.keys(S.mine)) if (u !== S.uid && connected(u)) ids.push(u);
   return ids;
@@ -1218,6 +1220,11 @@ function moveMode(l) {
 }
 function mvHtml(l) { const m = moveMode(l); return m ? `<span class="mv" title="${MODE[m.mode]}">${ICON[m.mode]}${m.kmh} كم/س</span>` : ''; }
 const phoneOf = id => String(S.users[id]?.phone || (S.phones[id] ? '+' + S.phones[id] : '')).replace(/\D/g, '');
+
+const rmGet = () => { try { return JSON.parse(localStorage.getItem('mk_rm') || '[]'); } catch { return []; } };
+const rmHas = u => rmGet().includes(u);
+const rmAdd = u => { try { const a = rmGet(); if (!a.includes(u)) { a.push(u); localStorage.setItem('mk_rm', JSON.stringify(a.slice(-100))); } } catch {} };
+const rmDel = u => { try { localStorage.setItem('mk_rm', JSON.stringify(rmGet().filter(x => x !== u))); } catch {} };
 
 /* ---------- العنوان (حي أو شارع) من OpenStreetMap Nominatim ---------- */
 const ADDR = { cache: {}, fail: {}, q: [], busy: false, asked: new Set(), last: {} };
@@ -1336,6 +1343,7 @@ function renderSheet() {
   if (S.limited) extra = '<p class="hint" style="padding:8px 0">حسابك قيد الاعتماد من المشرف. ستظهر بقية الميزات بعد اعتماده.</p>';
   else if (S.hideAll) extra = '<p class="hint" style="padding:8px 0">موقعك مخفي عن الجميع حالياً. يمكنك إظهاره من تبويب «الأشخاص».</p>';
   else if (!S.isAdmin && ids.length <= 1) extra = '<p class="hint" style="padding:8px 0">لا أحد على خريطتك بعد. أضف أفراد العائلة من تبويب «الأشخاص».</p>';
+  if (S.isAdmin) extra += `<label class="sw-row st" style="padding:10px 0"><span>عرض كل الأعضاء (إشراف)</span><span class="switch"><input type="checkbox" data-adm-all ${S.adminAll ? 'checked' : ''} aria-label="عرض كل الأعضاء"><span></span></span></label>`;
   $('sheet-av').innerHTML = avs.join('');
   $('sheet-list').innerHTML = rows.join('') + extra;
   if (S.person) renderPerson();
@@ -1352,7 +1360,7 @@ function applyTabVisibility() {
 }
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
-  S.person = id; applyTabVisibility(); renderPerson(); focusOn(id); loadLastTrip(id); loadLastGap(id);
+  S.person = id; applyTabVisibility(); renderPerson(); focusOn(id); loadLastTrip(id); loadLastGap(id); loadHomeSuggestion(id);
 }
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); }
 function renderPerson() {
@@ -1366,6 +1374,12 @@ function renderPerson() {
   const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
   $('p-off').hidden = !(l && l.off === true);
+  const hs = S.homeSug;
+  if (hs && hs.id === id) {
+    $('p-home').hidden = false;
+    $('p-home-t').textContent = hs.pname ? `يبدو أن ${dispName(id)} يبيت في «${hs.pname}»` : `يبدو أن هذا بيت ${dispName(id)}`;
+    $('p-home-s').textContent = `بات فيه ${hs.res.nights} ليالٍ من آخر 7. تريد تنبيهاً عند وصوله أو مغادرته؟`;
+  } else $('p-home').hidden = true;
   const gp = S.gaps[id];
   if (gp && Date.now() - gp.to < 864e5) { $('p-gap').textContent = 'آخر انقطاع: قبل ' + ago(gp.to) + '، دام ' + fmtDur(gp.to - gp.from) + '، ' + gapText(gp); $('p-gap').hidden = false; }
   else $('p-gap').hidden = true;
@@ -1694,7 +1708,7 @@ function renderContacts() {
   if (!s || !s.contacts) { $('contacts-invite').innerHTML = ''; $('ct-filter').hidden = true; $('contacts-body').innerHTML = '<p class="hint">اسمح بالوصول إلى جهات الاتصال ليجد التطبيق أهلك وأصدقاءك المشتركين من أرقام هاتفك. تبقى أسماء جهاتك على هاتفك، وتُرسل بصمات مشفّرة لأرقامك للمطابقة فقط.</p><button class="btn primary" data-act="ask-contacts">السماح بجهات الاتصال</button>'; return; }
   const list = S.matches.filter(m => !S.mine[m.uid] && !S.reqs[m.uid]);
   let h = `<button class="btn sm" data-act="refresh-contacts" ${S.matchBusy ? 'disabled' : ''}>${S.matchBusy ? 'جارٍ البحث...' : 'تحديث'}</button>`;
-  if (list.length) h += list.map(m => prow(m.saved, S.dir[m.uid]?.color, `<div class="st">مشترك باسم ${esc(m.name)}</div>`, `<button class="btn sm primary" data-act="add" data-id="${esc(m.uid)}">إضافة</button>`)).join('');
+  if (list.length) h += '<b style="font-size:14px;display:block;margin-top:8px">مشتركون من جهات اتصالك (غير مضافين)</b>' + list.map(m => prow(m.saved, S.dir[m.uid]?.color, `<div class="st">مشترك باسم ${esc(m.name)}${rmHas(m.uid) ? ' · أُزيل سابقاً' : ''}</div>`, `<button class="btn sm primary" data-act="add" data-id="${esc(m.uid)}">إضافة</button>`)).join('');
   else if (S.matchDone && !S.matchBusy) h += '<p class="hint">لا يوجد مشتركون جدد من جهات اتصالك. احفظ رقم الشخص عندك ثم اضغط «تحديث».</p>';
   else if (!S.matchBusy) h += '<p class="hint">اضغط «تحديث» لمطابقة جهات اتصالك مع المشتركين.</p>';
   $('contacts-body').innerHTML = h;
@@ -1940,15 +1954,28 @@ const ACTIONS = {
     const me = S.dir[S.uid] || {};
     const ups = { [`links/${S.uid}/${id}`]: true, [`requests/${id}/${S.uid}`]: { name: me.name || S.me.name, color: me.color || COLORS[0], ts: Date.now() } };
     const mm = S.matches.find(x => x.uid === id); if (mm && mm.saved) ups[`nick/${S.uid}/${id}`] = mm.saved;
-    await update(ref(db), ups);
+    await update(ref(db), ups); rmDel(id);
     toast('أُرسل الطلب. يظهر الشخص على خريطتك بعد موافقته.');
     if (S.srch && S.srch.uid === id) setTimeout(() => showSearch(S.srch), 700);
   },
   accept: async id => { await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${S.uid}/${id}`]: null }); toast('تمت الموافقة'); },
-  decline: async id => { await remove(ref(db, `requests/${S.uid}/${id}`)); },
+  decline: async id => {
+    try { await update(ref(db), { [`requests/${S.uid}/${id}`]: null, [`links/${id}/${S.uid}`]: null }); }
+    catch { try { await remove(ref(db, `requests/${S.uid}/${id}`)); } catch { toast('تعذر التنفيذ'); } }
+  },
   unlink: async id => {
-    if (await ask('إزالة الاتصال مع ' + (S.dir[id]?.name || 'هذا الشخص') + '؟ لن يرى أحدكما الآخر.', 'إزالة'))
-      await update(ref(db), { [`links/${S.uid}/${id}`]: null, [`requests/${id}/${S.uid}`]: null });
+    if (!(await ask('إزالة الاتصال مع ' + dispName(id) + '؟ لن يرى أحدكما الآخر.', 'إزالة'))) return;
+    try {
+      await update(ref(db), { [`links/${S.uid}/${id}`]: null, [`links/${id}/${S.uid}`]: null, [`requests/${id}/${S.uid}`]: null, [`requests/${S.uid}/${id}`]: null });
+    } catch {
+      // قواعد قديمة لم تُنشر بعد: نحذف جانبنا فقط
+      try { await update(ref(db), { [`links/${S.uid}/${id}`]: null, [`requests/${id}/${S.uid}`]: null }); } catch { return toast('تعذر التنفيذ'); }
+    }
+    rmAdd(id);
+    const c = { [`nick/${S.uid}/${id}`]: null, [`hide/${S.uid}/${id}`]: null, [`follow/${S.uid}/${id}`]: null, [`sosInbox/${id}/${S.uid}`]: null, [`sosInbox/${S.uid}/${id}`]: null };
+    for (const [pid, p] of Object.entries(S.places || {})) if (p.fr && p.fr[id]) c[`places/${S.uid}/${pid}/fr/${id}`] = null;
+    try { await update(ref(db), c); } catch {}
+    toast('أُزيل الاتصال');
   },
   'ask-contacts': () => {
     window.AndroidBridge.requestContacts();
@@ -1971,6 +1998,19 @@ const ACTIONS = {
     await update(ref(db), { ['phoneReq/' + id]: { ...rq, status: 'rejected', reason: why, decidedAt: Date.now() } });
     toast('تم رفض الطلب');
   },
+  'home-yes': async () => {
+    const hs = S.homeSug; if (!hs) return; const id = hs.id;
+    try {
+      if (hs.pid) await update(ref(db), { [`places/${S.uid}/${hs.pid}/fr/${id}`]: true });
+      else {
+        if (Object.keys(S.places).length >= 10) return toast('الحد الأقصى 10 أماكن. احذف مكاناً أولاً.');
+        await set(ref(db, `places/${S.uid}/${newCode().slice(0, 6).toLowerCase()}`), { name: ('بيت ' + dispName(id)).slice(0, 40), lat: hs.res.lat, lng: hs.res.lng, r: 150, on: true, fr: { [id]: true } });
+      }
+      S.homeSug = null; renderPerson(); toast('تم. سيصلك تنبيه عند وصول ' + dispName(id) + ' إلى بيته أو مغادرته.');
+    } catch { toast('تعذر الحفظ'); }
+  },
+  'home-edit': () => { const hs = S.homeSug; if (hs) askPlace(hs.res.lat, hs.res.lng, ('بيت ' + dispName(hs.id)).slice(0, 40), hs.id); },
+  'home-no': () => { const hs = S.homeSug; if (!hs) return; try { localStorage.setItem('mk_home_off_' + hs.id, '1'); } catch {} S.homeSug = null; renderPerson(); toast('لن يُعرض هذا الاقتراح لهذا الصديق'); },
   'rpt-open': () => openReport('day'),
   'rpt-close': () => { $('v-report').hidden = true; },
   'rpt-mode': id => { RPT.mode = id; renderReport(); },
@@ -2237,10 +2277,10 @@ function drawPlaces() {
     L.circle([p.lat, p.lng], { radius: p.r, color: '#2F8F6B', weight: 1.5, dashArray: '4 4', fillOpacity: .07, interactive: false }).bindTooltip(esc(p.name)).addTo(S.plg);
   }
 }
-let placeAt = null;
+let placeAt = null, placeFriend = null;
 function startPick() { setTab('map'); S.pickPlace = true; $('pick-bar').hidden = false; }
 function endPick() { S.pickPlace = false; $('pick-bar').hidden = true; }
-function askPlace(la, ln, name = '') { placeAt = { la, ln }; $('pl-name').value = name; $('pl-r').value = '200'; $('modal-place').hidden = false; }
+function askPlace(la, ln, name = '', friend = null) { placeAt = { la, ln }; placeFriend = friend; $('pl-name').value = name; $('pl-r').value = '200'; $('modal-place').hidden = false; }
 $('pl-no').onclick = () => { $('modal-place').hidden = true; };
 $('pl-ok').onclick = async () => {
   const name = $('pl-name').value.trim(), r = Number(toLatin($('pl-r').value));
@@ -2248,7 +2288,7 @@ $('pl-ok').onclick = async () => {
   if (!(r >= 100 && r <= 5000)) return toast('نصف القطر من 100 إلى 5000 متر');
   if (Object.keys(S.places).length >= 10) return toast('الحد الأقصى 10 أماكن');
   const pid = newCode().slice(0, 6).toLowerCase();
-  try { await set(ref(db, `places/${S.uid}/${pid}`), { name, lat: +placeAt.la.toFixed(5), lng: +placeAt.ln.toFixed(5), r, on: true }); $('modal-place').hidden = true; endPick(); toast('حُفظ المكان'); }
+  try { await set(ref(db, `places/${S.uid}/${pid}`), { name, lat: +placeAt.la.toFixed(5), lng: +placeAt.ln.toFixed(5), r, on: true, ...(placeFriend ? { fr: { [placeFriend]: true } } : {}) }); $('modal-place').hidden = true; endPick(); toast('حُفظ المكان'); }
   catch { toast('تعذر الحفظ'); }
 };
 document.addEventListener('change', ev => {
@@ -2256,6 +2296,10 @@ document.addEventListener('change', ev => {
   if (t.matches('[data-pl-fr]')) {
     const [pid, f] = t.dataset.plFr.split('|');
     update(ref(db), { [`places/${S.uid}/${pid}/fr/${f}`]: t.checked ? true : null }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
+  } else if (t.matches('[data-adm-all]')) {
+    S.adminAll = t.checked; try { localStorage.setItem('mk_admin_all', t.checked ? '1' : '0'); } catch {}
+    if (S.person && !visibleIds().includes(S.person)) closePerson();
+    renderMap(); renderSheet(); if (S.tab === 'people') renderPeople();
   } else if (t.matches('[data-follow]')) {
     update(ref(db), { [`follow/${S.uid}/${t.dataset.follow}`]: t.checked ? true : null }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
   }
@@ -2469,6 +2513,54 @@ $('ph-ok').onclick = async () => {
   try { await set(ref(db, 'phoneReq/' + S.uid), { phone: np, old: S.me.phone || '', ts: Date.now(), status: 'pending' }); $('modal-phone').hidden = true; toast('أُرسل الطلب إلى المشرف'); }
   catch { toast('تعذر إرسال الطلب'); }
 };
+
+/* ---------- اكتشاف بيت الصديق: مبيت في المكان نفسه 3 ليالٍ من آخر 7 ---------- */
+const HOME_NIGHTS = 3, HOME_MIN_S = 3 * 3600;
+async function detectHome(id) {
+  const today = dayKey(Date.now());
+  const days = Array.from({ length: 8 }, (_, i) => shiftDayKey(today, -(7 - i)));
+  const stays = [];
+  try {
+    const snaps = await Promise.all(days.map(d => get(ref(db, `history/${id}/${d}`))));
+    for (const s of snaps) for (const p of Object.values(s.val() || {})) {
+      if (p && typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number') stays.push({ lat: p.lat, lng: p.lng, a: p.ts, b: p.ets && p.ets > p.ts ? p.ets : p.ts });
+    }
+  } catch { return { denied: true }; }
+  const nights = [];
+  for (let k = 1; k <= 7; k++) {                                       // الليلة: من 23:00 إلى 05:00
+    const w0 = new Date(shiftDayKey(today, -k) + 'T23:00:00').getTime(), w1 = new Date(shiftDayKey(today, -k + 1) + 'T05:00:00').getTime();
+    if (w1 > Date.now()) continue;
+    const cl = [];
+    for (const s of stays) {                                           // مدة بقاء الصديق في كل مكان داخل نافذة الليل
+      const ov = Math.min(s.b, w1) - Math.max(s.a, w0); if (ov <= 0) continue;
+      let c = cl.find(x => haversine(x, s) <= 120);
+      if (!c) { c = { lat: s.lat, lng: s.lng, ov: 0, n: 0 }; cl.push(c); }
+      c.lat = (c.lat * c.n + s.lat) / (c.n + 1); c.lng = (c.lng * c.n + s.lng) / (c.n + 1); c.n++; c.ov += ov;
+    }
+    const best = cl.sort((x, y) => y.ov - x.ov)[0];
+    if (best && best.ov / 1000 >= HOME_MIN_S) nights.push(best);
+  }
+  const groups = [];
+  for (const n of nights) {
+    let g = groups.find(x => haversine(x, n) <= 150);
+    if (!g) { g = { lat: n.lat, lng: n.lng, n: 0 }; groups.push(g); }
+    g.lat = (g.lat * g.n + n.lat) / (g.n + 1); g.lng = (g.lng * g.n + n.lng) / (g.n + 1); g.n++;
+  }
+  const top = groups.sort((x, y) => y.n - x.n)[0];
+  return top && top.n >= HOME_NIGHTS ? { lat: +top.lat.toFixed(5), lng: +top.lng.toFixed(5), nights: top.n } : { none: true };
+}
+async function loadHomeSuggestion(id) {
+  S.homeSug = null; renderPerson();
+  if (S.limited || id === S.uid || !connected(id)) return;
+  try { if (localStorage.getItem('mk_home_off_' + id)) return; } catch {}
+  const today = dayKey(Date.now()); let res = null;
+  try { const c = JSON.parse(localStorage.getItem('mk_home_' + id) || 'null'); if (c && c.d === today) res = c.r; } catch {}
+  if (!res) { res = await detectHome(id); try { localStorage.setItem('mk_home_' + id, JSON.stringify({ d: today, r: res })); } catch {} }
+  if (S.person !== id || !res || typeof res.lat !== 'number') return;
+  const near = Object.entries(S.places || {}).find(([, p]) => typeof p.lat === 'number' && haversine({ lat: res.lat, lng: res.lng }, p) <= 150);
+  if (near && near[1].fr && near[1].fr[id]) return;                    // التنبيه مفعّل أصلاً
+  S.homeSug = { id, res, pid: near ? near[0] : null, pname: near ? near[1].name : null }; renderPerson();
+}
 
 /* ---------- أسباب الانقطاع ---------- */
 const GAP_WHY = { net: 'انقطع الإنترنت عن الهاتف', sys: 'أغلق النظام التطبيق', user: 'أُوقف التطبيق يدوياً', loc: 'أُطفئ الموقع في الهاتف', boot: 'أُطفئ الهاتف أو أُعيد تشغيله', unk: 'السبب غير معروف' };
