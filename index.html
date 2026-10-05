@@ -145,7 +145,7 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .sv-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .sv-head b{flex:1;font-size:18px}
 .seg{display:flex;background:#fff;border-radius:12px;padding:3px;gap:3px;margin-bottom:10px}
-.seg button{flex:1;border:0;background:none;padding:8px;border-radius:9px;font:inherit;font-weight:600;color:var(--ink2);cursor:pointer}
+.seg button{flex:1;border:0;background:none;padding:8px 2px;font-size:13px;border-radius:9px;font:inherit;font-weight:600;color:var(--ink2);cursor:pointer}
 .seg button.on{background:var(--ink);color:#fff}
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .rbox{background:#fff;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px}
@@ -153,6 +153,12 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .bars{display:flex;align-items:flex-end;gap:3px;height:100px;margin:6px 0}
 .bar{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;min-width:0}
 .bar i{display:block;width:100%;background:#3A6EA5;border-radius:4px 4px 0 0;min-height:2px}
+.bar small{font-size:10px;font-weight:700;color:var(--ink);height:14px;white-space:nowrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.chipb{border:2px solid #0002;background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;cursor:pointer;color:var(--ink)}
+.chipb.on{border-color:var(--c,#3A6EA5);box-shadow:0 0 0 1px var(--c,#3A6EA5) inset}
+.ring{display:block;margin:6px auto}
+.lt-svg{width:100%;height:auto;display:block;background:#EEF3F5;border-radius:10px;margin:6px 0}
 .bar em{font-size:9.5px;font-style:normal;color:var(--ink2);height:12px;white-space:nowrap}
 #rpt-bar{position:absolute;inset-inline:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:515;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
 #rpt-bar span{flex:1}
@@ -423,6 +429,8 @@ window.APP_CONFIG = {
     </div>
     <div class="pbtns">
       <button class="btn sm" id="p-hist-btn" data-act="p-hist">السجل</button>
+      <button class="btn sm" id="p-rep-btn" data-act="p-report">التقرير</button>
+      <button class="btn sm" id="p-places-btn" data-act="p-places">الأماكن</button>
       <button class="btn sm" id="p-wa" data-act="p-wa" hidden>راسله واتساب</button>
       <span class="pchip" id="p-dist" hidden></span>
     </div>
@@ -646,7 +654,7 @@ window.APP_CONFIG = {
 </div>
 <div id="v-report" class="subview" hidden>
   <div class="sv-head"><button class="btn sm" data-act="rpt-close">رجوع</button><b id="rpt-title">التقرير</b></div>
-  <div class="seg" id="rpt-seg"><button data-act="rpt-mode" data-id="day">يومي</button><button data-act="rpt-mode" data-id="week">أسبوعي</button><button data-act="rpt-mode" data-id="month">شهري</button></div>
+  <div class="seg" id="rpt-seg"><button data-act="rpt-mode" data-id="day">يومي</button><button data-act="rpt-mode" data-id="week">أسبوعي</button><button data-act="rpt-mode" data-id="month">شهري</button><button data-act="rpt-mode" data-id="drive">القيادة</button><button data-act="rpt-mode" data-id="heat">الحرارة</button></div>
   <div class="card" id="rpt-who-card" hidden><label>التقرير لـ<select id="rpt-who"></select></label></div>
   <div class="inrow" style="align-items:center;margin-bottom:8px">
     <button class="btn sm" data-act="rpt-prev" aria-label="السابق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -677,6 +685,7 @@ window.APP_CONFIG = {
     <div class="sw-row"><div><b>إخفاء سجل تنقلاتي عن أصدقائي</b><p class="hint">يبقى موقعك الحي ظاهراً لهم، لكن لا يستطيعون فتح مساراتك السابقة. يراه المشرف فقط.</p></div><label class="switch"><input type="checkbox" id="pv-hpriv" aria-label="إخفاء السجل"><span></span></label></div>
     <div class="sw-row"><div><b>مشاركة ملخص تقريري اليومي مع أصدقائي</b><p class="hint">متوقفة افتراضياً. إن فعّلتها يرى أصدقاؤك المتصلون ملخصك (المسافة وعدد الرحلات) دون تفاصيل المسارات، ومن يختار منهم متابعتك يصله ملخص يومي. لا تعمل إن أخفيتَ سجلك أو موقعك.</p></div><label class="switch"><input type="checkbox" id="pv-rshare" aria-label="مشاركة التقرير"><span></span></label></div>
   </div>
+  <div class="card" id="pv-guard" hidden></div>
   <div class="card"><b>من يرى ماذا الآن</b><div id="pv-who"></div></div>
   <div class="card">
     <b>بياناتك</b>
@@ -697,6 +706,14 @@ window.APP_CONFIG = {
     <span class="hint" id="upd-sub"></span>
     <div id="upd-notes"></div>
     <div class="acts"><button id="upd-go2" class="btn primary" data-act="upd-go">تحديث الآن</button><button id="upd-close" class="btn" data-act="upd-close">إغلاق</button></div>
+  </div>
+</div>
+<div id="modal-guard" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="guard-title"></b>
+    <p class="hint" style="margin:0">يرى ولي الأمر ملخص تقرير هذا الطفل اليومي (المسافات والرحلات وأقصى سرعة) دون حاجة إلى إذنه، ويُبلَّغ الطفل بذلك في صفحة الخصوصية. ينتهي تلقائياً عند بلوغه 18 سنة.</p>
+    <div id="guard-list"></div>
+    <div class="acts"><button class="btn primary" data-act="guard-save">حفظ</button><button class="btn" data-act="guard-no">إلغاء</button></div>
   </div>
 </div>
 <div id="modal-nick" class="modal" hidden>
@@ -758,7 +775,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '19';
+const UI_VERSION = '20';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -777,7 +794,7 @@ const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
-  sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null,
+  sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {},
   adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
   gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false,
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
@@ -1082,6 +1099,7 @@ function startMain() {
   if (S.isAdmin) {
     S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
     S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; renderMap(); renderSheet(); }, e => console.error('locs', e));
+    S.unsubs.guardians = onValue(ref(db, 'guardians'), s => { S.guardians = s.val() || {}; renderAdmin(); }, e => console.error('guardians', e));
     S.unsubs.appInfo = onValue(ref(db, 'appInfo'), s => { S.appInfo = s.val() || {}; renderAdmin(); }, e => console.error('appInfo', e));
     S.unsubs.phoneReqs = onValue(ref(db, 'phoneReq'), s => { S.phoneReqs = s.val() || {}; renderAdmin(); }, e => console.error('phoneReqs', e));
     S.unsubs.users = onValue(ref(db, 'users'), s => { S.users = s.val() || {}; renderAdmin(); }, e => console.error('users', e));
@@ -1108,6 +1126,8 @@ function startMain() {
     S.unsubs.histPriv = onValue(ref(db, 'histPrivate/' + S.uid), s => { S.histPriv = s.val() === true; renderPrivacy(); }, e => console.error('histPriv', e));
     S.unsubs.reportShare = onValue(ref(db, 'reportShare/' + S.uid), s => { S.reportShare = s.val() === true; renderPrivacy(); }, e => console.error('reportShare', e));
     S.unsubs.follow = onValue(ref(db, 'follow/' + S.uid), s => { S.follow = s.val() || {}; pushAlerts(); }, e => console.error('follow', e));
+    S.unsubs.kids = onValue(ref(db, 'guardianOf/' + S.uid), s => { S.kids = s.val() || {}; }, e => console.error('kids', e));
+    S.unsubs.myGuardians = onValue(ref(db, 'guardians/' + S.uid), s => { S.myGuardians = s.val() || {}; renderPrivacy(); }, e => console.error('myGuardians', e));
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
     S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); }, e => console.error('sosIn', e));
     S.unsubs.sosAck = onValue(ref(db, 'sosAck/' + S.uid), s => { S.sosAck = s.val() || {}; renderSosBar(); }, e => console.error('sosAck', e));
@@ -1124,7 +1144,7 @@ function stopMain() {
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
-  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {};
+  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null;
 }
 function cleanup(all) {
@@ -1379,7 +1399,7 @@ function openPerson(id) {
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); }
 function renderPerson() {
   const id = S.person; if (!id) return;
-  $('p-hist-btn').hidden = S.limited;
+  $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited; $('p-places-btn').hidden = S.limited;
   const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), me = S.locs[S.uid];
   $('p-av').textContent = d.photo ? '' : initial(d.name); $('p-av').style.cssText = avStyle(d);
   $('p-name').innerHTML = esc(id === S.uid ? 'أنا' : dispName(id)) + mvHtml(l);
@@ -1401,6 +1421,16 @@ function renderPerson() {
   if (id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = 'المسافة منك ' + fmtKm(haversine(me, l)); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
 }
+function miniRoute(pts) {
+  if (pts.length < 2) return '';
+  const step = Math.max(1, Math.floor(pts.length / 150)), P = pts.filter((_, i) => i % step === 0 || i === pts.length - 1);
+  const la0 = Math.min(...P.map(p => p.lat)), la1 = Math.max(...P.map(p => p.lat)), lo0 = Math.min(...P.map(p => p.lng)), lo1 = Math.max(...P.map(p => p.lng));
+  const k = Math.cos(((la0 + la1) / 2) * Math.PI / 180), w = Math.max((lo1 - lo0) * k, 1e-5), hh = Math.max(la1 - la0, 1e-5);
+  const W = 300, H = 110, pad = 12, sc = Math.min((W - 2 * pad) / w, (H - 2 * pad) / hh), ox = (W - w * sc) / 2, oy = (H - hh * sc) / 2;
+  const X = p => (ox + (p.lng - lo0) * k * sc).toFixed(1), Y = p => (oy + (la1 - p.lat) * sc).toFixed(1);
+  const d = P.map((p, i) => (i ? 'L' : 'M') + X(p) + ' ' + Y(p)).join(''), a = P[0], b = P[P.length - 1];
+  return `<svg class="lt-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="مسار الرحلة"><path d="${d}" fill="none" stroke="#3A6EA5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${X(a)}" cy="${Y(a)}" r="6" fill="#2F8F6B" stroke="#fff" stroke-width="2"/><circle cx="${X(b)}" cy="${Y(b)}" r="6" fill="#C4483B" stroke="#fff" stroke-width="2"/></svg>`;
+}
 async function loadLastTrip(id) {
   const box = $('p-trip'); box.innerHTML = ''; const tok = ++S.pTok;
   try {
@@ -1411,7 +1441,9 @@ async function loadLastTrip(id) {
     const trips = analyzeDay(pts).items.filter(i => i.type === 'trip');
     if (!trips.length) { box.innerHTML = '<div class="trip-card"><span class="hint">لا رحلات اليوم.</span></div>'; return; }
     const t = trips[trips.length - 1];
-    box.innerHTML = `<div class="trip-card"><b>آخر رحلة اليوم (${esc(MODE[t.mode])})</b><div class="st">${esc(fmtTime(t.t0))} حتى ${esc(fmtTime(t.t1))}</div><div>${esc(fmtKm(t.dist))}، ${esc(fmtDur(t.dur))}، متوسط ${Math.round(t.avg)} كم/س</div></div>`;
+    const seg = pts.slice(t.s, t.e + 1);
+    box.innerHTML = `<div class="trip-card"><b>آخر رحلة اليوم (${esc(MODE[t.mode])})</b><div class="st">${esc(fmtTime(t.t0))} حتى ${esc(fmtTime(t.t1))}</div><div>${esc(fmtKm(t.dist))}، ${esc(fmtDur(t.dur))}، متوسط ${Math.round(t.avg)} كم/س</div>${miniRoute(seg)}<div class="st" id="lt-names"></div></div>`;
+    if (seg.length >= 2) Promise.all([nameAt(seg[0].lat, seg[0].lng), nameAt(seg[seg.length - 1].lat, seg[seg.length - 1].lng)]).then(([f, e]) => { const el = $('lt-names'); if (S.person === id && el && (f || e)) el.textContent = 'من ' + (f || 'مكان غير مسمّى') + ' إلى ' + (e || 'مكان غير مسمّى'); }).catch(() => {});
   } catch { /* لا صلاحية أو لا اتصال */ }
 }
 
@@ -1833,6 +1865,7 @@ function renderAdmin() {
     return `<div class="hint">${a.code ? 'التطبيق ' + esc(a.app) + ' (' + esc(a.code) + ')' : esc(a.app)} · الواجهة ${esc(a.ui)}${a.model ? ' · ' + esc(a.model) : ''}${a.sdk ? ' · أندرويد ' + esc(a.sdk) : ''} · آخر فتح قبل ${esc(ago(a.at))}${isOld(u) ? ' <span class="badge bad">يحتاج تحديثاً</span>' : ''}</div>` +
       (a.bad ? `<div class="hint" style="color:var(--bad)">مشاكل: ${esc(a.bad)}</div>` : '') + (a.ex ? `<div class="hint">آخر إغلاق: ${esc(a.ex)}</div>` : '');
   };
+  const guardLine = u => { const x = S.users[u]; if (!(x.birthYear && isMinor(x.birthYear))) return ''; const g = Object.values(S.guardians[u] || {}); return `<div class="hint">أولياء الأمور: ${g.length ? esc(g.join('، ')) : 'لا أحد'}</div>`; };
   $('adm-members').innerHTML = reqHtml + verCard + (ids.length ? ids.map(u => {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name, waiting = x.status === 'pending' || x.status === 'limited';
     const badge = x.status === 'limited' ? '<span class="badge warn">قيد الاعتماد</span>' : x.status === 'pending' ? '<span class="badge warn">بانتظار الموافقة</span>' : x.status === 'approved' ? '<span class="badge ok">مفعّل</span>' : '<span class="badge bad">معطّل</span>';
@@ -1843,8 +1876,9 @@ function renderAdmin() {
     else if (x.status === 'approved' && !self) b = `<button class="btn sm danger" data-act="disable" data-id="${esc(u)}">تعطيل</button><button class="btn sm" data-act="role" data-id="${esc(u)}">${x.role === 'admin' ? 'إلغاء الإشراف' : 'ترقية لمشرف'}</button>`;
     else if (x.status === 'disabled') b = `<button class="btn sm primary" data-act="enable" data-id="${esc(u)}">إعادة تفعيل</button>`;
     b += `<button class="btn sm" data-act="edit" data-id="${esc(u)}">الرقم والميلاد</button>`;
+    if (x.birthYear && isMinor(x.birthYear)) b += `<button class="btn sm" data-act="guard-edit" data-id="${esc(u)}">أولياء الأمور</button>`;
     if (!self && x.status !== 'disabled') b += `<button class="btn sm" data-act="end-session" data-id="${esc(u)}">إنهاء جلسته</button>`;
-    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || 'بدون رقم')} / ${esc(x.birthYear || 'بدون سنة ميلاد')}</div>${infoLine(u)}</div>${badge}</div><div class="acts">${b}</div></div>`;
+    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ' (أنت)' : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || 'بدون رقم')} / ${esc(x.birthYear || 'بدون سنة ميلاد')}</div>${infoLine(u)}${guardLine(u)}</div>${badge}</div><div class="acts">${b}</div></div>`;
   }).join('') : '<div class="card"><p class="hint">لا توجد حسابات.</p></div>');
 }
 function setAdm(t) {
@@ -2025,6 +2059,26 @@ const ACTIONS = {
   },
   'home-edit': () => { const hs = S.homeSug; if (hs) askPlace(hs.res.lat, hs.res.lng, ('بيت ' + dispName(hs.id)).slice(0, 40), hs.id); },
   'home-no': () => { const hs = S.homeSug; if (!hs) return; try { localStorage.setItem('mk_home_off_' + hs.id, '1'); } catch {} S.homeSug = null; renderPerson(); toast('لن يُعرض هذا الاقتراح لهذا الصديق'); },
+  'p-report': () => { const id = S.person; if (id) openReport('day', null, id === S.uid ? null : id); },
+  'p-places': () => { setTab('me'); setTimeout(() => { const el = $('places-card'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); },
+  'rpt-heat-who': id => { const s = new Set(RPT.heatWho || [rptWho()]); if (s.has(id)) { if (s.size > 1) s.delete(id); } else s.add(id); RPT.heatWho = [...s]; renderReport(); },
+  'rpt-heat-range': id => { RPT.heatDays = Number(id) === 30 ? 30 : 7; renderReport(); },
+  'guard-edit': id => {
+    guardFor = id; $('guard-title').textContent = 'أولياء أمور ' + (S.dir[id]?.name || S.users[id]?.name || '');
+    const cur = S.guardians[id] || {};
+    const cands = Object.keys(S.users).filter(u => u !== id && S.users[u].status === 'approved' && S.users[u].birthYear && !isMinor(S.users[u].birthYear));
+    $('guard-list').innerHTML = cands.length ? cands.map(u => `<label class="sw-row st"><span>${esc(S.dir[u]?.name || S.users[u].name)}</span><span class="switch"><input type="checkbox" value="${esc(u)}" ${cur[u] !== undefined ? 'checked' : ''} aria-label="ولي أمر"><span></span></span></label>`).join('') : '<p class="hint">لا يوجد مستخدمون بالغون مفعّلون ليكونوا أولياء أمور.</p>';
+    $('modal-guard').hidden = false;
+  },
+  'guard-no': () => { $('modal-guard').hidden = true; },
+  'guard-save': async () => {
+    const child = guardFor; if (!child) return;
+    const checked = [...$('guard-list').querySelectorAll('input:checked')].map(i => i.value), cur = S.guardians[child] || {}, ups = {};
+    const nm = u => String(S.dir[u]?.name || S.users[u]?.name || '').slice(0, 40);
+    for (const p of checked) { ups[`guardians/${child}/${p}`] = nm(p); ups[`guardianOf/${p}/${child}`] = nm(child); }
+    for (const p of Object.keys(cur)) if (!checked.includes(p)) { ups[`guardians/${child}/${p}`] = null; ups[`guardianOf/${p}/${child}`] = null; }
+    try { await update(ref(db), ups); $('modal-guard').hidden = true; toast('تم حفظ أولياء الأمور'); } catch { toast('تعذر الحفظ. تأكد من نشر القواعد الجديدة.'); }
+  },
   'rpt-open': () => openReport('day'),
   'rpt-close': () => { $('v-report').hidden = true; },
   'rpt-mode': id => { RPT.mode = id; renderReport(); },
@@ -2317,7 +2371,7 @@ function drawPlaces() {
     L.circle([p.lat, p.lng], { radius: p.r, color: '#2F8F6B', weight: 1.5, dashArray: '4 4', fillOpacity: .07, interactive: false }).bindTooltip(esc(p.name)).addTo(S.plg);
   }
 }
-let placeAt = null, placeFriend = null;
+let placeAt = null, placeFriend = null, guardFor = null;
 function startPick() { setTab('map'); S.pickPlace = true; $('pick-bar').hidden = false; }
 function endPick() { S.pickPlace = false; $('pick-bar').hidden = true; }
 function askPlace(la, ln, name = '', friend = null) { placeAt = { la, ln }; placeFriend = friend; $('pl-name').value = name; $('pl-r').value = '200'; $('modal-place').hidden = false; }
@@ -2663,7 +2717,7 @@ async function sendDiag() {
 /* ---------- التقارير: يومي وأسبوعي وشهري ---------- */
 const DEEP = (location.hash.match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1];
 const DEEP_SOS = (location.hash.match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
-const RPT = { mode: 'day', who: null, day: null, shared: {}, token: 0, last: null, text: '', csv: '', sugg: [] };
+const RPT = { mode: 'day', heatDays: 7, heatWho: null, heatMap: null, who: null, day: null, shared: {}, token: 0, last: null, text: '', csv: '', sugg: [] };
 const rptWho = () => RPT.who || S.uid;
 const rptThr = () => Math.min(250, Math.max(60, Number((S.alerts || {}).rptSpeed) || 120));
 const dayEnd = d => new Date(d + 'T23:59:59').getTime();
@@ -2685,27 +2739,27 @@ function summarize(pts, gaps, thr) {
   const by = { car: { d: 0, ms: 0 }, bike: { d: 0, ms: 0 }, walk: { d: 0, ms: 0 } };
   let longest = 0;
   for (const t of trips) { by[t.mode].d += t.dist; by[t.mode].ms += t.dur; longest = Math.max(longest, t.dist); }
-  let os = 0;
+  let os = 0, osd = 0;
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], dt = (b.ts - (a.ets || a.ts)) / 1000, dd = haversine(a, b);
-    if (dt >= 3 && dt <= 120 && dd >= 30) { const v = dd / dt * 3.6; if (v < 220 && v > thr) os += dt; }
+    if (dt >= 3 && dt <= 120 && dd >= 30) { const v = dd / dt * 3.6; if (v < 220 && v > thr) { os += dt; osd += dd; } }
   }
   const first = pts.length ? pts[0].ts : 0, lastP = pts[pts.length - 1], last = pts.length ? (lastP.ets || lastP.ts) : 0;
   let gapMs = 0; for (const g of gaps) gapMs += Math.max(0, Math.min(g.to, last) - Math.max(g.from, first));
   const cv = pts.length ? Math.max(0, Math.round((1 - gapMs / Math.max(1, last - first)) * 100)) : 100;
   const longStops = stops.filter(s => s.t1 - s.t0 >= 10 * 60e3).sort((a, b) => (b.t1 - b.t0) - (a.t1 - a.t0)).slice(0, 6);
-  return { total: by.car.d + by.bike.d + by.walk.d, by, n: trips.length, longest, vmax: an.vmax, first, last, os: Math.round(os / 60), cv, gapMs,
+  return { total: by.car.d + by.bike.d + by.walk.d, by, n: trips.length, longest, vmax: an.vmax, first, last, os: Math.round(os / 60), osd: Math.round(osd), thr, cv, gapMs,
     stops: longStops.map(s => ({ la: +s.lat.toFixed(5), ln: +s.lng.toFixed(5), m: Math.round((s.t1 - s.t0) / 60e3) })), an };
 }
-const packSum = s => ({ d: Math.round(s.total), dr: Math.round(s.by.car.d), bk: Math.round(s.by.bike.d), wk: Math.round(s.by.walk.d), td: Math.round(s.by.car.ms / 60e3), tb: Math.round(s.by.bike.ms / 60e3), tw: Math.round(s.by.walk.ms / 60e3), n: s.n, mx: Math.min(400, Math.round(s.vmax)), f: s.first, l: s.last, lg: Math.round(s.longest), os: s.os, cv: s.cv, c: Date.now(), ...(s.stops.length ? { st: Object.fromEntries(s.stops.map((x, i) => ['s' + i, x])) } : {}) });
-const unpackSum = r => ({ total: r.d || 0, by: { car: { d: r.dr || 0, ms: (r.td || 0) * 60e3 }, bike: { d: r.bk || 0, ms: (r.tb || 0) * 60e3 }, walk: { d: r.wk || 0, ms: (r.tw || 0) * 60e3 } }, n: r.n || 0, longest: r.lg || 0, vmax: r.mx || 0, first: r.f || 0, last: r.l || 0, os: r.os || 0, cv: r.cv ?? 100, gapMs: 0, stops: Object.values(r.st || {}).map(x => ({ la: x.la, ln: x.ln, m: x.m })), packed: true });
+const packSum = s => ({ d: Math.round(s.total), dr: Math.round(s.by.car.d), bk: Math.round(s.by.bike.d), wk: Math.round(s.by.walk.d), td: Math.round(s.by.car.ms / 60e3), tb: Math.round(s.by.bike.ms / 60e3), tw: Math.round(s.by.walk.ms / 60e3), n: s.n, mx: Math.min(400, Math.round(s.vmax)), f: s.first, l: s.last, lg: Math.round(s.longest), os: s.os, od: Math.min(3000000, s.osd || 0), th: s.thr || 120, cv: s.cv, c: Date.now(), ...(s.stops.length ? { st: Object.fromEntries(s.stops.map((x, i) => ['s' + i, x])) } : {}) });
+const unpackSum = r => ({ total: r.d || 0, by: { car: { d: r.dr || 0, ms: (r.td || 0) * 60e3 }, bike: { d: r.bk || 0, ms: (r.tb || 0) * 60e3 }, walk: { d: r.wk || 0, ms: (r.tw || 0) * 60e3 } }, n: r.n || 0, longest: r.lg || 0, vmax: r.mx || 0, first: r.f || 0, last: r.l || 0, os: r.os || 0, osd: typeof r.od === 'number' ? r.od : null, thr: r.th, cv: r.cv ?? 100, gapMs: 0, stops: Object.values(r.st || {}).map(x => ({ la: x.la, ln: x.ln, m: x.m })), packed: true });
 /* ملخصات عدة أيام: المحفوظ منها يُقرأ، والناقص يُحسب من السجل (لصاحبه أو المشرف) ويُحفظ لصاحبه */
 async function ensureSummaries(uid, days, opt, onProgress) {
   let stored = {}; try { stored = (await get(ref(db, 'reports/' + uid))).val() || {}; } catch {}
   const today = dayKey(Date.now()), out = {}, todo = [];
   for (const d of days) {
     const r = stored[d];
-    if (r && (!opt.write || (d < today && (r.c || 0) >= dayEnd(d) - 120000))) out[d] = unpackSum(r);
+    if (r && (!opt.write || (d < today && (r.c || 0) >= dayEnd(d) - 120000 && r.od !== undefined && r.th === rptThr()))) out[d] = unpackSum(r);
     else if (opt.compute) todo.push(d);
     else if (r) out[d] = unpackSum(r);
   }
@@ -2742,6 +2796,7 @@ function fillWho() {
   const opts = [['me', 'تقريري']];
   const seen = new Set([S.uid]);
   for (const u of Object.keys(RPT.shared)) { opts.push([u, 'تقرير ' + dispName(u)]); seen.add(u); }
+  for (const [k, nmv] of Object.entries(S.kids || {})) if (!seen.has(k)) { opts.push([k, 'تقرير ' + (S.dir[k]?.name || nmv) + ' (ولي الأمر)']); seen.add(k); }
   if (S.isAdmin) for (const u of Object.keys(S.users)) if (!seen.has(u) && S.users[u].status === 'approved') opts.push([u, 'تقرير ' + (S.dir[u]?.name || S.users[u].name) + ' (مشرف)']);
   $('rpt-who').innerHTML = opts.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
   $('rpt-who').value = RPT.who || 'me';
@@ -2751,18 +2806,22 @@ function renderFollow() {
   const ids = Object.keys(RPT.shared);
   $('rpt-follow').innerHTML = ids.length ? '<b>ملخص يومي عن أصدقائي</b><p class="hint">يصلك إشعار صباحاً بملخص أمس لمن تختاره منهم. ويظهر هنا من وافق على مشاركة تقريره.</p>' + ids.map(u => `<label class="sw-row st"><span>${esc(dispName(u))}</span><span class="switch"><input type="checkbox" data-follow="${esc(u)}" ${S.follow[u] ? 'checked' : ''} aria-label="متابعة"><span></span></span></label>`).join('') : '<p class="hint">لا أحد من أصدقائك شارك تقريره معك بعد.</p>';
 }
-async function openReport(mode = 'day', day) {
+async function openReport(mode = 'day', day, who) {
   if (S.limited) return toast('التقارير تتفعل بعد اعتماد حسابك');
-  RPT.mode = mode; RPT.who = null; RPT.day = day || dayKey(Date.now());
+  RPT.mode = mode; RPT.who = null; RPT.heatWho = null; RPT.day = day || dayKey(Date.now());
   $('v-report').hidden = false; $('rpt-day').max = dayKey(Date.now()); $('rpt-day').value = RPT.day; $('rpt-speed').value = rptThr();
   $('rpt-img').hidden = isNative; $('rpt-csv').hidden = isNative;
   try { localStorage.setItem('mk_rpt_seen_' + RPT.day, '1'); } catch {}
   $('rpt-bar').hidden = true;
-  renderReport();
+  if (!who) renderReport();
   await loadShared(); fillWho(); renderFollow();
+  if (who) {
+    if ([...$('rpt-who').options].some(o => o.value === who)) { RPT.who = who; $('rpt-who').value = who; } else toast('لم يشارك تقريره معك');
+    renderReport();
+  }
 }
 function shiftRpt(dir) {
-  const step = RPT.mode === 'day' ? 1 : RPT.mode === 'week' ? 7 : 30;
+  const step = RPT.mode === 'day' ? 1 : (RPT.mode === 'week' || RPT.mode === 'drive') ? 7 : RPT.mode === 'heat' ? RPT.heatDays : 30;
   const nd = shiftDayKey(RPT.day, dir * step), today = dayKey(Date.now());
   RPT.day = nd > today ? today : nd; $('rpt-day').value = RPT.day; renderReport();
 }
@@ -2771,7 +2830,8 @@ async function renderReport() {
   document.querySelectorAll('#rpt-seg button').forEach(b => b.classList.toggle('on', b.dataset.id === RPT.mode));
   $('rpt-title').textContent = own ? 'تقريري' : 'تقرير ' + dispName(uid);
   $('rpt-body').innerHTML = '<div class="card"><p class="hint">جارٍ الحساب...</p></div>';
-  try { if (RPT.mode === 'day') await renderDay(tok, uid, own, full); else await renderRange(tok, uid, own, full); }
+  if (RPT.heatMap) { try { RPT.heatMap.remove(); } catch {} RPT.heatMap = null; }
+  try { if (RPT.mode === 'day') await renderDay(tok, uid, own, full); else if (RPT.mode === 'drive') await renderDrive(tok, uid, own, full); else if (RPT.mode === 'heat') await renderHeat(tok, uid, own, full); else await renderRange(tok, uid, own, full); }
   catch { if (tok === RPT.token) $('rpt-body').innerHTML = '<div class="card"><p class="hint">تعذر تحميل التقرير. تحقق من الاتصال أو من صلاحية العرض.</p></div>'; }
 }
 async function renderDay(tok, uid, own, full) {
@@ -2823,6 +2883,79 @@ async function renderDay(tok, uid, own, full) {
       else if (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) { n++; const nm = await nameAt(it.lat, it.lng); const el = $('rs-' + idx); if (el && nm) el.textContent = nm; }
     }
   })();
+}
+async function renderDrive(tok, uid, own, full) {
+  const end = RPT.day, body = $('rpt-body'), thr = rptThr();
+  const days = Array.from({ length: 7 }, (_, i) => shiftDayKey(end, -(6 - i)));
+  const m = await ensureSummaries(uid, days, { compute: full, write: own }, (i, t) => { if (tok === RPT.token) body.innerHTML = `<div class="card"><p class="hint">جارٍ تحليل الأيام ${i} من ${t}...</p></div>`; });
+  if (tok !== RPT.token) return;
+  const rows = days.map(d => ({ d, s: m[d] || null }));
+  const car = r => (r.s ? r.s.by.car.d : 0);
+  const totalDrive = rows.reduce((a, r) => a + car(r), 0), driveMs = rows.reduce((a, r) => a + (r.s ? r.s.by.car.ms : 0), 0);
+  const trips = rows.reduce((a, r) => a + ((r.s && r.s.n) || 0), 0), vmax = Math.max(0, ...rows.map(r => (r.s && r.s.vmax) || 0));
+  const drivingRows = rows.filter(r => r.s && r.s.by.car.d >= 1), known = drivingRows.every(r => typeof r.s.osd === 'number');
+  const osd = drivingRows.reduce((a, r) => a + (typeof r.s.osd === 'number' ? r.s.osd : 0), 0);
+  const pct = (totalDrive >= 1000 && known) ? Math.max(0, Math.min(100, Math.round((1 - Math.min(1, osd / totalDrive)) * 100))) : null;
+  const R0 = 62, C0 = 2 * Math.PI * R0, col = pct === null ? '#9AA9B0' : pct >= 95 ? '#2F8F6B' : pct >= 85 ? '#E8A33D' : '#C4483B';
+  const ring = `<svg class="ring" width="170" height="170" viewBox="0 0 170 170" role="img" aria-label="نسبة القيادة ضمن السرعة المحددة"><circle cx="85" cy="85" r="${R0}" fill="none" stroke="#E1E8EB" stroke-width="16"/>${pct === null ? '' : `<circle cx="85" cy="85" r="${R0}" fill="none" stroke="${col}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${(C0 * pct / 100).toFixed(1)} ${C0.toFixed(1)}" transform="rotate(-90 85 85)"/>`}<text x="85" y="90" text-anchor="middle" font-size="34" font-weight="800" fill="#10272F">${pct === null ? '—' : pct + '%'}</text><text x="85" y="114" text-anchor="middle" font-size="11" fill="#5d747d">ضمن السرعة المحددة</text></svg>`;
+  const wk = r => new Date(r.d + 'T12:00:00').toLocaleDateString('ar', { weekday: 'narrow' });
+  const bars = (title, val, fmt, color) => {
+    const vs = rows.map(val), mxv = Math.max(1, ...vs.map(v => v || 0));
+    return `<div class="card"><b>${title}</b><div class="bars" style="height:112px">${rows.map((r, i) => `<div class="bar" title="${esc(dayLabel(r.d))}"><small>${vs[i] === null ? '—' : esc(fmt(vs[i]))}</small><i style="height:${Math.max(2, Math.round((vs[i] || 0) / mxv * 70))}%;background:${color(r)}"></i><em>${esc(wk(r))}</em></div>`).join('')}</div></div>`;
+  };
+  const box = (v, l) => `<div class="rbox"><b>${v}</b><span>${l}</span></div>`;
+  const wkEnd = dayLabel(end);
+  let html = `<div class="card"><b>تقرير القيادة، 7 أيام حتى ${esc(wkEnd)}</b>${ring}<p class="hint" style="text-align:center;margin:0">${pct === null ? (totalDrive < 1000 ? 'لا قيادة كافية في هذه الفترة لحساب النسبة.' : 'تظهر النسبة بعد اكتمال تحليل أيام الأسبوع.') : 'نسبة المسافة التي قُطعت بسرعة أقل من ' + thr + ' كم/س من مسافة القيادة.'}</p><p class="hint" style="text-align:center">تقدير من نقاط التتبع، وليست درجة ولا حكماً على القيادة. يمكنك تغيير السرعة من أسفل الشاشة.</p></div>`;
+  html += `<div class="rgrid">${box(fmtKm(totalDrive), 'مسافة القيادة')}${box(driveMs ? fmtDur(driveMs) : '—', 'زمن القيادة')}${box(trips, 'عدد الرحلات')}${box(vmax >= 5 ? Math.round(vmax) + ' كم/س' : '—', 'أقصى سرعة تقريبية')}${box(known ? fmtKm(osd) : '—', 'مسافة فوق ' + thr + ' كم/س')}${box(drivingRows.length + ' من 7', 'أيام فيها قيادة')}</div>`;
+  html += bars('أقصى سرعة تقريبية (كم/س)', r => (r.s && r.s.vmax >= 5 ? Math.round(r.s.vmax) : null), v => String(v), r => (r.s && r.s.vmax > thr ? '#C4483B' : '#3A6EA5'));
+  html += bars('مسافة القيادة (كم)', r => (r.s && r.s.by.car.d >= 1 ? r.s.by.car.d : null), v => km1(v), () => '#5B7691');
+  html += bars('المسافة فوق ' + thr + ' كم/س (كم)', r => (r.s && r.s.by.car.d >= 1 ? (typeof r.s.osd === 'number' ? r.s.osd : null) : null), v => km1(v), () => '#D2691E');
+  html += bars('عدد الرحلات', r => (r.s && r.s.n ? r.s.n : null), v => String(v), () => '#2F8F6B');
+  body.innerHTML = html;
+  RPT.last = { uid, mode: 'drive', rows };
+  RPT.text = [`تقرير قيادة مكاننا، 7 أيام حتى ${wkEnd}`, own ? '' : dispName(uid), `مسافة القيادة: ${km1(totalDrive)} كم، الرحلات: ${trips}`, vmax >= 5 ? `أقصى سرعة تقريبية: ${Math.round(vmax)} كم/س` : '', pct !== null ? `النسبة ضمن ${thr} كم/س: ${pct}%` : ''].filter(Boolean).join('\n');
+  RPT.csv = 'اليوم,قيادة كم,أقصى سرعة,فوق السرعة كم,رحلات\n' + rows.map(r => [r.d, km1(car(r)), (r.s && Math.round(r.s.vmax)) || 0, r.s && typeof r.s.osd === 'number' ? km1(r.s.osd) : '', (r.s && r.s.n) || 0].join(',')).join('\n');
+}
+const heatOptions = () => {
+  const out = [{ uid: S.uid, name: 'أنا', color: S.dir[S.uid]?.color || '#3A6EA5' }], seen = new Set([S.uid]);
+  for (const u of [...Object.keys(RPT.shared || {}), ...Object.keys(S.kids || {})]) if (!seen.has(u)) { seen.add(u); out.push({ uid: u, name: dispName(u) !== '—' ? dispName(u) : (S.kids[u] || 'صديق'), color: S.dir[u]?.color || '#8E5AA8' }); }
+  return out;
+};
+async function renderHeat(tok, uid, own, full) {
+  const n = RPT.heatDays, end = RPT.day, body = $('rpt-body');
+  const days = Array.from({ length: n }, (_, i) => shiftDayKey(end, -(n - 1 - i)));
+  const options = heatOptions();
+  let sel = (RPT.heatWho && RPT.heatWho.length ? RPT.heatWho : [uid]).filter(u => options.some(o => o.uid === u)); if (!sel.length) sel = [S.uid];
+  RPT.heatWho = sel;
+  const data = {};
+  for (const u of sel) {
+    data[u] = await ensureSummaries(u, days, { compute: u === S.uid || S.isAdmin, write: u === S.uid }, (i, t) => { if (tok === RPT.token) body.innerHTML = `<div class="card"><p class="hint">جارٍ تحليل الأيام ${i} من ${t}...</p></div>`; });
+    if (tok !== RPT.token) return;
+  }
+  const points = [];
+  for (const u of sel) for (const d of days) { const s = data[u][d]; if (s) for (const st of (s.stops || [])) points.push({ u, la: st.la, ln: st.ln, m: st.m }); }
+  const colorOf = u => (options.find(o => o.uid === u) || {}).color || '#3A6EA5';
+  const chips = options.map(o => `<button class="chipb ${sel.includes(o.uid) ? 'on' : ''}" style="--c:${esc(o.color)}" data-act="rpt-heat-who" data-id="${esc(o.uid)}">${esc(o.name)}</button>`).join('');
+  const rangeBtns = [7, 30].map(k => `<button class="btn sm ${n === k ? 'primary' : ''}" data-act="rpt-heat-range" data-id="${k}">${k === 7 ? 'آخر 7 أيام' : 'آخر 30 يوماً'}</button>`).join(' ');
+  const hours = sel.map(u => ({ u, h: points.filter(p => p.u === u).reduce((a, p) => a + p.m, 0) / 60 }));
+  body.innerHTML = `<div class="card"><b>خريطة الحرارة حتى ${esc(dayLabel(end))}</b><p class="hint">أين قضى الوقت في وقفات 10 دقائق فأكثر (حتى 6 وقفات لكل يوم). كلما كان اللون أكثف زاد الوقت. لا تظهر الطرق التي يمر بها.</p><div class="chips">${chips}</div><div>${rangeBtns}</div>` +
+    (points.length ? `<div id="heat-map" style="height:340px;border-radius:14px;overflow:hidden;margin-top:8px"></div><p class="hint">${hours.map(x => esc(options.find(o => o.uid === x.u).name) + ': ' + x.h.toFixed(1) + ' ساعة').join('، ')}</p>` : '<p class="hint" style="padding:12px 0">لا توجد وقفات طويلة في هذه الفترة.</p>') + '</div><div id="heat-places"></div>';
+  RPT.last = { uid, mode: 'heat', rows: [] };
+  RPT.text = [`خريطة حرارة مكاننا، آخر ${n} يوماً`, ...hours.map(x => options.find(o => o.uid === x.u).name + ': ' + x.h.toFixed(1) + ' ساعة في الوقفات الطويلة')].join('\n');
+  RPT.csv = 'الشخص,خط العرض,خط الطول,دقائق\n' + points.map(p => [options.find(o => o.uid === p.u).name, p.la, p.ln, p.m].join(',')).join('\n');
+  if (!points.length) return;
+  const map = L.map('heat-map', { zoomControl: false }); RPT.heatMap = map;
+  for (const [url, opt] of STYLES[S.styleKey || 'osm'].layers) L.tileLayer(url, opt).addTo(map);
+  map.createPane('heat'); const pn = map.getPane('heat'); pn.style.zIndex = 450; pn.style.filter = 'blur(7px)'; pn.style.pointerEvents = 'none';
+  for (const p of points) L.circleMarker([p.la, p.ln], { pane: 'heat', radius: Math.min(36, 10 + Math.sqrt(p.m) * 1.5), stroke: false, fillColor: colorOf(p.u), fillOpacity: .3, interactive: false }).addTo(map);
+  map.fitBounds(L.latLngBounds(points.map(p => [p.la, p.ln])), { padding: [30, 30], maxZoom: 15 });
+  setTimeout(() => { try { map.invalidateSize(); } catch {} }, 80);
+  const rowsAll = days.map(d => ({ d, s: { stops: sel.flatMap(u => ((data[u][d] && data[u][d].stops) || [])) } }));
+  const cl = clusterStops(rowsAll).sort((a, b) => b.mins - a.mins).slice(0, 5);
+  if (cl.length) {
+    $('heat-places').innerHTML = '<div class="card"><b>أكثر الأماكن زمناً</b>' + cl.map((c, i) => `<div class="row"><div class="grow"><div class="nm" id="hp-${i}">مكان</div><div class="st">${c.days.size} أيام · ${esc(fmtDur(c.mins * 60e3))}</div></div></div>`).join('') + '</div>';
+    for (let i = 0; i < cl.length; i++) { if (tok !== RPT.token) return; const nmv = await nameAt(cl[i].lat, cl[i].lng); const el = $('hp-' + i); if (el && nmv) el.textContent = nmv; }
+  }
 }
 async function renderRange(tok, uid, own, full) {
   const n = RPT.mode === 'week' ? 7 : 30, end = RPT.day, body = $('rpt-body');
@@ -2890,6 +3023,9 @@ function maybeReportBanner() {
 function renderPrivacy() {
   if (!$('v-privacy') || $('v-privacy').hidden) return;
   const minor = !!S.minor;
+  const gnames = Object.values(S.myGuardians || {}).filter(Boolean);
+  $('pv-guard').hidden = !(minor && Object.keys(S.myGuardians || {}).length);
+  if (!$('pv-guard').hidden) $('pv-guard').innerHTML = '<b>أولياء أمورك</b><p class="hint">' + esc(gnames.join('، ') || 'ولي أمرك') + ' يستطيعون رؤية ملخص تقريرك اليومي (المسافات والرحلات وأقصى سرعة) لأنك دون 18 سنة. هذا لا يتغير بإعدادات المشاركة، وينتهي عند بلوغك 18 سنة.</p>';
   $('pv-hide-all').checked = !!S.hideAll; $('pv-hide-all').disabled = minor;
   $('pv-hpriv').checked = !!S.histPriv; $('pv-hpriv').disabled = minor;
   $('pv-rshare').checked = !!S.reportShare;
