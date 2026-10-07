@@ -837,7 +837,7 @@ const UI_VERSION = '23';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
-const DEFAULT_BODY = 'مرحباً {name}،\nتمت دعوتك للانضمام إلى تطبيق {app}.\n١) حمّل التطبيق من: {apk}\n٢) اختر «تسجيل جديد» وأدخل رمز الدعوة: {code}\nالرمز صالح لمدة ٧ أيام.';
+const DEFAULT_BODY = 'مرحباً {name}،\nتمت دعوتك للانضمام إلى تطبيق {app}.\n١) حمّل التطبيق من: {apk}\n٢) إن ظهرت رسالة Play Protect فهذا طبيعي لأن التطبيق خارج المتجر: اضغط «More details» ثم «Install anyway».\n٣) اختر «تسجيل جديد» وأدخل رمز الدعوة: {code}\nالرمز صالح لمدة ٧ أيام.';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2097,7 +2097,7 @@ const FINV_MS = 48 * 36e5, FINV_MAX = 5;
 const landingUrl = code => location.origin + location.pathname.replace(/[^/]*$/, '') + 'download.html?c=' + encodeURIComponent(code);
 const friendReqUps = (from, to, name) => ({ [`links/${from}/${to}`]: true, [`requests/${to}/${from}`]: { name: String(name || 'صديق').slice(0, 40), color: rnd(), ts: Date.now() } });
 function finvText(code) {
-  return `${S.me.name} يدعوك للانضمام إلى ${CFG.appName} لمشاركة الموقع مع العائلة والأصدقاء.\n١) حمّل التطبيق وثبّته من: ${landingUrl(code)}\n٢) اختر «تسجيل جديد» وأدخل كود الدعوة: ${code}\nالكود صالح 48 ساعة ويعمل مرة واحدة.`;
+  return `${S.me.name} يدعوك للانضمام إلى ${CFG.appName} لمشاركة الموقع مع العائلة والأصدقاء.\n١) حمّل التطبيق وثبّته من: ${landingUrl(code)}\n٢) إن ظهرت رسالة Play Protect فهذا طبيعي لأن التطبيق خارج المتجر: اضغط «More details» ثم «Install anyway».\n٣) اختر «تسجيل جديد» وأدخل كود الدعوة: ${code}\nالكود صالح 48 ساعة ويعمل مرة واحدة.`;
 }
 function shareOut(t) {
   if (isNative && window.AndroidBridge && typeof window.AndroidBridge.shareText === 'function') window.AndroidBridge.shareText(t);
