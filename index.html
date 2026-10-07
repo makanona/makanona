@@ -284,6 +284,12 @@ window.__diagText = function () {
     document.getElementById('diag-text').textContent = window.__diagText();
     d.hidden = false;
   }
+  window.__showDiag = function () { if (!b.ok && !done) showDiag(); };
+  // خطأ في بناء الكود (WebView قديم) أثناء التحميل: اعرض التشخيص بعد لحظات بدل شاشة بيضاء
+  window.addEventListener('error', function (e) {
+    var m = String((e && e.message) || '');
+    if (!window.__moduleLoaded && /SyntaxError|Unexpected|Invalid or unexpected|Illegal|not supported/i.test(m)) setTimeout(function () { window.__showDiag(); }, 1500);
+  });
   setInterval(function () {
     if (b.ok || done) return;
     var m = document.getElementById('modal'); if (m && !m.hidden) { b.stepAt = Date.now(); return; }
@@ -291,7 +297,7 @@ window.__diagText = function () {
     var kind = '';
     if (b.step === 'auth-wait' && since > 6000) kind = 'session';         // الجلسة المحفوظة لا تستجيب
     else if (b.step === 'profile' && since > 20000) kind = 'data';        // قراءة الحساب لا تكتمل
-    else if (b.step === 'html' && total > 25000) kind = 'net';            // مكتبات Firebase لم تُحمَّل
+    else if (b.step === 'html' && total > 15000) kind = 'net';            // مكتبات Firebase لم تُحمَّل
     if (!kind) return;
     if (kind === 'net' || !online) { showDiag(); return; }                // ضعف اتصال: لا نمسح شيئاً
     if (heal === 0) { window.__report('stuck'); go(1); }
@@ -815,6 +821,11 @@ window.APP_CONFIG = {
 </div>
 <div id="toast" role="status"></div>
 
+<script nomodule>
+/* متصفح لا يدعم وحدات JS (WebView قديم جداً) */
+window.__err('المتصفح قديم ولا يدعم وحدات JavaScript، حدّث Android System WebView وChrome');
+setTimeout(function () { if (window.__showDiag) window.__showDiag(); }, 800);
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
