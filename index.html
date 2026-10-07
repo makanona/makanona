@@ -1225,7 +1225,7 @@ function stopMain() {
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
   S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
-  clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null;
+  clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {};
 }
 function cleanup(all) {
   stopMain();
@@ -1526,11 +1526,14 @@ function applyTabVisibility() {
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
   S.person = id; applyTabVisibility(); renderPerson(); focusOn(id); loadLastTrip(id); loadLastGap(id); loadHomeSuggestion(id);
+  if (id !== S.uid) get(ref(db, 'reportShare/' + id)).then(s => { S.repShare = S.repShare || {}; S.repShare[id] = s.val() === true; if (S.person === id) renderPerson(); }).catch(() => {});
 }
+/* زر «التقرير» لا يظهر إلا لمن شارك تقريره معي (أو لولي أمره أو للمشرف) */
+const repAllowed = id => id === S.uid || S.isAdmin || !!(S.kids && S.kids[id]) || !!(S.repShare && S.repShare[id] === true);
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); }
 function renderPerson() {
   const id = S.person; if (!id) return;
-  $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited; $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
+  $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited || !repAllowed(id); $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
   const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), me = S.locs[S.uid];
   $('p-av').textContent = d.photo ? '' : initial(d.name); $('p-av').style.cssText = avStyle(d);
   $('p-name').innerHTML = esc(id === S.uid ? 'أنا' : dispName(id)) + mvHtml(l);
