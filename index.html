@@ -115,16 +115,35 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .hsum b{font-size:16px}
 /* map markers */
 .pin{width:38px;height:38px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:17px;border:3px solid #fff;box-shadow:0 2px 8px #0006}
+.mk{position:relative;width:60px;height:110px}
+.mk-pin{position:absolute;left:8px;top:20px;width:44px;height:44px;background:#fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 3px 10px #0006}
+.mk-ph{position:absolute;inset:4px;border-radius:50%;transform:rotate(45deg);background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:17px}
+.mk.stale .mk-pin{filter:grayscale(.85);opacity:.85}
+.mk-lbl{position:absolute;top:-2px;left:50%;transform:translateX(-50%);background:#fff;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 1px 5px #0004;display:flex;align-items:center;gap:5px;color:var(--ink)}
+.mk-lbl i{width:8px;height:8px;border-radius:50%;background:#2FBF9B;display:inline-block}
+.mk-lbl.old{color:var(--ink2)}.mk-lbl.off{color:var(--bad)}
+.mk-cone{position:absolute;left:-10px;top:33px;width:80px;height:80px;pointer-events:none}
+.mb{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--mc);flex:none}
+.mb.car{--mc:#2F8F6B}.mb.walk{--mc:#3A6EA5}.mb.bike{--mc:#E8A33D}
+.mb svg{width:14px;height:14px;fill:#fff;stroke:none}
+.tag .mb{width:16px;height:16px}.tag .mb svg{width:10px;height:10px}
+details.acc{margin:8px 0}
+details.acc>summary{background:var(--card);border-radius:14px;padding:14px 16px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none;box-shadow:0 1px 4px #0002}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::after{content:'‹';font-size:20px;color:var(--ink2);transition:transform .2s;transform:rotate(-90deg)}
+details.acc[open]>summary::after{transform:rotate(90deg)}
+details.acc[open]>summary{margin-bottom:8px}
 .pin.stale{filter:grayscale(.85);opacity:.8}
-.tag{position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#fff;padding:1px 8px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 1px 4px #0004;color:var(--ink)}
+.tag{position:absolute;top:77px;left:50%;transform:translateX(-50%);background:#fff;padding:1px 8px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 1px 4px #0004;color:var(--ink)}
 .leaflet-container{font-family:inherit}
-.mv{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;color:var(--ok);margin-inline-start:6px;white-space:nowrap}
-.mv svg,.tag svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mv{display:inline-flex;align-items:center;gap:5px;margin-inline-start:6px;font-size:13px;font-weight:800;color:var(--ink);white-space:nowrap}
+.mv small{font-size:10.5px;font-weight:600;color:var(--ink2)}
 .tag small{display:block;text-align:center;font-weight:600;font-size:10px;color:var(--ink2)}
-.tag small svg{width:11px;height:11px;vertical-align:-2px}
 .fab.sos{color:var(--bad);font-weight:800;font-size:12px}
 .fab.sos.hold{background:var(--bad);color:#fff;transition:background 1.8s linear}
-#sos-bar{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(100px + env(safe-area-inset-top,0px));z-index:510;display:flex;flex-direction:column;gap:6px}
+#stack{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:515;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#stack>*{pointer-events:auto}
+#sos-bar{display:flex;flex-direction:column;gap:6px}
 .sosrow{background:var(--bad);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
 .sosrow span{flex:1;min-width:0}
 .sosrow .btn{padding:5px 10px;font-size:12px;background:#fff;color:var(--bad);border-color:#fff}
@@ -160,10 +179,15 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .ring{display:block;margin:6px auto}
 .lt-svg{width:100%;height:auto;display:block;background:#EEF3F5;border-radius:10px;margin:6px 0}
 .bar em{font-size:9.5px;font-style:normal;color:var(--ink2);height:12px;white-space:nowrap}
-#rpt-bar{position:absolute;inset-inline:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:515;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
+#note-bar{background:#fff;color:var(--ink2);border-radius:12px;padding:6px 10px;font-size:12.5px;display:flex;gap:8px;align-items:center;box-shadow:0 1px 6px #0003}
+#note-bar span{flex:1}
+#v-main.hmode #note-bar{display:none}
+#rpt-bar,#req-bar{background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
+#req-bar{background:var(--acc);color:var(--accInk)}
+#req-bar span{flex:1}
 #rpt-bar span{flex:1}
 #rpt-bar .btn{padding:5px 10px;font-size:12px}
-#v-main.hmode #rpt-bar{display:none}
+#v-main.hmode #rpt-bar,#v-main.hmode #req-bar{display:none}
 .plfr{padding:2px 0 8px;border-bottom:1px solid #0001;margin-bottom:6px}
 #hbar{position:absolute;inset-inline:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:530;background:var(--card);border-radius:16px;padding:8px 10px;box-shadow:0 2px 12px #0003;display:flex;flex-direction:column;gap:4px}
 #hbar .hrow{display:flex;align-items:center;gap:6px}
@@ -174,7 +198,7 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 #hshow .btn{pointer-events:auto;box-shadow:0 2px 10px #0003}
 #v-main.hmode #top,#v-main.hmode #send-bar{display:none}
 #v-main.hmode #fabs{top:calc(112px + env(safe-area-inset-top,0px))}
-#v-main.hmode #sos-bar{top:calc(176px + env(safe-area-inset-top,0px))}
+#v-main.hmode #stack{top:calc(176px + env(safe-area-inset-top,0px))}
 .hide-btn{position:absolute;top:4px;inset-inline-end:10px}
 .legend{display:flex;flex-wrap:wrap;gap:3px 9px;justify-content:center;font-size:10.5px;color:var(--ink2);margin-top:2px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:-1px}
@@ -383,9 +407,12 @@ window.APP_CONFIG = {
     <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
     <button class="fab sos" id="btn-sos" aria-label="استغاثة SOS">SOS</button>
   </div>
-  <div id="rpt-bar" hidden><span id="rpt-bar-t"></span><button class="btn sm" data-act="rpt-bar-open">عرض</button><button class="btn sm" data-act="rpt-bar-x">×</button></div>
-  <div id="pick-bar" hidden><span>اضغط على الخريطة لتحديد المكان</span><button class="btn sm" data-act="pick-me">موقعي</button><button class="btn sm" data-act="pick-cancel">إلغاء</button></div>
-  <div id="sos-bar"></div>
+  <div id="pick-bar" hidden><span id="pick-bar-t">اضغط على الخريطة لتحديد المكان</span><button class="btn sm" data-act="pick-me">موقعي</button><button class="btn sm" data-act="pick-cancel">إلغاء</button></div>
+  <div id="stack"><div id="sos-bar"></div>
+    <div id="req-bar" hidden><span id="req-bar-t"></span><button class="btn sm" data-act="friends-open">عرض</button></div>
+    <div id="note-bar" hidden><span id="note-bar-t"></span><button class="btn sm" id="note-add" data-act="friends-open" hidden>أضف</button><button class="btn sm" data-act="note-x" aria-label="إخفاء">×</button></div>
+    <div id="rpt-bar" hidden><span id="rpt-bar-t"></span><button class="btn sm" data-act="rpt-bar-open">عرض</button><button class="btn sm" data-act="rpt-bar-x">×</button></div>
+  </div>
   <div id="send-bar" hidden><span>الإرسال متوقف: موقعك لا يصل للعائلة.</span><button class="btn sm" data-act="send-fix">إعداد</button></div>
   <div id="style-menu" hidden></div>
 
@@ -431,6 +458,7 @@ window.APP_CONFIG = {
       <button class="btn sm" id="p-hist-btn" data-act="p-hist">السجل</button>
       <button class="btn sm" id="p-rep-btn" data-act="p-report">التقرير</button>
       <button class="btn sm" id="p-places-btn" data-act="p-places">الأماكن</button>
+      <button class="btn sm" id="p-more-btn" data-act="p-more">المزيد</button>
       <button class="btn sm" id="p-wa" data-act="p-wa" hidden>راسله واتساب</button>
       <span class="pchip" id="p-dist" hidden></span>
     </div>
@@ -438,29 +466,6 @@ window.APP_CONFIG = {
     <div id="p-home" class="trip-card" hidden style="margin-bottom:8px"><b id="p-home-t"></b><span class="hint" id="p-home-s"></span><div class="acts"><button class="btn sm primary" data-act="home-yes">نعم، نبّهني</button><button class="btn sm" data-act="home-edit">تعديل المكان</button><button class="btn sm" data-act="home-no">لا تعرض مجدداً</button></div></div>
     <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b>الموقع مطفأ في هاتفه</b><span class="hint">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
     <div id="p-trip"></div>
-  </div>
-
-  <div id="t-people" class="panel" hidden>
-    <h2>الأشخاص</h2>
-    <div class="card" id="hideall-card">
-      <div class="sw-row">
-        <div><b>إخفاء موقعي عن الجميع</b><p class="hint">يُخفيك عن كل أصدقائك الحاليين والمستقبليين دفعة واحدة، وتبقى اختياراتك الفردية محفوظة. يبقى المشرف قادراً على مساعدتك إن فُقد هاتفك، والاستغاثة تصل دائماً.</p></div>
-        <label class="switch"><input type="checkbox" id="hide-all" aria-label="إخفاء موقعي عن الجميع"><span></span></label>
-      </div>
-    </div>
-    <div id="people-list"></div>
-    <div class="card" id="contacts-card" hidden>
-      <b>من جهات اتصالك</b>
-      <div id="contacts-body"></div>
-      <input id="ct-filter" placeholder="ابحث في جهات اتصالك لدعوتهم" hidden>
-      <div id="contacts-invite"></div>
-    </div>
-    <div class="card" id="srch-card">
-      <b>البحث برقم هاتف</b>
-      <div class="inrow"><input id="srch-phone" type="tel" inputmode="tel" dir="ltr" placeholder="09xxxxxxxx"><button class="btn primary" data-act="srch">بحث</button></div>
-      <div id="srch-result"></div>
-      <p class="hint">يظهر لك الاسم فقط إن كان الرقم مسجلاً. لا تظهر على خريطة أحد حتى يوافق على طلبك.</p>
-    </div>
   </div>
 
   <div id="t-me" class="panel" hidden>
@@ -472,6 +477,7 @@ window.APP_CONFIG = {
       <button class="btn sm" id="phone-btn" data-act="phone-change">طلب تعديل الرقم</button>
       <div style="font-weight:500;font-size:14px;color:var(--ink2)">اللون على الخريطة</div>
       <div id="me-colors" class="colors"></div>
+      <div class="sw-row"><span>أستعمل دراجة هوائية (يظهر رمز الدراجة لرحلاتي)</span><label class="switch"><input type="checkbox" id="me-bike" aria-label="أستعمل دراجة هوائية"><span></span></label></div>
       <button id="btn-save-profile" class="btn primary">حفظ</button>
     </div>
     <div class="card" id="minor-note" hidden>
@@ -487,7 +493,28 @@ window.APP_CONFIG = {
       <b>حسابك قيد الاعتماد</b>
       <p class="hint">التطبيق يعمل ويظهر موقعك للمشرف. تتفعل بقية الميزات (الأصدقاء والبحث والسجل وتنبيه القرب) بعد أن يعتمد المشرف حسابك.</p>
     </div>
-    <div class="card" id="prox-card">
+    
+    
+    
+    
+    
+    <details class="acc" id="acc-friends" open><summary><span>أصدقائي وأصدقاء جدد</span><span class="badge warn" id="acc-friends-b" hidden></span></summary>
+      <div id="people-list"></div>
+<div class="card" id="srch-card">
+      <b>البحث برقم هاتف</b>
+      <div class="inrow"><input id="srch-phone" type="tel" inputmode="tel" dir="ltr" placeholder="09xxxxxxxx"><button class="btn primary" data-act="srch">بحث</button></div>
+      <div id="srch-result"></div>
+      <p class="hint">يظهر لك الاسم فقط إن كان الرقم مسجلاً. لا تظهر على خريطة أحد حتى يوافق على طلبك.</p>
+    </div>
+<div class="card" id="contacts-card" hidden>
+      <b>من جهات اتصالك</b>
+      <div id="contacts-body"></div>
+      <input id="ct-filter" placeholder="ابحث في جهات اتصالك لدعوتهم" hidden>
+      <div id="contacts-invite"></div>
+    </div>
+    </details>
+    <details class="acc" id="acc-alerts" ><summary><span>التنبيهات</span><span class="badge warn" id="acc-alerts-b" hidden></span></summary>
+<div class="card" id="prox-card">
       <div class="sw-row">
         <div>
           <b>تنبيه القرب</b>
@@ -504,7 +531,7 @@ window.APP_CONFIG = {
       </div>
       <p class="hint" id="prox-note"></p>
     </div>
-    <div class="card" id="alerts-card">
+<div class="card" id="alerts-card">
       <b>تنبيهات أخرى عن أصدقائك</b>
       <p class="hint">يفحصها هاتفك على مواقع أصدقائك المتصلين، فقد يتأخر التنبيه من دقيقة إلى 10 دقائق. لا يصلك شيء عمّن أخفى موقعه عنك.</p>
       <div class="sw-row"><span>بطارية ضعيفة</span><label class="switch"><input type="checkbox" id="al-bat-on" aria-label="بطارية ضعيفة"><span></span></label></div>
@@ -518,42 +545,43 @@ window.APP_CONFIG = {
       <div class="sw-row"><span>استقبال استغاثة SOS من أصدقائك</span><label class="switch"><input type="checkbox" id="al-sos-on" aria-label="استقبال SOS"><span></span></label></div>
       <button class="btn primary" data-act="al-save">حفظ التنبيهات</button>
     </div>
-    <div class="card" id="rpt-card">
+    </details>
+    <details class="acc" id="acc-places" ><summary><span>الأماكن</span><span class="badge warn" id="acc-places-b" hidden></span></summary>
+<div class="card" id="places-card">
+      <b>أماكني</b>
+      <p class="hint">احفظ البيت أو المدرسة أو العمل. التنبيهات متوقفة افتراضياً، وتشغّلها أنت لكل صديق على حدة، فيصلك إشعار عند وصوله إلى المكان أو مغادرته.</p>
+      <div id="places-list"></div>
+      <button class="btn" data-act="pl-add">إضافة مكان</button>
+    </div>
+    </details>
+    <details class="acc" id="acc-report" ><summary><span>التقرير اليومي</span><span class="badge warn" id="acc-report-b" hidden></span></summary>
+<div class="card" id="rpt-card">
       <b>التقرير اليومي</b>
       <p class="hint">مسافة القيادة والمشي والمسارات التي سلكتها، يومياً وأسبوعياً وشهرياً. خاص بك افتراضياً، وتتحكم في مشاركته من صفحة الخصوصية.</p>
       <button class="btn primary" data-act="rpt-open">عرض تقريري</button>
       <div class="sw-row"><span>إشعار التقرير في نهاية اليوم</span><label class="switch"><input type="checkbox" id="rpt-on" aria-label="إشعار التقرير"><span></span></label></div>
       <label>وقت الإشعار<input id="rpt-time" type="time" dir="ltr" value="23:59"></label>
       <button class="btn sm" data-act="rpt-save">حفظ</button>
-      <button class="btn" data-act="pv-open">صفحة الخصوصية</button>
     </div>
-    <div class="card" id="places-card">
-      <b>أماكني</b>
-      <p class="hint">احفظ البيت أو المدرسة أو العمل. التنبيهات متوقفة افتراضياً، وتشغّلها أنت لكل صديق على حدة، فيصلك إشعار عند وصوله إلى المكان أو مغادرته.</p>
-      <div id="places-list"></div>
-      <button class="btn" data-act="pl-add">إضافة مكان</button>
-    </div>
-    <div class="card" id="native-card" hidden>
+    </details>
+    <details class="acc" id="acc-health" ><summary><span>صحة التطبيق</span><span class="badge warn" id="acc-health-b" hidden></span></summary>
+<div class="card" id="native-card" hidden>
       <b>صحة التطبيق على هذا الهاتف</b>
       <div id="native-status"></div>
       <button id="btn-wiz" class="btn">فتح معالج الإعداد</button>
       <button id="btn-notif-set" class="btn">إخفاء إشعار الإرسال أو تغييره</button>
       <p class="hint">الإشعار شرط من أندرويد لأي تطبيق يرسل الموقع في الخلفية، ولا يمكن حذفه من التطبيق. يظهر 10 ثوانٍ ثم يتحول إلى إشعار صغير صامت فيه اسم المكان الذي أنت فيه (من «أماكني») وآخر وقت تحديث. وتستطيع إخفاءه بنفسك: اضغط الزر أعلاه ثم أوقف إظهار هذه القناة. يستمر الإرسال في الأغلب، وإن لاحظت أن موقعك تأخر فأعد تفعيلها. تنبيهاتك في قنوات منفصلة فلا تتأثر.</p>
     </div>
+    </details>
     <div class="card" id="web-note" hidden>
       <p class="hint">إرسال الموقع يعمل من تطبيق أندرويد فقط. هذه الصفحة للعرض.</p>
     </div>
     <div class="card">
-      <b>الخصوصية</b>
-      <p class="hint">يُرسل موقعك إلى قاعدة بيانات العائلة فقط. يراه من اتصلتَ بهم بموافقة الطرفين، ويراه المشرف ليساعدك إن فُقد هاتفك. يمكنك إخفاء موقعك عن شخص بعينه من تبويب «الأشخاص». يُحفظ مسار تنقلاتك 45 يوماً ثم يُحذف.</p>
-    </div>
-    <div class="card">
       <p class="hint" id="ver-line"></p>
-      <button class="link" data-act="open-privacy">سياسة الخصوصية</button>
+      <button class="btn primary" data-act="pv-open">الخصوصية: من يراني وماذا يرى</button>
       <button class="btn" data-act="diag-send">إرسال بيانات التشخيص للمشرف</button>
       <button id="btn-pw" class="btn">إرسال رابط تغيير كلمة السر</button>
       <button id="btn-out2" class="btn danger">تسجيل الخروج</button>
-      <button class="btn danger" data-act="del-open">حذف حسابي نهائياً</button>
     </div>
   </div>
 
@@ -632,7 +660,6 @@ window.APP_CONFIG = {
 
   <nav class="tabs" id="tabs">
     <button data-tab="map" class="on">الخريطة</button>
-    <button data-tab="people" id="tab-people">الأشخاص</button>
     <button data-tab="me">حسابي</button>
     <button data-tab="admin" id="tab-admin" hidden>الإدارة</button>
   </nav>
@@ -716,6 +743,25 @@ window.APP_CONFIG = {
     <div class="acts"><button class="btn primary" data-act="guard-save">حفظ</button><button class="btn" data-act="guard-no">إلغاء</button></div>
   </div>
 </div>
+<div id="modal-fplaces" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true" style="max-height:82vh;overflow-y:auto">
+    <b id="fp-title"></b>
+    <p class="hint" style="margin:0">تنبيهات الأماكن متوقفة افتراضياً، وتشغّلها هنا لهذا الصديق وحده.</p>
+    <b style="font-size:14px">تنبيهاتي له</b>
+    <div id="fp-mine"></div>
+    <button class="btn sm" data-act="fp-pick">+ إضافة مكان لتنبيهه</button>
+    <b style="font-size:14px;margin-top:6px">أماكنه المتكررة</b>
+    <div id="fp-his"></div>
+    <div class="acts"><button class="btn" data-act="fp-close">إغلاق</button></div>
+  </div>
+</div>
+<div id="modal-pmore" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="pm-title"></b>
+    <div id="pm-body"></div>
+    <div class="acts"><button class="btn" data-act="pm-close">إغلاق</button></div>
+  </div>
+</div>
 <div id="modal-nick" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b id="nick-title">اسم مستعار</b>
@@ -775,7 +821,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '20';
+const UI_VERSION = '22';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -794,7 +840,7 @@ const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
-  sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {},
+  noteOff: null, pickFriend: null, modeSt: {}, sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {},
   adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
   gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false,
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
@@ -1093,7 +1139,7 @@ function startMain() {
   ensureDirectory().then(() => (S.limited ? null : ensureIndex())).catch(console.error);
 
   if (!S.limited) {
-    S.unsubs.reqs = onValue(ref(db, 'requests/' + S.uid), s => { S.reqs = s.val() || {}; updateBadge(); if (S.tab === 'people') renderPeople(); }, e => console.error('reqs', e));
+    S.unsubs.reqs = onValue(ref(db, 'requests/' + S.uid), s => { S.reqs = s.val() || {}; updateBadge(); if (S.tab === 'me') renderPeople(); }, e => console.error('reqs', e));
     S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; S.mineLoaded = true; syncWatch(); syncLocs(); renderAll(); }, e => console.error('links', e));
   }
   if (S.isAdmin) {
@@ -1108,7 +1154,7 @@ function startMain() {
   } else { syncWatch(); if (S.limited) syncLocs(); }
   if (!S.limited) {
     S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') { renderProx(); renderAlerts(); } pushProx(); }, e => console.error('alerts', e));
-    S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; if (S.tab === 'people') renderPeople(); }, e => console.error('hide', e));
+    S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; if (S.tab === 'me') renderPeople(); }, e => console.error('hide', e));
   }
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; S.updLoaded = true; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
@@ -1122,7 +1168,7 @@ function startMain() {
   try { S.sosOut = JSON.parse(localStorage.getItem('sosOut') || 'null'); } catch { S.sosOut = null; }
   if (!S.limited) {
     S.unsubs.places = onValue(ref(db, 'places/' + S.uid), s => { S.places = s.val() || {}; renderPlaces(); pushAlerts(); }, e => console.error('places', e));
-    S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; if (S.tab === 'people') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
+    S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; if (S.tab === 'me') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
     S.unsubs.histPriv = onValue(ref(db, 'histPrivate/' + S.uid), s => { S.histPriv = s.val() === true; renderPrivacy(); }, e => console.error('histPriv', e));
     S.unsubs.reportShare = onValue(ref(db, 'reportShare/' + S.uid), s => { S.reportShare = s.val() === true; renderPrivacy(); }, e => console.error('reportShare', e));
     S.unsubs.follow = onValue(ref(db, 'follow/' + S.uid), s => { S.follow = s.val() || {}; pushAlerts(); }, e => console.error('follow', e));
@@ -1228,9 +1274,10 @@ function initMap() {
   S.hl = L.layerGroup().addTo(S.map);
   S.hsel = L.layerGroup().addTo(S.map);
   S.hmk = L.layerGroup();
+  S.accg = L.layerGroup().addTo(S.map);
   S.plg = L.layerGroup().addTo(S.map);
   S.map.on('zoomend', syncMarks);
-  S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng); else mapTap(); });
+  S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng, '', S.pickFriend); else mapTap(); });
   let k = 'osm'; try { k = localStorage.getItem('mapStyle') || 'osm'; } catch {}
   setStyle(k);
   setTimeout(() => S.map.invalidateSize(), 100);
@@ -1242,17 +1289,51 @@ $('btn-fit').onclick = () => (S.histFor ? fitHistory() : fitAll());
 const dispName = id => (S.nick && S.nick[id]) || S.dir[id]?.name || '—';
 const avStyle = d => { const c = esc(d?.color || '#3A6EA5'); return d?.photo ? `--c:${c};background-image:url('${d.photo}');background-size:cover;background-position:center` : `--c:${c}`; };
 const avText = d => d?.photo ? '' : esc(initial(d?.name));
-const ICON = {
-  car: '<svg viewBox="0 0 24 24"><path d="M3 14l2-6a2 2 0 011.9-1.4h10.2A2 2 0 0119 8l2 6v4h-2v-1.5H5V18H3z"/><circle cx="7.5" cy="14" r="1"/><circle cx="16.5" cy="14" r="1"/></svg>',
-  bike: '<svg viewBox="0 0 24 24"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-8h5l3 8M10 8H8M13 8l-2.5 8"/></svg>',
-  walk: '<svg viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.7"/><path d="M12 8l-2.5 4 2.5 2v6M12 8l3 3h2.5M9.5 12L7 14.5M12 14l3 6"/></svg>'
+const GLYPH = {
+  car: 'M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z',
+  walk: 'M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7',
+  bike: 'M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zM10.8 10.5l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.6-1.6-.6s-1.1.2-1.4.6L7.8 8.4c-.4.4-.6.9-.6 1.4 0 .6.2 1.1.6 1.4L11 14v5h2v-6.2l-2.2-2.3zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z'
 };
-function moveMode(l) {
-  if (!l || typeof l.spd !== 'number' || typeof l.ts !== 'number' || Date.now() - l.ts > 180000 || l.off === true) return null;
-  const k = l.spd * 3.6; if (k < 4) return null;
-  return { mode: k < 7 ? 'walk' : k <= 25 ? 'bike' : 'car', kmh: Math.round(k) };
+const ICON = Object.fromEntries(Object.entries(GLYPH).map(([k, d]) => [k, `<span class="mb ${k}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></span>`]));
+function mvHtml(l, id) { const m = liveMode(id, l); return m ? `<span class="mv" title="${MODE[m.mode]}">${ICON[m.mode]}<b>${m.kmh}</b><small>كم/س</small></span>` : ''; }
+/* ---------- تنظيف النقاط الشاذة والسرعة المنطقية ---------- */
+const SPEED_CAP = 200;
+function cleanPts(a) {
+  const o = [];
+  for (const p of a) {                                                   // 1) نقطة تفرض سرعة مستحيلة
+    const q = o[o.length - 1];
+    if (q) { const dt = (p.ts - (q.ets || q.ts)) / 1000, d = haversine(q, p); if (dt >= 0 && dt < 600 && d > 40 && d / Math.max(dt, 1) * 3.6 > SPEED_CAP) continue; }
+    o.push(p);
+  }
+  for (let i = o.length - 2; i >= 1; i--) {                              // 2) قفزة ثم عودة: بعيدة عن جارتيها القريبتين من بعضهما
+    const d1 = haversine(o[i - 1], o[i]), d2 = haversine(o[i], o[i + 1]), d3 = haversine(o[i - 1], o[i + 1]);
+    if (d1 > 150 && d2 > 150 && d3 < .4 * Math.min(d1, d2) && (o[i + 1].ts - o[i - 1].ts) < 180e3) o.splice(i, 1);
+  }
+  return o;
 }
-function mvHtml(l) { const m = moveMode(l); return m ? `<span class="mv" title="${MODE[m.mode]}">${ICON[m.mode]}${m.kmh} كم/س</span>` : ''; }
+function tripMode(seq, p90, bikeOn) {
+  const sm = seq.map((v, i) => [seq[i - 1] ?? v, v, seq[i + 1] ?? v].sort((x, y) => x - y)[1]);
+  const vsus = sm.length ? Math.max(...sm) : p90;                       // أعلى سرعة مستمرة بعد التنعيم
+  if (vsus >= 35 || p90 > 25) return 'car';
+  if (p90 < (bikeOn ? 7 : 9)) return 'walk';
+  return bikeOn ? 'bike' : 'car';
+}
+const bikeOf = id => (S.dir[id] || {}).bike === true;
+/* نوع الحركة الحي: لا ينزل من «سيارة» إلا بعد توقف نحو 3 دقائق، فلا تتحول سيارتك إلى دراجة في السوق */
+function liveMode(id, l) {
+  if (!l || typeof l.spd !== 'number' || typeof l.ts !== 'number' || Date.now() - l.ts > 180000 || l.off === true) return null;
+  const k = l.spd * 3.6; if (k > SPEED_CAP) return null;
+  const st = S.modeSt[id] || (S.modeSt[id] = { mode: null, slow: 0, ts: 0 });
+  if (l.ts !== st.ts) {
+    st.ts = l.ts;
+    if (k >= 25) { st.mode = 'car'; st.slow = 0; }
+    else if (st.mode === 'car') { if (k < 7) { if (!st.slow) st.slow = l.ts; if (l.ts - st.slow >= 3 * 60e3) st.mode = null; } else st.slow = 0; }
+  }
+  if (k < 4) return null;
+  const bike = bikeOf(id);
+  const mode = st.mode || (k < (bike ? 7 : 9) ? 'walk' : (bike && k <= 25 ? 'bike' : 'car'));
+  return { mode, kmh: Math.round(k) };
+}
 const phoneOf = id => String(S.users[id]?.phone || (S.phones[id] ? '+' + S.phones[id] : '')).replace(/\D/g, '');
 
 const rmGet = () => { try { return JSON.parse(localStorage.getItem('mk_rm') || '[]'); } catch { return []; } };
@@ -1317,11 +1398,13 @@ const fmtKm = m => m < 1000 ? Math.round(m) + ' م' : (m / 1000).toFixed(1) + ' 
 const fmtDur = ms => { const m = Math.max(1, Math.round(ms / 60000)); return m < 60 ? m + ' دقيقة' : Math.floor(m / 60) + ' س و' + (m % 60) + ' د'; };
 
 function pinIcon(id, l) {
-  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = moveMode(l);
+  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = liveMode(id, l);
   const nm = id === S.uid ? 'أنا' : dispName(id);
-  const sub = m ? `<small>${ICON[m.mode]}${m.kmh} كم/س</small>` : (stale ? `<small>قبل ${esc(ago(l.ts))}</small>` : '');
-  const html = `<div class="pin${stale ? ' stale' : ''}" style="${avStyle(d)}">${avText(d)}</div><div class="tag">${esc(nm)}${sub}</div>`;
-  return L.divIcon({ className: '', html, iconSize: [38, 38], iconAnchor: [19, 19] });
+  const sub = m ? `<small>${ICON[m.mode]}${m.kmh} كم/س</small>` : '';
+  const lbl = l.off === true ? '<span class="mk-lbl off">مطفأ</span>' : stale ? `<span class="mk-lbl old">قبل ${esc(ago(l.ts))}</span>` : '<span class="mk-lbl"><i></i>الآن</span>';
+  const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
+  const html = `<div class="mk${stale ? ' stale' : ''}">${cone}${lbl}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
+  return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
 }
 function renderMap() {
   if (!S.map) return;
@@ -1334,6 +1417,11 @@ function renderMap() {
     else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(pinIcon(id, l)); }
   }
   for (const id of Object.keys(S.markers)) if (!keep.has(id)) { S.map.removeLayer(S.markers[id]); delete S.markers[id]; }
+  if (S.accg) {                                                          // دائرة الدقة للشخص المحدد (أو لي)
+    S.accg.clearLayers();
+    const aid = S.person || S.uid, al = S.locs[aid];
+    if (al && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && keep.has(aid)) L.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
+  }
   if (!S.fitted && keep.size) { fitAll(); S.fitted = true; }
 }
 function clearMarkers() { if (S.map) for (const id of Object.keys(S.markers)) S.map.removeLayer(S.markers[id]); S.markers = {}; }
@@ -1369,17 +1457,18 @@ function renderSheet() {
     const warn = (off || lowBat || stale) ? `<span class="warn-ic" title="${off ? 'الموقع مطفأ في هاتفه' : lowBat ? 'بطارية ضعيفة' : 'انقطع تحديث موقعه'}">!</span>` : '';
     const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? `بطارية ${l.bat}%${l.chg ? ' ⚡' : ''}` : '';
     const ad = addrOf(id);
-    rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${mvHtml(l)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
+    rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${mvHtml(l, id)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
     avs.push(`<button class="avb" style="${avStyle(d)};--ring:${ds.cls === 'on' ? '#2F8F6B' : '#C9D3D7'}" data-act="focus" data-id="${esc(id)}" aria-label="${esc(name)}">${avText(d)}</button>`);
   }
   $('chip').textContent = online + ' متصل من ' + ids.length;
-  let extra = '';
-  if (S.limited) extra = '<p class="hint" style="padding:8px 0">حسابك قيد الاعتماد من المشرف. ستظهر بقية الميزات بعد اعتماده.</p>';
-  else if (S.hideAll) extra = '<p class="hint" style="padding:8px 0">موقعك مخفي عن الجميع حالياً. يمكنك إظهاره من تبويب «الأشخاص».</p>';
-  else if (!S.isAdmin && ids.length <= 1) extra = '<p class="hint" style="padding:8px 0">لا أحد على خريطتك بعد. أضف أفراد العائلة من تبويب «الأشخاص».</p>';
-  if (S.isAdmin) extra += `<label class="sw-row st" style="padding:10px 0"><span>عرض كل الأعضاء (إشراف)</span><span class="switch"><input type="checkbox" data-adm-all ${S.adminAll ? 'checked' : ''} aria-label="عرض كل الأعضاء"><span></span></span></label>`;
+  let note = null;
+  if (S.limited) note = { k: 'lim', t: 'حسابك قيد الاعتماد من المشرف. ستظهر بقية الميزات بعد اعتماده.' };
+  else if (S.hideAll) note = { k: 'hid', t: 'موقعك مخفي عن الجميع حالياً. يمكنك إظهاره من «حسابي» ثم «الخصوصية».' };
+  else if (!S.isAdmin && ids.length <= 1) note = { k: 'solo', t: 'لا أحد على خريطتك بعد.', go: true };
+  const nb = $('note-bar');
+  if (note && S.noteOff !== note.k && !S.histFor) { $('note-bar-t').textContent = note.t; $('note-add').hidden = !note.go; nb.dataset.k = note.k; nb.hidden = false; } else nb.hidden = true;
   $('sheet-av').innerHTML = avs.join('');
-  $('sheet-list').innerHTML = rows.join('') + extra;
+  $('sheet-list').innerHTML = rows.join('');
   if (S.person) renderPerson();
   renderSosBar();
 }
@@ -1399,7 +1488,7 @@ function openPerson(id) {
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); }
 function renderPerson() {
   const id = S.person; if (!id) return;
-  $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited; $('p-places-btn').hidden = S.limited;
+  $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited; $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
   const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), me = S.locs[S.uid];
   $('p-av').textContent = d.photo ? '' : initial(d.name); $('p-av').style.cssText = avStyle(d);
   $('p-name').innerHTML = esc(id === S.uid ? 'أنا' : dispName(id)) + mvHtml(l);
@@ -1436,9 +1525,9 @@ async function loadLastTrip(id) {
   try {
     const obj = (await get(ref(db, `history/${id}/${dayKey(Date.now())}`))).val() || {};
     if (tok !== S.pTok || S.person !== id) return;
-    const pts = Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
+    const pts = cleanPts(Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts));
     if (!pts.length) return;
-    const trips = analyzeDay(pts).items.filter(i => i.type === 'trip');
+    const trips = analyzeDay(pts, bikeOf(id)).items.filter(i => i.type === 'trip');
     if (!trips.length) { box.innerHTML = '<div class="trip-card"><span class="hint">لا رحلات اليوم.</span></div>'; return; }
     const t = trips[trips.length - 1];
     const seg = pts.slice(t.s, t.e + 1);
@@ -1462,7 +1551,7 @@ function chaikin(pts, iters) {
   return p;
 }
 /* تحليل اليوم إلى رحلات ووقفات، وتصنيف كل رحلة (مشي أو دراجة أو سيارة) من سرعتها */
-function analyzeDay(pts) {
+function analyzeDay(pts, bikeOn = false) {
   const items = [];
   const isStop = p => p.ets && p.ets - p.ts >= 5 * 60e3;
   const segDist = i => { const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b); return (gap > 15 * 60e3 && d > 1000) ? 0 : d; };
@@ -1471,12 +1560,13 @@ function analyzeDay(pts) {
     for (let i = s + 1; i <= e; i++) {
       d += segDist(i);
       const a = pts[i - 1], b = pts[i], dt = (b.ts - (a.ets || a.ts)) / 1000, dd = haversine(a, b);
-      if (dt >= 2 && dt <= 180 && dd >= 10) { const v = dd / dt * 3.6; if (v < 220) speeds.push(v); }
+      if (dt >= 3 && dt <= 180 && dd >= 10) { const v = dd / dt * 3.6; if (v < SPEED_CAP) speeds.push(v); }
     }
-    const t0 = pts[s].ets || pts[s].ts, t1 = pts[e].ts, dur = Math.max(1000, t1 - t0), avg = d / (dur / 1000) * 3.6;
+    const t0 = pts[s].ets || pts[s].ts, t1 = pts[e].ts, dur = Math.max(1000, t1 - t0), avg = Math.min(SPEED_CAP, d / (dur / 1000) * 3.6);
+    const seq = speeds.slice();
     speeds.sort((x, y) => x - y);
     const p90 = speeds.length >= 3 ? speeds[Math.floor((speeds.length - 1) * .9)] : avg;
-    const mode = p90 < 7 ? 'walk' : p90 <= 25 ? 'bike' : 'car';
+    const mode = tripMode(seq, p90, bikeOn);
     return { type: 'trip', s, e, t0, t1, dist: d, dur, avg, p90, mode };
   };
   let start = 0;
@@ -1491,7 +1581,7 @@ function analyzeDay(pts) {
   for (let i = 1; i < pts.length; i++) {
     dist += segDist(i);
     const dt = (pts[i].ts - (pts[i - 1].ets || pts[i - 1].ts)) / 1000, d = haversine(pts[i - 1], pts[i]);
-    if (dt >= 3 && dt <= 120 && d >= 30) { const v = d / dt * 3.6; if (v < 220) sp.push(v); }
+    if (dt >= 3 && dt <= 120 && d >= 30) { const v = d / dt * 3.6; if (v < SPEED_CAP) sp.push(v); }
   }
   sp.sort((a, b) => a - b);
   const vmax = sp.length ? sp[Math.min(sp.length - 1, Math.floor(sp.length * .95))] : 0;
@@ -1507,7 +1597,7 @@ function posAt(t) {
       const gap = b.ts - a1, d = haversine(a, b);
       if (gap > 15 * 60e3 && d > 1000) return { lat: a.lat, lng: a.lng, spd: 0 };
       const f = (t - a1) / gap;
-      return { lat: a.lat + (b.lat - a.lat) * f, lng: a.lng + (b.lng - a.lng) * f, spd: gap > 0 ? d / (gap / 1000) * 3.6 : 0 };
+      return { lat: a.lat + (b.lat - a.lat) * f, lng: a.lng + (b.lng - a.lng) * f, spd: gap > 0 ? Math.min(SPEED_CAP, d / (gap / 1000) * 3.6) : 0 };
     }
   }
   const l = pts[pts.length - 1]; return { lat: l.lat, lng: l.lng, spd: 0 };
@@ -1520,7 +1610,7 @@ function scrub(v) {
   const f = c1 > c0 ? Math.min(1, Math.max(0, (dist - c0) / (c1 - c0))) : 0;
   const a1 = a.ets || a.ts, t = a1 + f * (b.ts - a1);
   const lat = a.lat + (b.lat - a.lat) * f, lng = a.lng + (b.lng - a.lng) * f;
-  const gap = b.ts - a1, dd = haversine(a, b), spd = (gap > 0 && c1 > c0) ? dd / (gap / 1000) * 3.6 : 0;
+  const sg = (S.hsegs || []).find(sx => dist >= sx.x0 - 1 && dist <= sx.x1 + 1), spd = sg ? sg.v : 0;
   const d = S.dir[S.huid] || {};
   const icon = L.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d)}">${avText(d)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
   if (!S.hmark) S.hmark = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([lat, lng]);
@@ -1542,7 +1632,7 @@ function speedSegs() {
   for (let i = 1; i < pts.length; i++) {
     const len = cum[i] - cum[i - 1]; if (len <= 0) continue;            // وقفة أو قفزة بلا اتصال
     const dt = (pts[i].ts - (pts[i - 1].ets || pts[i - 1].ts)) / 1000;
-    segs.push({ x0: cum[i - 1], x1: cum[i], v: dt >= 1 ? Math.min(220, len / dt * 3.6) : 0 });
+    segs.push({ x0: cum[i - 1], x1: cum[i], v: dt >= 4 ? (len / dt * 3.6 > SPEED_CAP ? 0 : len / dt * 3.6) : 0 });
   }
   return segs.map((s, i) => {                                            // تنعيم بمتوسط ثلاث نقاط لتخفيف اهتزاز GPS
     let sum = s.v * 2, w = 2;
@@ -1619,7 +1709,7 @@ function onRouteClick(e) {
     if (!best || d < best.d) best = { d, i, f };
   }
   const a = pts[best.i - 1], b = pts[best.i], a1 = a.ets || a.ts, gap = b.ts - a1, dd = haversine(a, b);
-  const t = a1 + best.f * gap, kmh = (gap > 0 && !(gap > 15 * 60e3 && dd > 1000)) ? dd / (gap / 1000) * 3.6 : 0;
+  const sg = (S.hsegs || []).find(sx => sx.x1 === (S.hcum || [])[best.i]), t = a1 + best.f * gap, kmh = sg ? sg.v : 0;
   L.popup().setLatLng(e.latlng).setContent('<b>' + esc(fmtFull(t)) + '</b>' + (kmh >= 3 ? '<br>السرعة التقريبية ' + Math.round(kmh) + ' كم/س' : '')).openOn(S.map);
 }
 function openHistory(id, day) {
@@ -1669,7 +1759,7 @@ async function loadHistory() {
   catch { $('h-sum').innerHTML = '<p class="hint">لا تملك صلاحية عرض هذا السجل الآن.</p>'; barSum('لا تملك صلاحية عرض هذا السجل الآن'); return; }
   if (S.histFor !== uid) return;
   S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null;
-  const pts = Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
+  const pts = cleanPts(Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts));
   S.hpts = pts; S.huid = uid; S.hcum = null;
   if (!pts.length) { $('h-sum').innerHTML = '<p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p>'; barSum('لا توجد حركة مسجلة في هذا اليوم'); return; }
 
@@ -1687,7 +1777,7 @@ async function loadHistory() {
     else cur.push([b.lat, b.lng]);
   }
   flush();
-  const an = S.han = analyzeDay(pts);
+  const an = S.han = analyzeDay(pts, bikeOf(uid));
   const first = pts[0], last = pts[pts.length - 1], end = last.ets || last.ts;
   const trips = an.items.filter(i => i.type === 'trip'), stops = an.items.filter(i => i.type === 'stop');
   stops.forEach(s => L.circleMarker([s.lat, s.lng], { radius: 9, color: '#fff', weight: 2, fillColor: '#E8A33D', fillOpacity: 1 }).bindPopup(`<b>${esc(fmtFull(s.t0))}</b><br>وصل ${esc(fmtTime(s.t0))}، غادر ${esc(fmtTime(s.t1))}`).addTo(S.hl));
@@ -1703,7 +1793,7 @@ async function loadHistory() {
   $('h-sum').innerHTML = `<b>${esc(fmtTime(first.ts))} حتى ${esc(fmtTime(end))}</b><span class="hint">المسافة ${(an.dist / 1000).toFixed(1)} كم، الرحلات ${trips.length}، الوقفات ${stops.length}${an.vmax >= 5 ? '، أسرع سرعة تقريبية ' + Math.round(an.vmax) + ' كم/س' : ''}</span>`;
   if (cum[cum.length - 1] >= 50) { const sl = $('h-slider'); sl.min = 0; sl.max = 1000; sl.step = 1; sl.value = 0; $('h-scrub').hidden = false; chartSetup(); scrub(0); }
   $('h-list').innerHTML = an.items.map((it, i) => it.type === 'trip'
-    ? `<div class="row tap" data-act="h-trip" data-id="${i}"><div class="grow"><div class="nm">${esc(MODE[it.mode])}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtKm(it.dist))}، ${esc(fmtDur(it.dur))}، متوسط ${Math.round(it.avg)} كم/س</div></div></div>`
+    ? `<div class="row tap" data-act="h-trip" data-id="${i}"><div class="grow"><div class="nm">${ICON[it.mode]} ${esc(MODE[it.mode])}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtKm(it.dist))}، ${esc(fmtDur(it.dur))}، متوسط ${Math.round(it.avg)} كم/س</div></div></div>`
     : `<div class="row tap" data-act="h-stop" data-id="${i}"><div class="grow"><div class="nm">وقفة</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}، ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st" id="hs-${i}"></div></div></div>`
   ).join('') || '<p class="hint" style="padding:8px 0">لا رحلات ولا وقفات واضحة في هذا اليوم.</p>';
   an.items.forEach((it, i) => { if (it.type === 'stop' && i < 40) geocode(it.lat, it.lng).then(t => { const el = $('hs-' + i); if (el && t) el.textContent = t; }); });
@@ -1723,10 +1813,15 @@ async function prune(uid) {
 
 /* ---------- الأشخاص ---------- */
 const prow = (name, color, sub, btns, photo) => `<div class="row"><div class="av" style="${avStyle({ color, photo })}">${photo ? '' : esc(initial(name))}</div><div class="grow"><div class="nm">${esc(name || '—')}</div>${sub || ''}</div><div class="acts">${btns || ''}</div></div>`;
-function updateBadge() { const n = Object.keys(S.reqs).length; $('tab-people').textContent = 'الأشخاص' + (n ? ' (' + n + ')' : ''); }
+function updateBadge() {
+  const n = Object.keys(S.reqs).length;
+  document.querySelector('#tabs [data-tab=me]').textContent = 'حسابي' + (n ? ' (' + n + ')' : '');
+  const b = $('acc-friends-b'); b.hidden = !n; b.textContent = n + ' طلب';
+  $('req-bar').hidden = !n || S.limited || !!S.histFor; $('req-bar-t').textContent = n === 1 ? 'لديك طلب صداقة واحد بانتظار موافقتك' : 'لديك ' + n + ' طلبات صداقة بانتظار موافقتك';
+}
+function openFriends() { setTab('me'); const d = $('acc-friends'); d.open = true; setTimeout(() => d.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250); }
 function renderPeople() {
   renderPrivacy();
-  $('hideall-card').hidden = S.limited || S.minor; $('hide-all').checked = !!S.hideAll;
   if (S.limited) {
     $('people-list').innerHTML = '<div class="card"><b>حسابك قيد الاعتماد</b><p class="hint">يعمل التطبيق ويظهر موقعك للمشرف. تتفعل إضافة الأصدقاء والبحث ومشاهدتهم وتنبيه القرب بعد أن يعتمد المشرف حسابك.</p></div>';
     $('contacts-card').hidden = true; $('srch-card').hidden = true; return;
@@ -1866,7 +1961,8 @@ function renderAdmin() {
       (a.bad ? `<div class="hint" style="color:var(--bad)">مشاكل: ${esc(a.bad)}</div>` : '') + (a.ex ? `<div class="hint">آخر إغلاق: ${esc(a.ex)}</div>` : '');
   };
   const guardLine = u => { const x = S.users[u]; if (!(x.birthYear && isMinor(x.birthYear))) return ''; const g = Object.values(S.guardians[u] || {}); return `<div class="hint">أولياء الأمور: ${g.length ? esc(g.join('، ')) : 'لا أحد'}</div>`; };
-  $('adm-members').innerHTML = reqHtml + verCard + (ids.length ? ids.map(u => {
+  const modeCard = `<div class="card"><label class="sw-row"><span><b>عرض كل الأعضاء على الخريطة</b><br><span class="hint">للإشراف فقط. افتراضياً تظهر لك الخريطة أصدقاءك المتصلين فقط.</span></span><span class="switch"><input type="checkbox" data-adm-all ${S.adminAll ? 'checked' : ''} aria-label="عرض كل الأعضاء على الخريطة"><span></span></span></label></div>`;
+  $('adm-members').innerHTML = modeCard + reqHtml + verCard + (ids.length ? ids.map(u => {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name, waiting = x.status === 'pending' || x.status === 'limited';
     const badge = x.status === 'limited' ? '<span class="badge warn">قيد الاعتماد</span>' : x.status === 'pending' ? '<span class="badge warn">بانتظار الموافقة</span>' : x.status === 'approved' ? '<span class="badge ok">مفعّل</span>' : '<span class="badge bad">معطّل</span>';
     const role = x.role === 'admin' ? ' <span class="badge">مشرف</span>' : '';
@@ -2023,6 +2119,7 @@ const ACTIONS = {
     const c = { [`nick/${S.uid}/${id}`]: null, [`hide/${S.uid}/${id}`]: null, [`follow/${S.uid}/${id}`]: null, [`sosInbox/${id}/${S.uid}`]: null, [`sosInbox/${S.uid}/${id}`]: null };
     for (const [pid, p] of Object.entries(S.places || {})) if (p.fr && p.fr[id]) c[`places/${S.uid}/${pid}/fr/${id}`] = null;
     try { await update(ref(db), c); } catch {}
+    $('modal-pmore').hidden = true; if (S.person === id) closePerson();
     toast('أُزيل الاتصال');
   },
   'ask-contacts': () => {
@@ -2059,8 +2156,27 @@ const ACTIONS = {
   },
   'home-edit': () => { const hs = S.homeSug; if (hs) askPlace(hs.res.lat, hs.res.lng, ('بيت ' + dispName(hs.id)).slice(0, 40), hs.id); },
   'home-no': () => { const hs = S.homeSug; if (!hs) return; try { localStorage.setItem('mk_home_off_' + hs.id, '1'); } catch {} S.homeSug = null; renderPerson(); toast('لن يُعرض هذا الاقتراح لهذا الصديق'); },
+  'friends-open': () => openFriends(),
+  'req-open': () => openFriends(),
+  'pm-close': () => { $('modal-pmore').hidden = true; },
+  'p-more': () => {
+    const id = S.person; if (!id || id === S.uid) return;
+    $('pm-title').textContent = dispName(id);
+    const sw = S.minor ? '' : `<label class="sw-row st"><span>إخفاء موقعي عنه</span><span class="switch"><input type="checkbox" data-hide="${esc(id)}" ${S.hides[id] ? 'checked' : ''} aria-label="إخفاء موقعي عنه"><span></span></span></label>`;
+    $('pm-body').innerHTML = `<button class="btn" data-act="nick" data-id="${esc(id)}">اسم مستعار</button>${sw}<button class="btn danger" data-act="unlink" data-id="${esc(id)}">إزالة الاتصال</button>`;
+    $('modal-pmore').hidden = false;
+  },
   'p-report': () => { const id = S.person; if (id) openReport('day', null, id === S.uid ? null : id); },
-  'p-places': () => { setTab('me'); setTimeout(() => { const el = $('places-card'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); },
+  'fp-close': () => { FP.tok++; $('modal-fplaces').hidden = true; },
+  'fp-pick': () => { const id = FP.id; if (!id) return; FP.tok++; $('modal-fplaces').hidden = true; startPick(id); },
+  'fp-add': async i => {
+    const it = FP.items[+i], id = FP.id; if (!it || !id) return;
+    if (Object.keys(S.places).length >= 10) return toast('الحد الأقصى 10 أماكن. احذف مكاناً أولاً.');
+    try { await set(ref(db, `places/${S.uid}/${newCode().slice(0, 6).toLowerCase()}`), { name: String(it.label ? ('بيت ' + dispName(id)) : (it.name || ('مكان ' + dispName(id)))).slice(0, 40), lat: +it.lat.toFixed(5), lng: +it.lng.toFixed(5), r: 150, on: true, fr: { [id]: true } }); toast('تم. سيصلك تنبيه عند وصول ' + dispName(id) + ' إلى هذا المكان أو مغادرته.'); renderFpMine(); fillFpActions(); }
+    catch { toast('تعذر الحفظ'); }
+  },
+  'note-x': () => { S.noteOff = $('note-bar').dataset.k; $('note-bar').hidden = true; },
+  'p-places': () => { if (S.person && S.person !== S.uid) return openFriendPlaces(S.person); setTab('me'); setTimeout(() => { const el = $('places-card'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); },
   'rpt-heat-who': id => { const s = new Set(RPT.heatWho || [rptWho()]); if (s.has(id)) { if (s.size > 1) s.delete(id); } else s.add(id); RPT.heatWho = [...s]; renderReport(); },
   'rpt-heat-range': id => { RPT.heatDays = Number(id) === 30 ? 30 : 7; renderReport(); },
   'guard-edit': id => {
@@ -2104,7 +2220,7 @@ const ACTIONS = {
   'pl-add': () => startPick(),
   'pl-del': async id => { if (await ask('حذف هذا المكان؟', 'حذف')) await remove(ref(db, `places/${S.uid}/${id}`)); },
   'pick-cancel': () => endPick(),
-  'pick-me': () => { const l = S.locs[S.uid]; if (l && typeof l.lat === 'number') askPlace(l.lat, l.lng); else toast('لم يصل موقعك بعد'); },
+  'pick-me': () => { const src = S.pickFriend || S.uid, l = S.locs[src]; if (l && typeof l.lat === 'number') askPlace(l.lat, l.lng, '', S.pickFriend); else toast(S.pickFriend ? 'لم يصل موقعه بعد' : 'لم يصل موقعك بعد'); },
   nick: id => openNick(id),
   'photo-pick': () => $('photo-file').click(),
   'photo-del': async () => { await update(ref(db), { ['directory/' + S.uid + '/photo']: null }); toast('أُزيلت الصورة'); },
@@ -2249,7 +2365,6 @@ const setHideAll = async (on, el) => {
   try { await update(ref(db), { ['hideAll/' + S.uid]: on ? true : null }); toast(on ? 'موقعك مخفي عن الجميع الآن' : 'عاد موقعك ظاهراً لمن لم تخفِه عنهم'); }
   catch { toast('تعذر التنفيذ'); el.checked = !on; }
 };
-$('hide-all').onchange = e => setHideAll(e.target.checked, e.target);
 $('pv-hide-all').onchange = e => setHideAll(e.target.checked, e.target);
 const setFlag = async (path, on, el, okOn, okOff) => {
   try { await update(ref(db), { [path]: on ? true : null }); toast(on ? okOn : okOff); }
@@ -2372,8 +2487,13 @@ function drawPlaces() {
   }
 }
 let placeAt = null, placeFriend = null, guardFor = null;
-function startPick() { setTab('map'); S.pickPlace = true; $('pick-bar').hidden = false; }
-function endPick() { S.pickPlace = false; $('pick-bar').hidden = true; }
+function startPick(friend = null) {
+  setTab('map'); S.pickPlace = true; S.pickFriend = friend;
+  $('pick-bar-t').textContent = friend ? 'اضغط على الخريطة لتحديد مكان تريد تنبيهك عند وصول ' + dispName(friend) + ' إليه' : 'اضغط على الخريطة لتحديد المكان';
+  document.querySelector('#pick-bar [data-act=pick-me]').textContent = friend ? 'موقعه الآن' : 'موقعي';
+  $('pick-bar').hidden = false;
+}
+function endPick() { S.pickPlace = false; S.pickFriend = null; $('pick-bar').hidden = true; }
 function askPlace(la, ln, name = '', friend = null) { placeAt = { la, ln }; placeFriend = friend; $('pl-name').value = name; $('pl-r').value = '200'; $('modal-place').hidden = false; }
 $('pl-no').onclick = () => { $('modal-place').hidden = true; };
 $('pl-ok').onclick = async () => {
@@ -2389,11 +2509,11 @@ document.addEventListener('change', ev => {
   const t = ev.target; if (!t.matches) return;
   if (t.matches('[data-pl-fr]')) {
     const [pid, f] = t.dataset.plFr.split('|');
-    update(ref(db), { [`places/${S.uid}/${pid}/fr/${f}`]: t.checked ? true : null }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
+    update(ref(db), { [`places/${S.uid}/${pid}/fr/${f}`]: t.checked ? true : null }).then(() => { if (!$('modal-fplaces').hidden) { renderFpMine(); fillFpActions(); } }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
   } else if (t.matches('[data-adm-all]')) {
     S.adminAll = t.checked; try { localStorage.setItem('mk_admin_all', t.checked ? '1' : '0'); } catch {}
     if (S.person && !visibleIds().includes(S.person)) closePerson();
-    renderMap(); renderSheet(); if (S.tab === 'people') renderPeople();
+    renderMap(); renderSheet(); if (S.tab === 'me') renderPeople();
   } else if (t.matches('[data-follow]')) {
     update(ref(db), { [`follow/${S.uid}/${t.dataset.follow}`]: t.checked ? true : null }).catch(() => { toast('تعذر التنفيذ'); t.checked = !t.checked; });
   }
@@ -2424,7 +2544,8 @@ $('photo-file').onchange = async e => {
   try { const url = await makeThumb(f); await update(ref(db), { ['directory/' + S.uid + '/photo']: url }); toast('تم حفظ الصورة'); }
   catch { toast('تعذر معالجة الصورة'); }
 };
-function renderMePhoto() { const d = S.dir[S.uid] || {}; $('me-av').textContent = d.photo ? '' : initial(d.name || S.me?.name); $('me-av').style.cssText = avStyle(d); }
+$('me-bike').onchange = async e => { try { await update(ref(db), { ['directory/' + S.uid + '/bike']: e.target.checked ? true : null }); toast(e.target.checked ? 'سيظهر رمز الدراجة لرحلاتك البطيئة' : 'لن يُصنَّف أي من رحلاتك دراجة'); } catch { toast('تعذر الحفظ'); e.target.checked = !e.target.checked; } };
+function renderMePhoto() { if ($('me-bike')) $('me-bike').checked = bikeOf(S.uid); const d = S.dir[S.uid] || {}; $('me-av').textContent = d.photo ? '' : initial(d.name || S.me?.name); $('me-av').style.cssText = avStyle(d); }
 
 /* ---------- استغاثة SOS ---------- */
 let sosCd = null;
@@ -2511,6 +2632,8 @@ function mapTap() {
 window.__back = () => {
   const vis = id => { const e = $(id); return !!e && !e.hidden; };
   if (vis('modal-text')) { $('tx-no').click(); return true; }
+  if (vis('modal-fplaces')) { FP.tok++; $('modal-fplaces').hidden = true; return true; }
+  if (vis('modal-pmore')) { $('modal-pmore').hidden = true; return true; }
   if (vis('modal-place')) { $('pl-no').click(); return true; }
   if (vis('modal-nick')) { $('nick-no').click(); return true; }
   if (vis('modal-phone')) { $('ph-no').click(); return true; }
@@ -2610,12 +2733,23 @@ $('ph-ok').onclick = async () => {
 
 /* ---------- اكتشاف بيت الصديق: مبيت في المكان نفسه 3 ليالٍ من آخر 7 ---------- */
 const HOME_NIGHTS = 3, HOME_MIN_S = 3 * 3600;
+const SNAP = new Map();
+async function getSnaps(id, days) {
+  const today = dayKey(Date.now());
+  return Promise.all(days.map(async d => {
+    const k = id + '|' + d, c = SNAP.get(k);
+    if (c && d !== today && Date.now() - c.at < 600e3) return { val: () => c.v };
+    const s = await get(ref(db, `history/${id}/${d}`)), v = s.val();
+    SNAP.set(k, { at: Date.now(), v });
+    return { val: () => v };
+  }));
+}
 async function detectHome(id) {
   const today = dayKey(Date.now());
   const days = Array.from({ length: 8 }, (_, i) => shiftDayKey(today, -(7 - i)));
   const stays = [];
   try {
-    const snaps = await Promise.all(days.map(d => get(ref(db, `history/${id}/${d}`))));
+    const snaps = await getSnaps(id, days);
     for (const s of snaps) for (const p of Object.values(s.val() || {})) {
       if (p && typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number') stays.push({ lat: p.lat, lng: p.lng, a: p.ts, b: p.ets && p.ets > p.ts ? p.ets : p.ts });
     }
@@ -2654,6 +2788,55 @@ async function loadHomeSuggestion(id) {
   const near = Object.entries(S.places || {}).find(([, p]) => typeof p.lat === 'number' && haversine({ lat: res.lat, lng: res.lng }, p) <= 150);
   if (near && near[1].fr && near[1].fr[id]) return;                    // التنبيه مفعّل أصلاً
   S.homeSug = { id, res, pid: near ? near[0] : null, pname: near ? near[1].name : null }; renderPerson();
+}
+
+/* ---------- أماكن الصديق: تنبيهاتي له وأماكنه المتكررة ---------- */
+const FP = { id: null, items: [], tok: 0 };
+function renderFpMine() {
+  const id = FP.id; if (!id) return;
+  const ids = Object.keys(S.places || {});
+  $('fp-mine').innerHTML = ids.length ? ids.map(pid => { const p = S.places[pid]; return `<label class="sw-row st"><span>${esc(p.name)} <small class="hint">(${esc(p.r)} م)</small></span><span class="switch"><input type="checkbox" data-pl-fr="${esc(pid)}|${esc(id)}" ${p.fr && p.fr[id] ? 'checked' : ''} aria-label="نبّهني"><span></span></span></label>`; }).join('') : '<p class="hint">لا توجد أماكن محفوظة بعد. أضف مكاناً لتنبيهه.</p>';
+}
+async function openFriendPlaces(id) {
+  FP.id = id; FP.items = []; const tok = ++FP.tok;
+  $('fp-title').textContent = 'أماكن ' + dispName(id);
+  renderFpMine();
+  $('fp-his').innerHTML = '<p class="hint">جارٍ تحليل وقفاته...</p>';
+  $('modal-fplaces').hidden = false;
+  const today = dayKey(Date.now()), days = Array.from({ length: 8 }, (_, i) => shiftDayKey(today, -(7 - i)));
+  let rows = null;
+  try {
+    const snaps = await getSnaps(id, days);
+    rows = days.map((d, i) => {
+      const pts = cleanPts(Object.values(snaps[i].val() || {}).filter(p => p && typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts));
+      const stops = pts.length ? analyzeDay(pts, bikeOf(id)).items.filter(it => it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3).map(it => ({ la: it.lat, ln: it.lng, m: Math.round((it.t1 - it.t0) / 60e3) })) : [];
+      return { d, s: { stops } };
+    });
+  } catch {
+    try { const m = await ensureSummaries(id, days, { compute: false, write: false }); rows = days.map(d => ({ d, s: m[d] || { stops: [] } })); } catch { rows = null; }
+  }
+  if (tok !== FP.tok) return;
+  if (!rows || !rows.some(r => r.s.stops.length)) { $('fp-his').innerHTML = '<p class="hint">لا أستطيع رؤية وقفاته: إما أنه أخفى سجله أو لم تتوفر وقفات طويلة بعد.</p>'; return; }
+  const cl = clusterStops(rows).sort((a, b) => b.mins - a.mins).slice(0, 5);
+  const home = await detectHome(id).catch(() => null), items = [];
+  if (home && typeof home.lat === 'number') items.push({ lat: home.lat, lng: home.lng, label: 'بيته المحتمل', sub: `بات فيه ${home.nights} ليالٍ من آخر 7` });
+  for (const c of cl) if (!items.some(x => haversine(x, c) <= 150)) items.push({ lat: c.lat, lng: c.lng, label: '', sub: `${c.days.size} أيام · ${fmtDur(c.mins * 60e3)}` });
+  FP.items = items;
+  $('fp-his').innerHTML = items.map((it, i) => `<div class="row"><div class="grow"><div class="nm" id="fp-n-${i}">${esc(it.label || 'مكان')}</div><div class="st">${esc(it.sub)}</div></div><span id="fp-a-${i}"></span></div>`).join('');
+  fillFpActions();
+  for (let i = 0; i < items.length; i++) {
+    if (tok !== FP.tok) return;
+    const nm = await nameAt(items[i].lat, items[i].lng); items[i].name = nm;
+    const el = $('fp-n-' + i); if (el && nm) el.textContent = (items[i].label ? items[i].label + ': ' : '') + nm;
+  }
+}
+function fillFpActions() {
+  const id = FP.id; if (!id) return;
+  FP.items.forEach((it, i) => {
+    const el = $('fp-a-' + i); if (!el) return;
+    const near = Object.entries(S.places || {}).find(([, p]) => typeof p.lat === 'number' && haversine({ lat: it.lat, lng: it.lng }, p) <= 150);
+    el.innerHTML = near ? `<span class="switch"><input type="checkbox" data-pl-fr="${esc(near[0])}|${esc(id)}" ${near[1].fr && near[1].fr[id] ? 'checked' : ''} aria-label="نبّهني"><span></span></span>` : `<button class="btn sm" data-act="fp-add" data-id="${i}">نبّهني عند وصوله</button>`;
+  });
 }
 
 /* ---------- أسباب الانقطاع ---------- */
@@ -2727,14 +2910,14 @@ const km1 = m => (m / 1000).toFixed(1);
 
 async function fetchDayPts(uid, day) {
   const obj = (await get(ref(db, `history/${uid}/${day}`))).val() || {};
-  return Object.values(obj).filter(p => p && typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts);
+  return cleanPts(Object.values(obj).filter(p => p && typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts));
 }
 async function fetchDayGaps(uid, day) {
   try { return Object.values((await get(ref(db, `gaps/${uid}/${day}`))).val() || {}).filter(g => g && typeof g.from === 'number' && typeof g.to === 'number'); } catch { return []; }
 }
 /* ملخص يوم واحد من نقاط السجل (الخوارزمية نفسها المستعملة في السجل) */
-function summarize(pts, gaps, thr) {
-  const an = analyzeDay(pts);
+function summarize(pts, gaps, thr, bikeOn) {
+  const an = analyzeDay(pts, !!bikeOn);
   const trips = an.items.filter(i => i.type === 'trip'), stops = an.items.filter(i => i.type === 'stop');
   const by = { car: { d: 0, ms: 0 }, bike: { d: 0, ms: 0 }, walk: { d: 0, ms: 0 } };
   let longest = 0;
@@ -2742,7 +2925,7 @@ function summarize(pts, gaps, thr) {
   let os = 0, osd = 0;
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], dt = (b.ts - (a.ets || a.ts)) / 1000, dd = haversine(a, b);
-    if (dt >= 3 && dt <= 120 && dd >= 30) { const v = dd / dt * 3.6; if (v < 220 && v > thr) { os += dt; osd += dd; } }
+    if (dt >= 3 && dt <= 120 && dd >= 30) { const v = dd / dt * 3.6; if (v < SPEED_CAP && v > thr) { os += dt; osd += dd; } }
   }
   const first = pts.length ? pts[0].ts : 0, lastP = pts[pts.length - 1], last = pts.length ? (lastP.ets || lastP.ts) : 0;
   let gapMs = 0; for (const g of gaps) gapMs += Math.max(0, Math.min(g.to, last) - Math.max(g.from, first));
@@ -2768,7 +2951,7 @@ async function ensureSummaries(uid, days, opt, onProgress) {
     if (onProgress) onProgress(++i, todo.length);
     const pts = await fetchDayPts(uid, d).catch(() => []);
     const gaps = pts.length ? await fetchDayGaps(uid, d) : [];
-    const s = summarize(pts, gaps, rptThr()); out[d] = s;
+    const s = summarize(pts, gaps, rptThr(), bikeOf(uid)); out[d] = s;
     if (opt.write && d < today) { try { await set(ref(db, `reports/${uid}/${d}`), packSum(s)); } catch {} }
   }
   return out;
@@ -2859,7 +3042,7 @@ async function renderDay(tok, uid, own, full) {
   } else html += '<p class="hint">ملخص مشارَك بموافقة صاحبه، دون تفاصيل المسارات.</p>';
   html += '</div>';
   const items = s.an ? s.an.items : [];
-  const tripRows = items.map((it, idx) => it.type === 'trip' ? `<div class="row tap" data-act="rpt-trip" data-id="${idx}"><div class="grow"><div class="nm">${esc(MODE[it.mode])} · ${esc(fmtKm(it.dist))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))} · ${esc(fmtDur(it.dur))}</div><div class="st" id="rt-${idx}"></div></div></div>` : '').join('');
+  const tripRows = items.map((it, idx) => it.type === 'trip' ? `<div class="row tap" data-act="rpt-trip" data-id="${idx}"><div class="grow"><div class="nm">${ICON[it.mode]} ${esc(MODE[it.mode])} · ${esc(fmtKm(it.dist))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))} · ${esc(fmtDur(it.dur))}</div><div class="st" id="rt-${idx}"></div></div></div>` : '').join('');
   if (tripRows) html += `<div class="card"><b>المسارات التي سلكتها</b>${tripRows}<p class="hint">اضغط على مسار لعرضه على الخريطة.</p></div>`;
   const stopRows = items.map((it, idx) => (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) ? `<div class="row"><div class="grow"><div class="nm">وقفة ${esc(fmtDur(it.t1 - it.t0))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}</div><div class="st" id="rs-${idx}"></div></div></div>` : '').join('');
   if (stopRows) html += `<div class="card"><b>الوقفات الطويلة</b>${stopRows}</div>`;
@@ -3043,7 +3226,7 @@ function setTab(t) {
   S.tab = t;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const mapMode = t === 'map';
-  $('t-people').hidden = t !== 'people'; $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
+  $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
   applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode;
   if (!mapMode) { $('style-menu').hidden = true; endPick(); }
   if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
@@ -3055,7 +3238,7 @@ function renderAll() {
   renderPrivacy();
   migratePause();
   renderMap(); renderSheet(); updateBadge();
-  if (S.tab === 'people') renderPeople();
+  if (S.tab === 'me') renderPeople();
   if (S.tab === 'me') renderMe();
   if (S.tab === 'admin') { renderAdmin(); renderInvites(); }
 }
