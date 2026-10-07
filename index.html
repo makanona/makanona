@@ -3135,15 +3135,17 @@ function renderFollow() {
 }
 async function openReport(mode = 'day', day, who) {
   if (S.limited) return toast('التقارير تتفعل بعد اعتماد حسابك');
-  RPT.mode = mode; RPT.who = null; RPT.heatWho = null; RPT.day = day || dayKey(Date.now());
+  RPT.mode = mode; RPT.who = null; RPT.blocked = null; RPT.heatWho = null; RPT.day = day || dayKey(Date.now());
   $('v-report').hidden = false; $('rpt-day').max = dayKey(Date.now()); $('rpt-day').value = RPT.day; $('rpt-speed').value = rptThr();
   $('rpt-img').hidden = isNative; $('rpt-csv').hidden = isNative;
   try { localStorage.setItem('mk_rpt_seen_' + RPT.day, '1'); } catch {}
   $('rpt-bar').hidden = true;
   if (!who) renderReport();
+  else { $('rpt-title').textContent = 'تقرير ' + dispName(who); $('rpt-body').innerHTML = '<div class="card"><p class="hint">جارٍ التحميل...</p></div>'; }
   await loadShared(); fillWho(); renderFollow();
   if (who) {
-    if ([...$('rpt-who').options].some(o => o.value === who)) { RPT.who = who; $('rpt-who').value = who; } else toast('لم يشارك تقريره معك');
+    if ([...$('rpt-who').options].some(o => o.value === who)) { RPT.who = who; $('rpt-who').value = who; }
+    else RPT.blocked = who;                    // لم يشارك: لا نعرض تقريري مكانه
     renderReport();
   }
 }
@@ -3153,8 +3155,15 @@ function shiftRpt(dir) {
   RPT.day = nd > today ? today : nd; $('rpt-day').value = RPT.day; renderReport();
 }
 async function renderReport() {
-  const tok = ++RPT.token, uid = rptWho(), own = uid === S.uid, full = own || S.isAdmin;
   document.querySelectorAll('#rpt-seg button').forEach(b => b.classList.toggle('on', b.dataset.id === RPT.mode));
+  if (RPT.blocked && !RPT.who) {
+    const nm = dispName(RPT.blocked);
+    $('rpt-title').textContent = 'تقرير ' + nm; ++RPT.token;
+    if (RPT.heatMap) { try { RPT.heatMap.remove(); } catch {} RPT.heatMap = null; }
+    $('rpt-body').innerHTML = `<div class="card"><b>التقرير غير متوفر</b><p class="hint">لا توجد بيانات تقرير لعرضها حالياً.</p></div>`;
+    return;
+  }
+  const tok = ++RPT.token, uid = rptWho(), own = uid === S.uid, full = own || S.isAdmin;
   $('rpt-title').textContent = own ? 'تقريري' : 'تقرير ' + dispName(uid);
   $('rpt-body').innerHTML = '<div class="card"><p class="hint">جارٍ الحساب...</p></div>';
   if (RPT.heatMap) { try { RPT.heatMap.remove(); } catch {} RPT.heatMap = null; }
@@ -3168,7 +3177,7 @@ async function renderDay(tok, uid, own, full) {
   else s = (await ensureSummaries(uid, [day], { compute: false, write: false }))[day];
   if (tok !== RPT.token) return;
   RPT.last = { uid, day, s, mode: 'day' }; RPT.csv = '';
-  if (!s) { RPT.text = ''; body.innerHTML = '<div class="card"><p class="hint">لا يوجد ملخص محفوظ لهذا اليوم. يُنشأ كل ليلة من تطبيق صاحبه، ولا يظهر إن لم يشاركه.</p></div>'; return; }
+  if (!s) { RPT.text = ''; body.innerHTML = '<div class="card"><p class="hint">لا يوجد ملخص متوفر لهذا اليوم.</p></div>'; return; }
   const by = s.by, who = own ? '' : dispName(uid);
   if (s.total < 1 && !s.n) { RPT.text = ''; body.innerHTML = `<div class="card"><b>${esc(dayLabel(day))}</b><p class="hint">لا توجد حركة مسجلة في هذا اليوم.</p></div>`; return; }
   const box = (v, l) => `<div class="rbox"><b>${v}</b><span>${l}</span></div>`;
@@ -3329,7 +3338,7 @@ function rptCsv() {
 }
 $('st-notes').addEventListener('input', () => { $('st-notes-n').textContent = $('st-notes').value.length + ' / 1500'; });
 $('rpt-day').onchange = () => { const v = $('rpt-day').value, t = dayKey(Date.now()); if (!v) return; RPT.day = v > t ? t : v; renderReport(); };
-$('rpt-who').onchange = () => { const v = $('rpt-who').value; RPT.who = v === 'me' ? null : v; renderReport(); };
+$('rpt-who').onchange = () => { const v = $('rpt-who').value; RPT.who = v === 'me' ? null : v; RPT.blocked = null; renderReport(); };
 $('rpt-speed').onchange = async () => {
   const v = Number(toLatin($('rpt-speed').value)); if (!(v >= 60 && v <= 250)) return toast('من 60 إلى 250 كم/س');
   S.alerts = { ...(S.alerts || {}), rptSpeed: v };
