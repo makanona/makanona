@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>فحص مكاننا</title>
+<style>
+body{margin:0;background:#F4F1EA;color:#10272F;font-family:sans-serif;line-height:1.6;padding:16px}
+h1{font-size:22px;margin:0 0 4px}
+p{margin:4px 0 12px;color:#5d747d;font-size:14px}
+.r{background:#fff;border:1px solid #E1E8EB;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:15px}
+.ok{border-right:5px solid #2F8F6B}
+.no{border-right:5px solid #C0392B;background:#FBEAE8}
+.wt{border-right:5px solid #E8A33D}
+small{display:block;color:#5d747d;word-break:break-all}
+button{font-size:16px;font-weight:bold;border:0;border-radius:10px;padding:12px 18px;background:#E8A33D;color:#3A2500;margin-top:10px;width:100%}
+</style>
+</head>
+<body>
+<h1>فحص مكاننا</h1>
+<p>انتظر نحو 20 ثانية حتى تكتمل كل النتائج، ثم صوّر الشاشة بكاملها وأرسلها.</p>
+<div id="out"></div>
+<button id="cp">نسخ النتائج</button>
+<script>
+(function () {
+  var out = document.getElementById('out'), lines = [];
+  function add(state, title, note) {
+    var d = document.createElement('div');
+    d.className = 'r ' + state;
+    d.innerHTML = (state === 'ok' ? '✔ ' : state === 'no' ? '✘ ' : '… ') + title + (note ? '<small></small>' : '');
+    if (note) d.lastChild.textContent = note;
+    out.appendChild(d);
+    lines.push((state === 'ok' ? 'OK ' : state === 'no' ? 'FAIL ' : '.. ') + title + (note ? ' | ' + note : ''));
+    return d;
+  }
+  function set(d, state, title, note) {
+    d.className = 'r ' + state;
+    d.innerHTML = (state === 'ok' ? '✔ ' : '✘ ') + title + (note ? '<small></small>' : '');
+    if (note) d.lastChild.textContent = note;
+    lines.push((state === 'ok' ? 'OK ' : 'FAIL ') + title + (note ? ' | ' + note : ''));
+  }
+  function can(src) { try { new Function(src)(); return true; } catch (e) { return false; } }
+
+  add('wt', 'المتصفح', navigator.userAgent);
+  add(navigator.onLine === false ? 'no' : 'ok', 'الإنترنت: ' + (navigator.onLine === false ? 'غير متصل' : 'متصل'));
+  add('wt', 'الوقت والمنطقة', new Date().toString());
+
+  /* دعم لغة الكود */
+  add('noModule' in HTMLScriptElement.prototype ? 'ok' : 'no', 'وحدات JavaScript (module)', 'noModule: ' + ('noModule' in HTMLScriptElement.prototype));
+  add(can('var a={b:1}; return a?.b;') ? 'ok' : 'no', 'السلسلة الاختيارية ?.');
+  add(can('return "a-b".replaceAll("-", "+");') ? 'ok' : 'no', 'replaceAll');
+  add(can('try{}catch{}; return 1;') ? 'ok' : 'no', 'catch بدون متغير');
+  add(can('return (async function(){})() instanceof Promise;') ? 'ok' : 'no', 'async/await');
+  add(can('return typeof fetch==="function" && typeof Promise==="function";') ? 'ok' : 'no', 'fetch وPromise');
+  var ls = 'لا', ix = 'لا';
+  try { localStorage.setItem('t', '1'); localStorage.removeItem('t'); ls = 'نعم'; } catch (e) {}
+  try { ix = window.indexedDB ? 'نعم' : 'لا'; } catch (e) {}
+  add(ls === 'نعم' ? 'ok' : 'no', 'التخزين المحلي: ' + ls);
+  add(ix === 'نعم' ? 'ok' : 'no', 'IndexedDB: ' + ix);
+
+  /* تشغيل وحدة فعلاً */
+  var mt = add('wt', 'تشغيل وحدة module فعلياً...');
+  window.__modOk = false;
+  var ms = document.createElement('script'); ms.type = 'module'; ms.text = 'window.__modOk = true;';
+  document.head.appendChild(ms);
+  setTimeout(function () { set(mt, window.__modOk ? 'ok' : 'no', 'تشغيل وحدة module فعلياً'); }, 1500);
+
+  /* الوصول للشبكة */
+  function load(url, name, ms) {
+    var d = add('wt', 'الوصول إلى ' + name + '...');
+    var done = false, s = document.createElement('script');
+    var t = setTimeout(function () { if (!done) { done = true; set(d, 'no', name, 'انتهت المهلة بعد ' + (ms / 1000) + ' ث، قد تكون محجوبة'); } }, ms);
+    s.onload = function () { if (!done) { done = true; clearTimeout(t); set(d, 'ok', name); } };
+    s.onerror = function () { if (!done) { done = true; clearTimeout(t); set(d, 'no', name, 'فشل التحميل أو محجوب'); } };
+    s.src = url + (url.indexOf('?') < 0 ? '?x=' + Date.now() : '');
+    document.head.appendChild(s);
+  }
+  function ping(url, name, ms) {
+    var d = add('wt', 'الوصول إلى ' + name + '...');
+    var x = new XMLHttpRequest(), done = false;
+    var t = setTimeout(function () { if (!done) { done = true; try { x.abort(); } catch (e) {} set(d, 'no', name, 'انتهت المهلة'); } }, ms);
+    x.onload = function () { if (!done) { done = true; clearTimeout(t); set(d, x.status < 400 ? 'ok' : 'no', name, 'الحالة ' + x.status + '، الحجم ' + (x.responseText || '').length); } };
+    x.onerror = function () { if (!done) { done = true; clearTimeout(t); set(d, 'no', name, 'فشل الاتصال أو محجوب'); } };
+    x.open('GET', url + '?x=' + Date.now()); x.send();
+  }
+  setTimeout(function () {
+    ping('https://makanona.github.io/makanona/index.html', 'صفحة التطبيق (GitHub Pages)', 15000);
+    load('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js', 'مكتبة Firebase (gstatic)', 15000);
+    load('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', 'مكتبة الخريطة (cdnjs)', 15000);
+    ping('https://makanona-default-rtdb.europe-west1.firebasedatabase.app/publicConfig/apkUrl.json', 'قاعدة البيانات (Firebase)', 15000);
+  }, 400);
+
+  document.getElementById('cp').onclick = function () {
+    var t = lines.join('\n');
+    try { navigator.clipboard.writeText(t); this.textContent = 'تم النسخ'; }
+    catch (e) { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); this.textContent = 'تم النسخ'; } catch (x) {} }
+  };
+})();
+</script>
+</body>
+</html>
