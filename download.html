@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>تحميل مكاننا</title>
+<style>
+:root{--ink:#10272F;--ink2:#5d747d;--bg:#F4F1EA;--card:#fff;--amber:#E8A33D;--amber-ink:#3A2500;--line:#E1E8EB;--ok:#2F8F6B}
+@media (prefers-color-scheme:dark){:root{--bg:#0C1A20;--card:#14262E;--ink:#EAF1F3;--ink2:#9FB4BC;--line:#243B45;--amber-ink:#3A2500}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;line-height:1.7}
+main{max-width:520px;margin:0 auto;padding:28px 16px 40px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.pin{width:40px;height:40px;border-radius:12px;background:#10272F;display:grid;place-items:center}
+.pin svg{width:24px;height:24px;fill:var(--amber)}
+h1{font-size:26px;margin:0}
+.lead{color:var(--ink2);margin:4px 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.code{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.code b{font:700 28px/1 ui-monospace,Consolas,monospace;letter-spacing:4px;direction:ltr}
+button,.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 20px;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+.primary{background:var(--amber);color:var(--amber-ink);width:100%;font-size:18px;padding:15px}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);padding:8px 14px;font-size:14px}
+ol{margin:0;padding:0;list-style:none;counter-reset:s}
+li{counter-increment:s;display:flex;gap:12px;margin:0 0 14px}
+li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:700;font-size:14px;margin-top:2px}
+li p{margin:0}
+li small{color:var(--ink2);display:block}
+.note{color:var(--ink2);font-size:14px;margin:0}
+.warn{background:#F6D9D5;color:#7A2A20;border-radius:12px;padding:10px 12px;font-size:15px}
+a{color:inherit}
+.foot{text-align:center;color:var(--ink2);font-size:13px;margin-top:20px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">
+    <div class="pin" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg></div>
+    <h1>مكاننا</h1>
+  </div>
+  <p class="lead">تطبيق لمشاركة الموقع مع العائلة والأصدقاء. كل شخص يقرر من يراه.</p>
+
+  <div class="card" id="code-card" hidden>
+    <p class="note" style="margin-bottom:8px">كود دعوتك (يعمل مرة واحدة، ومدته 48 ساعة):</p>
+    <div class="code"><b id="code"></b><button class="ghost" id="copy">نسخ</button></div>
+  </div>
+
+  <div class="card">
+    <ol>
+      <li><p><b>حمّل التطبيق</b><small>يُحمَّل ملف بصيغة APK على هاتف أندرويد.</small></p></li>
+      <li><p><b>اسمح بالتثبيت</b><small>إن سأل الهاتف عن «تثبيت التطبيقات من هذا المصدر» فاسمح للمتصفح مرة واحدة، ثم ارجع واضغط «تثبيت».</small></p></li>
+      <li><p><b>افتح التطبيق وأنشئ حسابك</b><small>اختر «تسجيل جديد» واكتب الكود أعلاه في خانة الكود. تُضاف مباشرة إلى أصدقاء من دعاك.</small></p></li>
+    </ol>
+    <a class="btn primary" id="dl" href="#" rel="noopener" hidden>تحميل التطبيق</a>
+    <div class="warn" id="nodl" hidden>رابط التحميل غير جاهز بعد. اطلب الرابط من الشخص الذي دعاك.</div>
+  </div>
+
+  <p class="note">هذا الرابط للتحميل فقط من موقع التطبيق نفسه. لا نطلب منك كلمة سر هنا.</p>
+  <p class="foot"><a href="index.html" id="web">فتح النسخة على المتصفح</a> · <a href="privacy.html">سياسة الخصوصية</a></p>
+</main>
+<script>
+(function () {
+  var DB = "https://makanona-default-rtdb.europe-west1.firebasedatabase.app";
+  var p = new URLSearchParams(location.search);
+  var code = (p.get("c") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  var $ = function (id) { return document.getElementById(id); };
+  if (code) {
+    $("code").textContent = code;
+    $("code-card").hidden = false;
+    $("web").href = "index.html?code=" + encodeURIComponent(code);
+    $("copy").onclick = function () {
+      var done = function () { $("copy").textContent = "تم النسخ"; setTimeout(function () { $("copy").textContent = "نسخ"; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, function () {});
+      else { var t = document.createElement("textarea"); t.value = code; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (e) {} document.body.removeChild(t); }
+    };
+  }
+  fetch(DB + "/publicConfig/apkUrl.json").then(function (r) { return r.json(); }).then(function (u) {
+    if (typeof u === "string" && /^https:\/\//.test(u)) { $("dl").href = u; $("dl").hidden = false; }
+    else $("nodl").hidden = false;
+  }).catch(function () { $("nodl").hidden = false; });
+})();
+</script>
+</body>
+</html>
