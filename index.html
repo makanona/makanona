@@ -122,6 +122,8 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .mk-lbl{position:absolute;top:-2px;left:50%;transform:translateX(-50%);background:#fff;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 1px 5px #0004;display:flex;align-items:center;gap:5px;color:var(--ink)}
 .mk-lbl i{width:8px;height:8px;border-radius:50%;background:#2FBF9B;display:inline-block}
 .mk-lbl.old{color:var(--ink2)}.mk-lbl.off{color:var(--bad)}
+.mk-wn{position:absolute;left:41px;top:17px;width:20px;height:20px;border-radius:50%;background:#C4483B;color:#fff;font-weight:800;font-size:13px;line-height:20px;text-align:center;box-shadow:0 1px 4px #0006;z-index:2}
+.chav{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;margin-inline-end:6px;font-size:11px;font-weight:700;color:#fff;background-color:var(--c,#3A6EA5);background-size:cover;background-position:center;vertical-align:middle}
 .mk-cone{position:absolute;left:-10px;top:33px;width:80px;height:80px;pointer-events:none}
 .mb{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--mc);flex:none}
 .mb.car{--mc:#2F8F6B}.mb.walk{--mc:#3A6EA5}.mb.bike{--mc:#E8A33D}
@@ -464,7 +466,7 @@ window.APP_CONFIG = {
     </div>
     <div id="p-gap" class="hint" hidden style="margin:0 0 8px"></div>
     <div id="p-home" class="trip-card" hidden style="margin-bottom:8px"><b id="p-home-t"></b><span class="hint" id="p-home-s"></span><div class="acts"><button class="btn sm primary" data-act="home-yes">نعم، نبّهني</button><button class="btn sm" data-act="home-edit">تعديل المكان</button><button class="btn sm" data-act="home-no">لا تعرض مجدداً</button></div></div>
-    <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b>الموقع مطفأ في هاتفه</b><span class="hint">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
+    <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b id="p-off-t">الموقع مطفأ في هاتفه</b><span class="hint" id="p-off-s">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
     <div id="p-trip"></div>
   </div>
 
@@ -511,6 +513,14 @@ window.APP_CONFIG = {
       <div id="contacts-body"></div>
       <input id="ct-filter" placeholder="ابحث في جهات اتصالك لدعوتهم" hidden>
       <div id="contacts-invite"></div>
+    </div>
+<div class="card" id="finv-card" hidden>
+      <b>ادعُ شخصاً بكود</b>
+      <p class="hint">أنشئ كوداً وأرسله لمن تريد. يثبّت التطبيق وينشئ حسابه بالكود فيُضاف إلى أصدقائك مباشرة. الكود صالح 48 ساعة ويعمل مرة واحدة.</p>
+      <button class="btn primary" id="finv-new" data-act="finv-new">إنشاء كود دعوة</button>
+      <div id="finv-list"></div>
+      <b style="margin-top:10px;display:block">لدي كود من صديق</b>
+      <div class="inrow"><input id="finv-code" dir="ltr" placeholder="الكود" maxlength="12" autocapitalize="characters" autocomplete="off"><button class="btn primary" data-act="finv-redeem">إضافة</button></div>
     </div>
     </details>
     <details class="acc" id="acc-alerts" ><summary><span>التنبيهات</span><span class="badge warn" id="acc-alerts-b" hidden></span></summary>
@@ -636,6 +646,8 @@ window.APP_CONFIG = {
         <span class="hint" id="st-notes-n"></span>
         <div class="sw-row"><span>تحديث إلزامي (يمنع استخدام النسخ الأقدم)</span><label class="switch"><input type="checkbox" id="st-force" aria-label="تحديث إلزامي"><span></span></label></div>
         <p class="hint">بعد بناء نسخة جديدة: ارفع الـ APK، ضع رابطه أعلاه، واكتب رقم إصدارها هنا. يظهر شريط تحديث لكل من يملك نسخة أقدم.</p>
+        <b style="margin-top:6px">دعوات المستخدمين</b>
+        <div class="sw-row"><span>السماح للمستخدمين بدعوة أصدقائهم بكود (ينضمون مباشرة)</span><label class="switch"><input type="checkbox" id="st-userinv" aria-label="السماح بدعوات المستخدمين"><span></span></label></div>
         <b style="margin-top:6px">الإرسال بالإيميل</b>
         <div class="sw-row"><span>تفعيل الإرسال التلقائي</span><label class="switch"><input type="checkbox" id="st-mail-on" aria-label="تفعيل الإرسال التلقائي"><span></span></label></div>
         <label>رابط Apps Script (ينتهي بـ /exec)<input id="st-script" dir="ltr"></label>
@@ -821,7 +833,7 @@ const db = getDatabase(app);
 const isNative = !!window.AndroidBridge;
 const COLORS = ['#E8A33D', '#2F8F6B', '#C4483B', '#3A6EA5', '#8E5AA8', '#D2691E', '#2A9D9D', '#6B7A2F'];
 const PRUNE_DAYS = 45;
-const UI_VERSION = '22';
+const UI_VERSION = '23';
 window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: 'مشي', bike: 'دراجة', car: 'سيارة' };
 const DEFAULT_SUBJECT = 'دعوة للانضمام إلى ' + CFG.appName;
@@ -840,7 +852,7 @@ const S = {
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
-  noteOff: null, pickFriend: null, modeSt: {}, sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {},
+  noteOff: null, pickFriend: null, modeSt: {}, sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {}, myInv: {}, myInvInfo: {},
   adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
   gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false,
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
@@ -970,6 +982,9 @@ function setAuthMode(m) {
   $('auth-err').textContent = '';
 }
 $('auth-seg').onclick = e => { const b = e.target.closest('button'); if (b) setAuthMode(b.dataset.mode); };
+/* رابط الدعوة: index.html?code=XXXX يملأ خانة الكود ويفتح التسجيل الجديد */
+const URL_CODE = (new URLSearchParams(location.search).get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+if (URL_CODE) { $('in-code').value = URL_CODE; setAuthMode('signup'); }
 async function callScript(body) {
   const res = await fetch(PUB.scriptUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
   return await res.json();
@@ -1037,6 +1052,13 @@ async function signup(email, pass) {
           ['invites/' + code + '/usedBy']: uid
         });
         approved = true;
+        try {                                                          // كود صديق: طلب صداقة يقبله صاحب الكود تلقائياً
+          const inv = (await get(ref(db, 'invites/' + code))).val();
+          if (inv && inv.friend && inv.createdBy && inv.createdBy !== uid) {
+            await update(ref(db), friendReqUps(uid, inv.createdBy, name));
+            toast('تمت إضافتك إلى أصدقاء ' + (inv.byName || 'من دعاك'));
+          }
+        } catch {}
       } catch { toast('رمز الدعوة غير صالح أو منتهٍ. حسابك مفعّل مبدئياً بانتظار اعتماد المشرف.'); }
     }
     if (!approved) await set(ref(db, 'users/' + uid), { ...base, status: 'limited' });
@@ -1139,7 +1161,7 @@ function startMain() {
   ensureDirectory().then(() => (S.limited ? null : ensureIndex())).catch(console.error);
 
   if (!S.limited) {
-    S.unsubs.reqs = onValue(ref(db, 'requests/' + S.uid), s => { S.reqs = s.val() || {}; updateBadge(); if (S.tab === 'me') renderPeople(); }, e => console.error('reqs', e));
+    S.unsubs.reqs = onValue(ref(db, 'requests/' + S.uid), s => { S.reqs = s.val() || {}; updateBadge(); if (S.tab === 'me') renderPeople(); autoAcceptInvited(); }, e => console.error('reqs', e));
     S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; S.mineLoaded = true; syncWatch(); syncLocs(); renderAll(); }, e => console.error('links', e));
   }
   if (S.isAdmin) {
@@ -1172,7 +1194,8 @@ function startMain() {
     S.unsubs.histPriv = onValue(ref(db, 'histPrivate/' + S.uid), s => { S.histPriv = s.val() === true; renderPrivacy(); }, e => console.error('histPriv', e));
     S.unsubs.reportShare = onValue(ref(db, 'reportShare/' + S.uid), s => { S.reportShare = s.val() === true; renderPrivacy(); }, e => console.error('reportShare', e));
     S.unsubs.follow = onValue(ref(db, 'follow/' + S.uid), s => { S.follow = s.val() || {}; pushAlerts(); }, e => console.error('follow', e));
-    S.unsubs.kids = onValue(ref(db, 'guardianOf/' + S.uid), s => { S.kids = s.val() || {}; }, e => console.error('kids', e));
+    S.unsubs.kids = onValue(ref(db, 'guardianOf/' + S.uid), s => { S.kids = s.val() || {}; pushAlerts(); }, e => console.error('kids', e));
+    S.unsubs.myInv = onValue(ref(db, 'invitesBy/' + S.uid), s => { S.myInv = s.val() || {}; refreshMyInv(); autoAcceptInvited(); }, e => console.error('myInv', e));
     S.unsubs.myGuardians = onValue(ref(db, 'guardians/' + S.uid), s => { S.myGuardians = s.val() || {}; renderPrivacy(); }, e => console.error('myGuardians', e));
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
     S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); }, e => console.error('sosIn', e));
@@ -1190,7 +1213,7 @@ function stopMain() {
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
-  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {};
+  S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null;
 }
 function cleanup(all) {
@@ -1321,8 +1344,12 @@ function tripMode(seq, p90, bikeOn) {
 const bikeOf = id => (S.dir[id] || {}).bike === true;
 /* نوع الحركة الحي: لا ينزل من «سيارة» إلا بعد توقف نحو 3 دقائق، فلا تتحول سيارتك إلى دراجة في السوق */
 function liveMode(id, l) {
-  if (!l || typeof l.spd !== 'number' || typeof l.ts !== 'number' || Date.now() - l.ts > 180000 || l.off === true) return null;
+  if (!l || typeof l.spd !== 'number' || typeof l.ts !== 'number' || Date.now() - l.ts > 180000 || l.off === true || l.noperm === true) return null;
   const k = l.spd * 3.6; if (k > SPEED_CAP) return null;
+  if (typeof l.mode === 'string') {                 // الإصدار 2.1 من التطبيق يحدد النوع على الهاتف ويحتفظ به
+    if (l.mode === 'still' || k < 4) return null;
+    return { mode: l.mode === 'car' ? 'car' : l.mode === 'walk' ? 'walk' : (bikeOf(id) ? 'bike' : 'car'), kmh: Math.round(k) };
+  }
   const st = S.modeSt[id] || (S.modeSt[id] = { mode: null, slow: 0, ts: 0 });
   if (l.ts !== st.ts) {
     st.ts = l.ts;
@@ -1401,9 +1428,10 @@ function pinIcon(id, l) {
   const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = liveMode(id, l);
   const nm = id === S.uid ? 'أنا' : dispName(id);
   const sub = m ? `<small>${ICON[m.mode]}${m.kmh} كم/س</small>` : '';
-  const lbl = l.off === true ? '<span class="mk-lbl off">مطفأ</span>' : stale ? `<span class="mk-lbl old">قبل ${esc(ago(l.ts))}</span>` : '<span class="mk-lbl"><i></i>الآن</span>';
+  const bad = l.off === true || l.noperm === true;
+  const lbl = bad ? `<span class="mk-lbl off">${l.noperm === true ? 'بلا إذن' : 'مطفأ'}</span>` : stale ? `<span class="mk-lbl old">قبل ${esc(ago(l.ts))}</span>` : '<span class="mk-lbl"><i></i>الآن</span>';
   const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
-  const html = `<div class="mk${stale ? ' stale' : ''}">${cone}${lbl}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
+  const html = `<div class="mk${stale ? ' stale' : ''}">${cone}${lbl}${bad ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
   return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
 }
 function renderMap() {
@@ -1437,7 +1465,9 @@ function describe(id) {
   let txt, cls = '';
   if (id !== S.uid && !S.isAdmin && S.hidden[id]) return { txt: 'لا يشارك موقعه الآن', cls: 'off' };
   if (!l || typeof l.ts !== 'number') txt = 'لا توجد بيانات بعد';
-  else if (l.off === true) { cls = 'off'; txt = 'الموقع مطفأ في هاتفه'; }
+  else if (l.noperm === true) { cls = 'off'; txt = 'ألغى إذن الموقع للتطبيق، وآخر موقع قبل ' + ago(l.ts); }
+  else if (l.off === true) { cls = 'off'; txt = 'الموقع مطفأ في هاتفه، وآخر موقع قبل ' + ago(l.ts); }
+  else if (Date.now() - l.ts >= 180000 && typeof l.hb === 'number' && Date.now() - l.hb < 600000) { cls = 'off'; txt = 'هاتفه متصل لكن لا يصل موقعه (آخر موقع قبل ' + ago(l.ts) + ')'; }
   else if (Date.now() - l.ts < 180000) { cls = 'on'; txt = 'متصل الآن'; }
   else {
     cls = 'off'; txt = 'آخر ظهور قبل ' + ago(l.ts);
@@ -1451,10 +1481,10 @@ function renderSheet() {
   for (const id of ids) {
     const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), name = id === S.uid ? 'أنا' : dispName(id);
     if (ds.cls === 'on') online++;
-    const off = l && l.off === true;
+    const off = !!(l && (l.off === true || l.noperm === true));
     const lowBat = l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 15 && !l.chg;
     const stale = l && typeof l.ts === 'number' && Date.now() - l.ts > 30 * 60e3;
-    const warn = (off || lowBat || stale) ? `<span class="warn-ic" title="${off ? 'الموقع مطفأ في هاتفه' : lowBat ? 'بطارية ضعيفة' : 'انقطع تحديث موقعه'}">!</span>` : '';
+    const warn = (off || lowBat || stale) ? `<span class="warn-ic" title="${off ? (l.noperm === true ? 'ألغى إذن الموقع للتطبيق' : 'الموقع مطفأ في هاتفه') : lowBat ? 'بطارية ضعيفة' : 'انقطع تحديث موقعه'}">!</span>` : '';
     const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? `بطارية ${l.bat}%${l.chg ? ' ⚡' : ''}` : '';
     const ad = addrOf(id);
     rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${mvHtml(l, id)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
@@ -1496,7 +1526,12 @@ function renderPerson() {
   $('p-addr').textContent = addrOf(id);
   const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
-  $('p-off').hidden = !(l && l.off === true);
+  const offBad = !!(l && (l.off === true || l.noperm === true));
+  $('p-off').hidden = !offBad;
+  if (offBad) {
+    $('p-off-t').textContent = l.noperm === true ? 'ألغى إذن الموقع للتطبيق' : 'الموقع مطفأ في هاتفه';
+    $('p-off-s').textContent = l.noperm === true ? 'سُحب إذن الموقع من التطبيق في هاتفه، فلا يصلنا موقعه حتى يعيده. اطلب منه ذلك.' : 'خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.';
+  }
   const hs = S.homeSug;
   if (hs && hs.id === id) {
     $('p-home').hidden = false;
@@ -2016,7 +2051,7 @@ $('ed-ok').onclick = async () => {
 const newCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(8)); return Array.from(r, x => A[x % A.length]).join(''); };
 function inviteMsg(inv, code) {
   const s = S.settings;
-  return (s.body || DEFAULT_BODY).replaceAll('{name}', inv.note || '').replaceAll('{code}', code).replaceAll('{apk}', s.apkUrl || '(الرابط غير محدد بعد)').replaceAll('{app}', CFG.appName);
+  return (s.body || DEFAULT_BODY).replaceAll('{name}', inv.note || '').replaceAll('{code}', code).replaceAll('{apk}', landingUrl(code)).replaceAll('{app}', CFG.appName);
 }
 const mailReady = () => !!(S.settings.mailEnabled && S.settings.scriptUrl);
 function renderInvites() {
@@ -2052,8 +2087,76 @@ function fillSettings() {
   $('st-apk').value = s.apkUrl || ''; $('st-mail-on').checked = !!s.mailEnabled; $('st-script').value = s.scriptUrl || '';
   $('st-sender').value = s.senderName || CFG.appName; $('st-reply').value = s.replyTo || ''; $('st-from').value = s.fromAlias || '';
   $('st-subject').value = s.subject || DEFAULT_SUBJECT; $('st-body').value = s.body || DEFAULT_BODY;
+  $('st-userinv').checked = s.userInvites !== false;
   $('st-cemail').value = s.contactEmail || ''; $('st-cwa').value = s.contactWhatsapp || '';
   $('st-ver').value = s.version || ''; $('st-vname').value = s.vname || ''; $('st-notes').value = s.notes || ''; $('st-notes-n').textContent = ($('st-notes').value.length) + ' / 1500'; $('st-force').checked = !!s.force;
+}
+
+/* ---------- دعوة الأصدقاء بكود ---------- */
+const FINV_MS = 48 * 36e5, FINV_MAX = 5;
+const landingUrl = code => location.origin + location.pathname.replace(/[^/]*$/, '') + 'download.html?c=' + encodeURIComponent(code);
+const friendReqUps = (from, to, name) => ({ [`links/${from}/${to}`]: true, [`requests/${to}/${from}`]: { name: String(name || 'صديق').slice(0, 40), color: rnd(), ts: Date.now() } });
+function finvText(code) {
+  return `${S.me.name} يدعوك للانضمام إلى ${CFG.appName} لمشاركة الموقع مع العائلة والأصدقاء.\n١) حمّل التطبيق وثبّته من: ${landingUrl(code)}\n٢) اختر «تسجيل جديد» وأدخل كود الدعوة: ${code}\nالكود صالح 48 ساعة ويعمل مرة واحدة.`;
+}
+function shareOut(t) {
+  if (isNative && window.AndroidBridge && typeof window.AndroidBridge.shareText === 'function') window.AndroidBridge.shareText(t);
+  else if (navigator.share) navigator.share({ text: t }).catch(() => {});
+  else openExternal('https://wa.me/?text=' + encodeURIComponent(t));
+}
+async function refreshMyInv() {
+  const now = Date.now();
+  const codes = Object.keys(S.myInv || {}).filter(c => S.myInv[c].exp > now - 7 * 864e5);
+  await Promise.all(codes.map(async c => {
+    const cur = S.myInvInfo[c];
+    if (cur && (cur.used || cur.gone)) return;
+    try { const v = (await get(ref(db, 'invites/' + c))).val(); S.myInvInfo[c] = v || { gone: true }; } catch {}
+  }));
+  renderFinv();
+}
+function renderFinv() {
+  const card = $('finv-card'); if (!card) return;
+  card.hidden = !!S.limited || !S.me || S.me.status !== 'approved';
+  if (card.hidden) return;
+  const on = PUB.userInvites !== false, now = Date.now();
+  $('finv-new').hidden = !on;
+  const codes = Object.keys(S.myInv || {}).filter(c => S.myInv[c].exp > now - 7 * 864e5).sort((a, b) => (S.myInv[b].at || 0) - (S.myInv[a].at || 0));
+  $('finv-list').innerHTML = (on ? '' : '<p class="hint">الدعوة بالكود موقوفة حالياً من المشرف.</p>') + codes.map(c => {
+    const i = S.myInvInfo[c] || {}, exp = S.myInv[c].exp, used = !!i.used, expired = !used && !i.gone && exp < now;
+    const who = used && i.usedBy ? (S.dir[i.usedBy]?.name || '') : '';
+    const badge = i.gone ? '<span class="badge bad">محذوف</span>' : used ? `<span class="badge ok">استُخدم${who ? ' من ' + esc(who) : ''}</span>` : expired ? '<span class="badge bad">منتهٍ</span>' : `<span class="badge warn">صالح حتى ${esc(fmtDate(exp))} ${esc(fmtTime(exp))}</span>`;
+    const live = !used && !expired && !i.gone;
+    return `<div class="row"><div class="grow"><div class="code">${esc(c)}</div></div>${badge}</div><div class="acts">${live ? `<button class="btn sm acc" data-act="finv-share" data-id="${esc(c)}">مشاركة</button><button class="btn sm" data-act="finv-copy" data-id="${esc(c)}">نسخ</button>` : ''}<button class="btn sm danger" data-act="finv-del" data-id="${esc(c)}">حذف</button></div>`;
+  }).join('');
+  if (URL_CODE && !S.codeShown) { S.codeShown = true; $('finv-code').value = URL_CODE; $('acc-friends').open = true; toast('الكود ' + URL_CODE + ' جاهز. اضغط «إضافة» في «لدي كود من صديق».'); }
+}
+async function redeemCode(raw) {
+  const code = toLatin(raw).trim().toUpperCase();
+  if (!/^[A-Z0-9]{6,12}$/.test(code)) return toast('اكتب الكود كما وصلك');
+  let inv; try { inv = (await get(ref(db, 'invites/' + code))).val(); } catch { return toast('تعذر التحقق من الكود'); }
+  if (!inv || inv.used || !(inv.expires > Date.now()) || !inv.friend || !inv.createdBy) return toast('الكود غير صالح أو منتهٍ أو مستخدم');
+  if (inv.createdBy === S.uid) return toast('هذا كودك أنت. أرسله لغيرك.');
+  if (S.mine[inv.createdBy]) return toast('هذا الشخص في قائمتك أصلاً');
+  try { await update(ref(db), { ['invites/' + code + '/used']: true, ['invites/' + code + '/usedBy']: S.uid }); } catch { return toast('تعذر استخدام الكود'); }
+  try { await update(ref(db), friendReqUps(S.uid, inv.createdBy, S.dir[S.uid]?.name || S.me.name)); } catch { return toast('تعذر إرسال الطلب'); }
+  $('finv-code').value = '';
+  toast('أُرسل طلبك إلى ' + (inv.byName || 'صاحب الكود') + ' وسيُقبل تلقائياً عند فتحه التطبيق.');
+}
+/* صاحب الكود: من استخدم كودي وأرسل لي طلباً يُقبل تلقائياً */
+let autoBusy = false;
+async function autoAcceptInvited() {
+  if (autoBusy || !S.uid || !Object.keys(S.reqs || {}).length || !S.myInv) return;
+  autoBusy = true;
+  try {
+    for (const c of Object.keys(S.myInv)) {
+      let i = S.myInvInfo[c];
+      if (!i || !i.used) { try { i = (await get(ref(db, 'invites/' + c))).val() || { gone: true }; S.myInvInfo[c] = i; } catch { continue; } }
+      if (i.used && i.friend && i.createdBy === S.uid && i.usedBy && S.reqs[i.usedBy]) {
+        const who = i.usedBy, nm = S.reqs[who].name || 'صديق';
+        try { await update(ref(db), { [`links/${S.uid}/${who}`]: true, [`requests/${S.uid}/${who}`]: null }); toast('انضم ' + nm + ' بكودك وأُضيف إلى أصدقائك'); } catch {}
+      }
+    }
+  } finally { autoBusy = false; renderFinv(); }
 }
 
 /* ---------- الأوامر (تفويض النقرات) ---------- */
@@ -2102,6 +2205,21 @@ const ACTIONS = {
     toast('أُرسل الطلب. يظهر الشخص على خريطتك بعد موافقته.');
     if (S.srch && S.srch.uid === id) setTimeout(() => showSearch(S.srch), 700);
   },
+  'finv-new': async () => {
+    if (PUB.userInvites === false) return toast('الدعوة بالكود موقوفة من المشرف');
+    const now = Date.now(), active = Object.keys(S.myInv || {}).filter(c => S.myInv[c].exp > now && !(S.myInvInfo[c] && (S.myInvInfo[c].used || S.myInvInfo[c].gone)));
+    if (active.length >= FINV_MAX) return toast('لديك ' + FINV_MAX + ' أكواد فعّالة. احذف أحدها أو انتظر انتهاءها.');
+    const code = newCode(), exp = now + FINV_MS;
+    const inv = { createdBy: S.uid, createdAt: now, expires: exp, used: false, friend: true, byName: String(S.me.name || '').slice(0, 40) };
+    try { await update(ref(db), { ['invites/' + code]: inv, ['invitesBy/' + S.uid + '/' + code]: { exp, at: now } }); }
+    catch { return toast('تعذر إنشاء الكود. تأكد أن القواعد الجديدة منشورة.'); }
+    toast('أُنشئ الكود ' + code);
+    shareOut(finvText(code));
+  },
+  'finv-share': id => shareOut(finvText(id)),
+  'finv-copy': id => copy(finvText(id)),
+  'finv-del': async id => { if (await ask('حذف هذا الكود؟', 'حذف')) { try { await update(ref(db), { ['invites/' + id]: null, ['invitesBy/' + S.uid + '/' + id]: null }); delete S.myInvInfo[id]; } catch { toast('تعذر الحذف'); } } },
+  'finv-redeem': () => redeemCode($('finv-code').value),
   accept: async id => { await update(ref(db), { [`links/${S.uid}/${id}`]: true, [`requests/${S.uid}/${id}`]: null }); toast('تمت الموافقة'); },
   decline: async id => {
     try { await update(ref(db), { [`requests/${S.uid}/${id}`]: null, [`links/${id}/${S.uid}`]: null }); }
@@ -2321,8 +2439,9 @@ const ACTIONS = {
     const ver = Number(toLatin($('st-ver').value)) || 0, url = $('st-apk').value.trim(), notes = $('st-notes').value.replace(/\r\n/g, '\n').trim().slice(0, 1500), force = $('st-force').checked, vname = $('st-vname').value.trim().slice(0, 20);
     const settings = { apkUrl: url, version: ver, vname, notes, force, mailEnabled: $('st-mail-on').checked, scriptUrl: $('st-script').value.trim(), senderName: $('st-sender').value.trim(), replyTo: $('st-reply').value.trim(), fromAlias: $('st-from').value.trim(), subject: $('st-subject').value.trim(), body: $('st-body').value };
     const cEmail = $('st-cemail').value.trim(), cWa = $('st-cwa').value.replace(/\D/g, '');
-    settings.contactEmail = cEmail; settings.contactWhatsapp = cWa;
-    const ups = { 'settings/app': settings, publicConfig: { scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa } };
+    settings.contactEmail = cEmail; settings.contactWhatsapp = cWa; settings.userInvites = $('st-userinv').checked;
+    const ups = { 'settings/app': settings, publicConfig: { scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa, userInvites: settings.userInvites, ...(/^https:[/][/]/.test(url) && url.length <= 300 ? { apkUrl: url } : {}) } };
+    PUB.userInvites = settings.userInvites;
     if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname }; else ups['appUpdate'] = null;
     try { await update(ref(db), ups); }
     catch {
@@ -2437,6 +2556,7 @@ function alertsConfig() {
     sos: { on: a.sosOn !== false },
     report: { on: a.rptOn !== false, time: a.rptTime || '23:59' },
     digest,
+    guard: Object.keys(S.kids || {}).map(u => ({ u, n: S.nick?.[u] || S.dir[u]?.name || String(S.kids[u] || '').slice(0, 40) || 'ابنك' })),
     places: Object.entries(S.places || {}).map(([id, p]) => ({ id, name: p.name, lat: p.lat, lng: p.lng, r: p.r, on: p.on !== false, fr: Object.keys(p.fr || {}).filter(k => p.fr[k]) }))
   };
 }
@@ -2682,8 +2802,9 @@ async function deleteMyAccount(pass) {
   }
   await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pass));
   const ups = {}, limited = S.limited;
-  ups['users/' + uid] = null; ups['appInfo/' + uid] = null; ups['phoneReq/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null;
+  ups['users/' + uid] = null; ups['appInfo/' + uid] = null; ups['phoneReq/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null; ups['devState/' + uid] = null;
   if (!limited) {
+    for (const c of Object.keys(S.myInv || {})) { ups['invitesBy/' + uid + '/' + c] = null; if (S.myInvInfo[c] && !S.myInvInfo[c].gone) ups['invites/' + c] = null; }
     ups['alerts/' + uid] = null; ups['hideAll/' + uid] = null; ups['histPrivate/' + uid] = null; ups['reportShare/' + uid] = null;
     for (const f of Object.keys(S.follow)) ups[`follow/${uid}/${f}`] = null;
     for (const id of Object.keys(S.places)) ups[`places/${uid}/${id}`] = null;
@@ -2927,15 +3048,26 @@ function summarize(pts, gaps, thr, bikeOn) {
     const a = pts[i - 1], b = pts[i], dt = (b.ts - (a.ets || a.ts)) / 1000, dd = haversine(a, b);
     if (dt >= 3 && dt <= 120 && dd >= 30) { const v = dd / dt * 3.6; if (v < SPEED_CAP && v > thr) { os += dt; osd += dd; } }
   }
+  let hb = 0, ra = 0, sd = 0, lastHb = 0, lastRa = 0;              // فرملة حادة وتسارع سريع من سرعة GPS لكل نقطة (إصدار 2.1 فما فوق)
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    if (typeof a.spd !== 'number' || typeof b.spd !== 'number') continue;
+    sd++;
+    const dt = (b.ts - (a.ets || a.ts)) / 1000;
+    if (dt < 1 || dt > 10 || a.spd > 70 || b.spd > 70) continue;
+    const acc = (b.spd - a.spd) / dt;
+    if (acc <= -3 && a.spd >= 6 && b.ts - lastHb > 10e3) { hb++; lastHb = b.ts; }
+    else if (acc >= 3 && b.spd >= 6 && b.ts - lastRa > 10e3) { ra++; lastRa = b.ts; }
+  }
   const first = pts.length ? pts[0].ts : 0, lastP = pts[pts.length - 1], last = pts.length ? (lastP.ets || lastP.ts) : 0;
   let gapMs = 0; for (const g of gaps) gapMs += Math.max(0, Math.min(g.to, last) - Math.max(g.from, first));
   const cv = pts.length ? Math.max(0, Math.round((1 - gapMs / Math.max(1, last - first)) * 100)) : 100;
   const longStops = stops.filter(s => s.t1 - s.t0 >= 10 * 60e3).sort((a, b) => (b.t1 - b.t0) - (a.t1 - a.t0)).slice(0, 6);
-  return { total: by.car.d + by.bike.d + by.walk.d, by, n: trips.length, longest, vmax: an.vmax, first, last, os: Math.round(os / 60), osd: Math.round(osd), thr, cv, gapMs,
+  return { total: by.car.d + by.bike.d + by.walk.d, by, n: trips.length, longest, vmax: an.vmax, first, last, os: Math.round(os / 60), osd: Math.round(osd), thr, cv, gapMs, hb, ra, sd,
     stops: longStops.map(s => ({ la: +s.lat.toFixed(5), ln: +s.lng.toFixed(5), m: Math.round((s.t1 - s.t0) / 60e3) })), an };
 }
-const packSum = s => ({ d: Math.round(s.total), dr: Math.round(s.by.car.d), bk: Math.round(s.by.bike.d), wk: Math.round(s.by.walk.d), td: Math.round(s.by.car.ms / 60e3), tb: Math.round(s.by.bike.ms / 60e3), tw: Math.round(s.by.walk.ms / 60e3), n: s.n, mx: Math.min(400, Math.round(s.vmax)), f: s.first, l: s.last, lg: Math.round(s.longest), os: s.os, od: Math.min(3000000, s.osd || 0), th: s.thr || 120, cv: s.cv, c: Date.now(), ...(s.stops.length ? { st: Object.fromEntries(s.stops.map((x, i) => ['s' + i, x])) } : {}) });
-const unpackSum = r => ({ total: r.d || 0, by: { car: { d: r.dr || 0, ms: (r.td || 0) * 60e3 }, bike: { d: r.bk || 0, ms: (r.tb || 0) * 60e3 }, walk: { d: r.wk || 0, ms: (r.tw || 0) * 60e3 } }, n: r.n || 0, longest: r.lg || 0, vmax: r.mx || 0, first: r.f || 0, last: r.l || 0, os: r.os || 0, osd: typeof r.od === 'number' ? r.od : null, thr: r.th, cv: r.cv ?? 100, gapMs: 0, stops: Object.values(r.st || {}).map(x => ({ la: x.la, ln: x.ln, m: x.m })), packed: true });
+const packSum = s => ({ d: Math.round(s.total), dr: Math.round(s.by.car.d), bk: Math.round(s.by.bike.d), wk: Math.round(s.by.walk.d), td: Math.round(s.by.car.ms / 60e3), tb: Math.round(s.by.bike.ms / 60e3), tw: Math.round(s.by.walk.ms / 60e3), n: s.n, mx: Math.min(400, Math.round(s.vmax)), f: s.first, l: s.last, lg: Math.round(s.longest), os: s.os, od: Math.min(3000000, s.osd || 0), th: s.thr || 120, cv: s.cv, ...(s.sd > 0 ? { hb: Math.min(500, s.hb), ra: Math.min(500, s.ra) } : {}), c: Date.now(), ...(s.stops.length ? { st: Object.fromEntries(s.stops.map((x, i) => ['s' + i, x])) } : {}) });
+const unpackSum = r => ({ total: r.d || 0, by: { car: { d: r.dr || 0, ms: (r.td || 0) * 60e3 }, bike: { d: r.bk || 0, ms: (r.tb || 0) * 60e3 }, walk: { d: r.wk || 0, ms: (r.tw || 0) * 60e3 } }, n: r.n || 0, longest: r.lg || 0, vmax: r.mx || 0, first: r.f || 0, last: r.l || 0, os: r.os || 0, osd: typeof r.od === 'number' ? r.od : null, thr: r.th, cv: r.cv ?? 100, hb: typeof r.hb === 'number' ? r.hb : null, ra: typeof r.ra === 'number' ? r.ra : null, sd: typeof r.hb === 'number' ? 1 : 0, gapMs: 0, stops: Object.values(r.st || {}).map(x => ({ la: x.la, ln: x.ln, m: x.m })), packed: true });
 /* ملخصات عدة أيام: المحفوظ منها يُقرأ، والناقص يُحسب من السجل (لصاحبه أو المشرف) ويُحفظ لصاحبه */
 async function ensureSummaries(uid, days, opt, onProgress) {
   let stored = {}; try { stored = (await get(ref(db, 'reports/' + uid))).val() || {}; } catch {}
@@ -3038,6 +3170,7 @@ async function renderDay(tok, uid, own, full) {
     '<p class="hint" id="rpt-cmp"></p>';
   if (!s.packed) {
     html += `<p class="hint">${s.os > 0 ? 'فوق ' + thr + ' كم/س: ' + s.os + ' دقيقة تقريباً.' : 'لم تتجاوز ' + thr + ' كم/س.'}</p>`;
+    if (s.sd > 0) html += `<p class="hint">فرملة حادة: ${s.hb}، تسارع سريع: ${s.ra} (تقدير من سرعة GPS).</p>`;
     html += `<p class="hint">اكتمال البيانات ${s.cv}%${s.gapMs > 6e4 ? '، بسبب انقطاعات الإرسال: ' + esc(fmtDur(s.gapMs)) : ''}. المسافة تقدير من نقاط التتبع، وقد تقل عن عداد السيارة.</p>`;
   } else html += '<p class="hint">ملخص مشارَك بموافقة صاحبه، دون تفاصيل المسارات.</p>';
   html += '</div>';
@@ -3078,6 +3211,7 @@ async function renderDrive(tok, uid, own, full) {
   const trips = rows.reduce((a, r) => a + ((r.s && r.s.n) || 0), 0), vmax = Math.max(0, ...rows.map(r => (r.s && r.s.vmax) || 0));
   const drivingRows = rows.filter(r => r.s && r.s.by.car.d >= 1), known = drivingRows.every(r => typeof r.s.osd === 'number');
   const osd = drivingRows.reduce((a, r) => a + (typeof r.s.osd === 'number' ? r.s.osd : 0), 0);
+  const hbRows = rows.filter(r => r.s && r.s.sd > 0 && typeof r.s.hb === 'number'), hbSum = hbRows.reduce((a, r) => a + r.s.hb, 0), raSum = hbRows.reduce((a, r) => a + r.s.ra, 0);
   const pct = (totalDrive >= 1000 && known) ? Math.max(0, Math.min(100, Math.round((1 - Math.min(1, osd / totalDrive)) * 100))) : null;
   const R0 = 62, C0 = 2 * Math.PI * R0, col = pct === null ? '#9AA9B0' : pct >= 95 ? '#2F8F6B' : pct >= 85 ? '#E8A33D' : '#C4483B';
   const ring = `<svg class="ring" width="170" height="170" viewBox="0 0 170 170" role="img" aria-label="نسبة القيادة ضمن السرعة المحددة"><circle cx="85" cy="85" r="${R0}" fill="none" stroke="#E1E8EB" stroke-width="16"/>${pct === null ? '' : `<circle cx="85" cy="85" r="${R0}" fill="none" stroke="${col}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${(C0 * pct / 100).toFixed(1)} ${C0.toFixed(1)}" transform="rotate(-90 85 85)"/>`}<text x="85" y="90" text-anchor="middle" font-size="34" font-weight="800" fill="#10272F">${pct === null ? '—' : pct + '%'}</text><text x="85" y="114" text-anchor="middle" font-size="11" fill="#5d747d">ضمن السرعة المحددة</text></svg>`;
@@ -3089,14 +3223,15 @@ async function renderDrive(tok, uid, own, full) {
   const box = (v, l) => `<div class="rbox"><b>${v}</b><span>${l}</span></div>`;
   const wkEnd = dayLabel(end);
   let html = `<div class="card"><b>تقرير القيادة، 7 أيام حتى ${esc(wkEnd)}</b>${ring}<p class="hint" style="text-align:center;margin:0">${pct === null ? (totalDrive < 1000 ? 'لا قيادة كافية في هذه الفترة لحساب النسبة.' : 'تظهر النسبة بعد اكتمال تحليل أيام الأسبوع.') : 'نسبة المسافة التي قُطعت بسرعة أقل من ' + thr + ' كم/س من مسافة القيادة.'}</p><p class="hint" style="text-align:center">تقدير من نقاط التتبع، وليست درجة ولا حكماً على القيادة. يمكنك تغيير السرعة من أسفل الشاشة.</p></div>`;
-  html += `<div class="rgrid">${box(fmtKm(totalDrive), 'مسافة القيادة')}${box(driveMs ? fmtDur(driveMs) : '—', 'زمن القيادة')}${box(trips, 'عدد الرحلات')}${box(vmax >= 5 ? Math.round(vmax) + ' كم/س' : '—', 'أقصى سرعة تقريبية')}${box(known ? fmtKm(osd) : '—', 'مسافة فوق ' + thr + ' كم/س')}${box(drivingRows.length + ' من 7', 'أيام فيها قيادة')}</div>`;
+  html += `<div class="rgrid">${box(fmtKm(totalDrive), 'مسافة القيادة')}${box(driveMs ? fmtDur(driveMs) : '—', 'زمن القيادة')}${box(trips, 'عدد الرحلات')}${box(vmax >= 5 ? Math.round(vmax) + ' كم/س' : '—', 'أقصى سرعة تقريبية')}${box(known ? fmtKm(osd) : '—', 'مسافة فوق ' + thr + ' كم/س')}${box(drivingRows.length + ' من 7', 'أيام فيها قيادة')}${box(hbRows.length ? hbSum : '—', 'فرملة حادة')}${box(hbRows.length ? raSum : '—', 'تسارع سريع')}</div>`;
+  if (!hbRows.length) html += '<p class="hint">الفرملة الحادة والتسارع السريع تُحسب من سرعة GPS، وتظهر للأيام المسجّلة بإصدار التطبيق 2.1 فما فوق.</p>';
   html += bars('أقصى سرعة تقريبية (كم/س)', r => (r.s && r.s.vmax >= 5 ? Math.round(r.s.vmax) : null), v => String(v), r => (r.s && r.s.vmax > thr ? '#C4483B' : '#3A6EA5'));
   html += bars('مسافة القيادة (كم)', r => (r.s && r.s.by.car.d >= 1 ? r.s.by.car.d : null), v => km1(v), () => '#5B7691');
   html += bars('المسافة فوق ' + thr + ' كم/س (كم)', r => (r.s && r.s.by.car.d >= 1 ? (typeof r.s.osd === 'number' ? r.s.osd : null) : null), v => km1(v), () => '#D2691E');
   html += bars('عدد الرحلات', r => (r.s && r.s.n ? r.s.n : null), v => String(v), () => '#2F8F6B');
   body.innerHTML = html;
   RPT.last = { uid, mode: 'drive', rows };
-  RPT.text = [`تقرير قيادة مكاننا، 7 أيام حتى ${wkEnd}`, own ? '' : dispName(uid), `مسافة القيادة: ${km1(totalDrive)} كم، الرحلات: ${trips}`, vmax >= 5 ? `أقصى سرعة تقريبية: ${Math.round(vmax)} كم/س` : '', pct !== null ? `النسبة ضمن ${thr} كم/س: ${pct}%` : ''].filter(Boolean).join('\n');
+  RPT.text = [`تقرير قيادة مكاننا، 7 أيام حتى ${wkEnd}`, own ? '' : dispName(uid), `مسافة القيادة: ${km1(totalDrive)} كم، الرحلات: ${trips}`, vmax >= 5 ? `أقصى سرعة تقريبية: ${Math.round(vmax)} كم/س` : '', pct !== null ? `النسبة ضمن ${thr} كم/س: ${pct}%` : '', hbRows.length ? `فرملة حادة: ${hbSum}، تسارع سريع: ${raSum}` : ''].filter(Boolean).join('\n');
   RPT.csv = 'اليوم,قيادة كم,أقصى سرعة,فوق السرعة كم,رحلات\n' + rows.map(r => [r.d, km1(car(r)), (r.s && Math.round(r.s.vmax)) || 0, r.s && typeof r.s.osd === 'number' ? km1(r.s.osd) : '', (r.s && r.s.n) || 0].join(',')).join('\n');
 }
 const heatOptions = () => {
@@ -3118,7 +3253,7 @@ async function renderHeat(tok, uid, own, full) {
   const points = [];
   for (const u of sel) for (const d of days) { const s = data[u][d]; if (s) for (const st of (s.stops || [])) points.push({ u, la: st.la, ln: st.ln, m: st.m }); }
   const colorOf = u => (options.find(o => o.uid === u) || {}).color || '#3A6EA5';
-  const chips = options.map(o => `<button class="chipb ${sel.includes(o.uid) ? 'on' : ''}" style="--c:${esc(o.color)}" data-act="rpt-heat-who" data-id="${esc(o.uid)}">${esc(o.name)}</button>`).join('');
+  const chips = options.map(o => `<button class="chipb ${sel.includes(o.uid) ? 'on' : ''}" style="--c:${esc(o.color)}" data-act="rpt-heat-who" data-id="${esc(o.uid)}"><span class="chav" style="${avStyle(S.dir[o.uid] || {})}">${avText(S.dir[o.uid] || {})}</span>${esc(o.name)}</button>`).join('');
   const rangeBtns = [7, 30].map(k => `<button class="btn sm ${n === k ? 'primary' : ''}" data-act="rpt-heat-range" data-id="${k}">${k === 7 ? 'آخر 7 أيام' : 'آخر 30 يوماً'}</button>`).join(' ');
   const hours = sel.map(u => ({ u, h: points.filter(p => p.u === u).reduce((a, p) => a + p.m, 0) / 60 }));
   body.innerHTML = `<div class="card"><b>خريطة الحرارة حتى ${esc(dayLabel(end))}</b><p class="hint">أين قضى الوقت في وقفات 10 دقائق فأكثر (حتى 6 وقفات لكل يوم). كلما كان اللون أكثف زاد الوقت. لا تظهر الطرق التي يمر بها.</p><div class="chips">${chips}</div><div>${rangeBtns}</div>` +
