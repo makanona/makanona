@@ -1440,6 +1440,7 @@ function renderMap() {
   for (const id of visibleIds()) {
     const l = S.locs[id];
     if (!l || typeof l.lat !== 'number') continue;
+    if (S.histFor && id !== S.histFor) continue;                         // في السجل: دبوس صاحب السجل فقط
     keep.add(id);
     if (!S.markers[id]) { S.markers[id] = L.marker([l.lat, l.lng], { icon: pinIcon(id, l) }).addTo(S.map); S.markers[id].on('click', () => openPerson(id)); }
     else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(pinIcon(id, l)); }
@@ -1754,7 +1755,7 @@ function openHistory(id, day) {
   const today = dayKey(Date.now());
   $('h-day').max = today; $('h-day').min = dayKey(Date.now() - PRUNE_DAYS * 864e5); $('h-day').value = day || today;
   barSum('جارٍ التحميل...');
-  applyTabVisibility(); loadHistory();
+  renderMap(); applyTabVisibility(); loadHistory();
 }
 const barSum = t => { const n = $('h-name').textContent; $('hbar-sum').textContent = (n ? n + ': ' : '') + t; };
 /* الجزء الظاهر من الخريطة = ما بين الشريط العلوي واللوحة السفلية */
@@ -1777,7 +1778,7 @@ function setHState(s) {
 }
 function closeHistory() {
   S.histFor = null; S.hState = 'min'; S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null; S.hpts = [];
-  applyTabVisibility();
+  renderMap(); applyTabVisibility();
 }
 function shiftDay(delta) {
   const d = new Date($('h-day').value + 'T12:00:00'); d.setDate(d.getDate() + delta);
@@ -3243,7 +3244,7 @@ async function renderHeat(tok, uid, own, full) {
   const n = RPT.heatDays, end = RPT.day, body = $('rpt-body');
   const days = Array.from({ length: n }, (_, i) => shiftDayKey(end, -(n - 1 - i)));
   const options = heatOptions();
-  let sel = (RPT.heatWho && RPT.heatWho.length ? RPT.heatWho : [uid]).filter(u => options.some(o => o.uid === u)); if (!sel.length) sel = [S.uid];
+  let sel = (RPT.heatWho && RPT.heatWho.length ? RPT.heatWho : (uid === S.uid ? [uid] : [S.uid, uid])).filter(u => options.some(o => o.uid === u)); if (!sel.length) sel = [S.uid];
   RPT.heatWho = sel;
   const data = {};
   for (const u of sel) {
