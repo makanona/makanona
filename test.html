@@ -14,87 +14,163 @@ p{margin:4px 0 12px;color:#5d747d;font-size:14px}
 .no{border-right:5px solid #C0392B;background:#FBEAE8}
 .wt{border-right:5px solid #E8A33D}
 small{display:block;color:#5d747d;word-break:break-all}
-button{font-size:16px;font-weight:bold;border:0;border-radius:10px;padding:12px 18px;background:#E8A33D;color:#3A2500;margin-top:10px;width:100%}
+button,a.b{display:block;box-sizing:border-box;text-align:center;text-decoration:none;font-size:16px;font-weight:bold;border:0;border-radius:10px;padding:12px 18px;background:#E8A33D;color:#3A2500;margin-top:10px;width:100%}
+.sec{font-weight:bold;margin:16px 0 4px}
+#sum{font-weight:bold}
 </style>
 </head>
 <body>
 <h1>فحص مكاننا</h1>
-<p>انتظر نحو 20 ثانية حتى تكتمل كل النتائج، ثم صوّر الشاشة بكاملها وأرسلها.</p>
+<p>انتظر نحو 25 ثانية حتى تكتمل كل النتائج. تُرسل النتيجة للمشرف تلقائياً، ويمكنك أيضاً تصوير الشاشة.</p>
+<div class="r wt" id="sum">جارٍ الفحص...</div>
 <div id="out"></div>
 <button id="cp">نسخ النتائج</button>
+<a class="b" href="index.html" id="back" hidden>العودة إلى التطبيق</a>
 <script>
 (function () {
-  var out = document.getElementById('out'), lines = [];
-  function add(state, title, note) {
-    var d = document.createElement('div');
+  var DB = 'https://makanona-default-rtdb.europe-west1.firebasedatabase.app';
+  var API_KEY = 'AIzaSyD_8AtkuLyDRovVGhIiWiiBErpKVQXBrsc';
+  var out = document.getElementById('out'), lines = [], pending = 1, fails = 0, sent = false;
+  var inApp = /; wv\)/.test(navigator.userAgent) || !!window.AndroidBridge;
+  if (inApp) document.getElementById('back').hidden = false;
+
+  function sec(t) { var d = document.createElement('div'); d.className = 'sec'; d.textContent = t; out.appendChild(d); lines.push('== ' + t); }
+  function paint(d, state, title, note) {
     d.className = 'r ' + state;
-    d.innerHTML = (state === 'ok' ? '✔ ' : state === 'no' ? '✘ ' : '… ') + title + (note ? '<small></small>' : '');
+    d.innerHTML = (state === 'ok' ? '✔ ' : state === 'no' ? '✘ ' : '• ') + '<span></span>' + (note ? '<small></small>' : '');
+    d.firstElementChild.textContent = title;
     if (note) d.lastChild.textContent = note;
-    out.appendChild(d);
-    lines.push((state === 'ok' ? 'OK ' : state === 'no' ? 'FAIL ' : '.. ') + title + (note ? ' | ' + note : ''));
+  }
+  function add(state, title, note) {
+    var d = document.createElement('div'); paint(d, state, title, note); out.appendChild(d);
+    if (state !== 'wt' || note) lines.push((state === 'ok' ? 'OK ' : state === 'no' ? 'FAIL ' : 'INFO ') + title + (note ? ' | ' + note : ''));
+    if (state === 'no') fails++;
     return d;
   }
-  function set(d, state, title, note) {
-    d.className = 'r ' + state;
-    d.innerHTML = (state === 'ok' ? '✔ ' : '✘ ') + title + (note ? '<small></small>' : '');
-    if (note) d.lastChild.textContent = note;
-    lines.push((state === 'ok' ? 'OK ' : 'FAIL ') + title + (note ? ' | ' + note : ''));
+  /* فحص غير متزامن: يُنشئ سطراً «جارٍ» ثم يحدّثه مرة واحدة */
+  function job(title, ms, run) {
+    pending++;
+    var d = document.createElement('div'); paint(d, 'wt', title + '...'); out.appendChild(d);
+    var done = false;
+    function fin(ok, note) {
+      if (done) return; done = true; clearTimeout(t);
+      paint(d, ok ? 'ok' : 'no', title, note);
+      lines.push((ok ? 'OK ' : 'FAIL ') + title + (note ? ' | ' + note : ''));
+      if (!ok) fails++;
+      if (--pending === 0) finish();
+    }
+    var t = setTimeout(function () { fin(false, 'انتهت المهلة بعد ' + (ms / 1000) + ' ث، قد يكون محجوباً أو بطيئاً جداً'); }, ms);
+    try { run(fin); } catch (e) { fin(false, 'خطأ: ' + (e && e.message)); }
   }
   function can(src) { try { new Function(src)(); return true; } catch (e) { return false; } }
 
+  /* ===== الجهاز ===== */
+  sec('الجهاز');
+  add(inApp ? 'ok' : 'wt', 'مكان الفحص: ' + (inApp ? 'داخل التطبيق (WebView)' : 'في المتصفح'), inApp ? '' : 'لفحص محرك التطبيق نفسه افتح هذه الصفحة من زر «صفحة الفحص» داخل التطبيق');
   add('wt', 'المتصفح', navigator.userAgent);
+  try { if (window.AndroidBridge) add('wt', 'حالة التطبيق', window.AndroidBridge.status()); } catch (e) {}
   add(navigator.onLine === false ? 'no' : 'ok', 'الإنترنت: ' + (navigator.onLine === false ? 'غير متصل' : 'متصل'));
-  add('wt', 'الوقت والمنطقة', new Date().toString());
+  add('wt', 'الشاشة', screen.width + '×' + screen.height + ' بكثافة ' + (window.devicePixelRatio || 1));
+  try {
+    var cv = document.createElement('canvas'), gl = cv.getContext('webgl') || cv.getContext('experimental-webgl');
+    if (gl) { var ext = gl.getExtension('WEBGL_debug_renderer_info'); add('wt', 'كرت الشاشة', ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) + ' / ' + gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'غير معروف'); }
+    else add('wt', 'كرت الشاشة', 'WebGL غير متاح');
+  } catch (e) { add('wt', 'كرت الشاشة', 'تعذر القراءة'); }
 
-  /* دعم لغة الكود */
-  add('noModule' in HTMLScriptElement.prototype ? 'ok' : 'no', 'وحدات JavaScript (module)', 'noModule: ' + ('noModule' in HTMLScriptElement.prototype));
+  /* ===== دعم لغة الكود ===== */
+  sec('دعم الكود');
+  add('noModule' in HTMLScriptElement.prototype ? 'ok' : 'no', 'وحدات JavaScript (module)');
   add(can('var a={b:1}; return a?.b;') ? 'ok' : 'no', 'السلسلة الاختيارية ?.');
   add(can('return "a-b".replaceAll("-", "+");') ? 'ok' : 'no', 'replaceAll');
   add(can('try{}catch{}; return 1;') ? 'ok' : 'no', 'catch بدون متغير');
   add(can('return (async function(){})() instanceof Promise;') ? 'ok' : 'no', 'async/await');
   add(can('return typeof fetch==="function" && typeof Promise==="function";') ? 'ok' : 'no', 'fetch وPromise');
-  var ls = 'لا', ix = 'لا';
-  try { localStorage.setItem('t', '1'); localStorage.removeItem('t'); ls = 'نعم'; } catch (e) {}
-  try { ix = window.indexedDB ? 'نعم' : 'لا'; } catch (e) {}
-  add(ls === 'نعم' ? 'ok' : 'no', 'التخزين المحلي: ' + ls);
-  add(ix === 'نعم' ? 'ok' : 'no', 'IndexedDB: ' + ix);
+  var ls = false; try { localStorage.setItem('t', '1'); localStorage.removeItem('t'); ls = true; } catch (e) {}
+  add(ls ? 'ok' : 'no', 'التخزين المحلي');
 
-  /* تشغيل وحدة فعلاً */
-  var mt = add('wt', 'تشغيل وحدة module فعلياً...');
   window.__modOk = false;
-  var ms = document.createElement('script'); ms.type = 'module'; ms.text = 'window.__modOk = true;';
-  document.head.appendChild(ms);
-  setTimeout(function () { set(mt, window.__modOk ? 'ok' : 'no', 'تشغيل وحدة module فعلياً'); }, 1500);
+  job('تشغيل وحدة module فعلياً', 3000, function (fin) {
+    var ms = document.createElement('script'); ms.type = 'module'; ms.text = 'window.__modOk = true;';
+    document.head.appendChild(ms);
+    var i = setInterval(function () { if (window.__modOk) { clearInterval(i); fin(true); } }, 100);
+  });
+  job('فتح IndexedDB (حفظ الجلسة)', 6000, function (fin) {
+    if (!window.indexedDB) return fin(false, 'غير متوفر');
+    var r = indexedDB.open('mk_test_db', 1);
+    r.onupgradeneeded = function () { try { r.result.createObjectStore('s'); } catch (e) {} };
+    r.onsuccess = function () { try { r.result.close(); indexedDB.deleteDatabase('mk_test_db'); } catch (e) {} fin(true); };
+    r.onerror = function () { fin(false, 'خطأ: ' + (r.error && r.error.name)); };
+    r.onblocked = function () { fin(false, 'محجوز'); };
+  });
 
-  /* الوصول للشبكة */
-  function load(url, name, ms) {
-    var d = add('wt', 'الوصول إلى ' + name + '...');
-    var done = false, s = document.createElement('script');
-    var t = setTimeout(function () { if (!done) { done = true; set(d, 'no', name, 'انتهت المهلة بعد ' + (ms / 1000) + ' ث، قد تكون محجوبة'); } }, ms);
-    s.onload = function () { if (!done) { done = true; clearTimeout(t); set(d, 'ok', name); } };
-    s.onerror = function () { if (!done) { done = true; clearTimeout(t); set(d, 'no', name, 'فشل التحميل أو محجوب'); } };
-    s.src = url + (url.indexOf('?') < 0 ? '?x=' + Date.now() : '');
-    document.head.appendChild(s);
-  }
-  function ping(url, name, ms) {
-    var d = add('wt', 'الوصول إلى ' + name + '...');
-    var x = new XMLHttpRequest(), done = false;
-    var t = setTimeout(function () { if (!done) { done = true; try { x.abort(); } catch (e) {} set(d, 'no', name, 'انتهت المهلة'); } }, ms);
-    x.onload = function () { if (!done) { done = true; clearTimeout(t); set(d, x.status < 400 ? 'ok' : 'no', name, 'الحالة ' + x.status + '، الحجم ' + (x.responseText || '').length); } };
-    x.onerror = function () { if (!done) { done = true; clearTimeout(t); set(d, 'no', name, 'فشل الاتصال أو محجوب'); } };
-    x.open('GET', url + '?x=' + Date.now()); x.send();
-  }
+  /* ===== الشبكة ===== */
+  sec('الشبكة');
+  function script(url) { return function (fin) {
+    var s = document.createElement('script');
+    s.onload = function () { fin(true); }; s.onerror = function () { fin(false, 'فشل التحميل أو محجوب'); };
+    s.src = url + '?x=' + Date.now(); document.head.appendChild(s);
+  }; }
+  function img(url) { return function (fin) {
+    var i = new Image(); i.onload = function () { fin(true); }; i.onerror = function () { fin(false, 'فشل التحميل أو محجوب'); };
+    i.src = url + (url.indexOf('?') < 0 ? '?x=' : '&x=') + Date.now();
+  }; }
+  function xhr(method, url, body, anyStatus, after) { return function (fin) {
+    var x = new XMLHttpRequest();
+    x.onload = function () {
+      var ok = anyStatus ? x.status > 0 : x.status < 400;
+      if (after) after(x);
+      fin(ok, 'الحالة ' + x.status + '، الحجم ' + (x.responseText || '').length);
+    };
+    x.onerror = function () { fin(false, 'فشل الاتصال أو محجوب'); };
+    x.open(method, url + (url.indexOf('?') < 0 ? '?x=' : '&x=') + Date.now());
+    if (body) x.setRequestHeader('Content-Type', 'application/json');
+    x.send(body || null);
+  }; }
+
   setTimeout(function () {
-    ping('https://makanona.github.io/makanona/index.html', 'صفحة التطبيق (GitHub Pages)', 15000);
-    load('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js', 'مكتبة Firebase (gstatic)', 15000);
-    load('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', 'مكتبة الخريطة (cdnjs)', 15000);
-    ping('https://makanona-default-rtdb.europe-west1.firebasedatabase.app/publicConfig/apkUrl.json', 'قاعدة البيانات (Firebase)', 15000);
-  }, 400);
+    job('صفحة التطبيق (GitHub Pages)', 15000, xhr('GET', 'https://makanona.github.io/makanona/index.html', null, false, function (x) {
+      var d = Date.parse(x.getResponseHeader('Date') || '');
+      if (d) { var diff = Math.round((Date.now() - d) / 60000); add(Math.abs(diff) > 5 ? 'no' : 'ok', 'ساعة الهاتف: ' + (Math.abs(diff) <= 1 ? 'مضبوطة' : 'فرق ' + diff + ' دقيقة عن الخادم'), Math.abs(diff) > 5 ? 'صحّح التاريخ والوقت (تلقائي من الشبكة)' : ''); }
+    }));
+    job('مكتبة Firebase (gstatic)', 15000, script('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'));
+    job('مكتبة الخريطة (cdnjs)', 15000, script('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'));
+    job('قاعدة البيانات (طلب عادي)', 15000, xhr('GET', DB + '/publicConfig/apkUrl.json'));
+    job('قاعدة البيانات (اتصال حي WebSocket)', 15000, function (fin) {
+      var ws = new WebSocket('wss://makanona-default-rtdb.europe-west1.firebasedatabase.app/.ws?v=5&ns=makanona-default-rtdb');
+      ws.onmessage = function () { fin(true); try { ws.close(); } catch (e) {} };
+      ws.onerror = function () { fin(false, 'فشل الاتصال الحي أو محجوب'); };
+    });
+    job('خادم تسجيل الدخول (Google)', 15000, xhr('POST', 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' + API_KEY, '{"idToken":"x"}', true));
+    job('صور الخريطة العادية (OSM)', 15000, img('https://tile.openstreetmap.org/5/19/12.png'));
+    job('صور القمر الصناعي (Esri)', 15000, img('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/19'));
+    if (--pending === 0) finish();                 // كل الفحوص أُطلقت
+  }, 300);
+
+  function report() {
+    var text = lines.join('\n');
+    var u = null; try { u = localStorage.getItem('mk_script'); } catch (e) {}
+    function go(url) {
+      var body = JSON.stringify({ action: 'diag', kind: 'test', who: (function () { try { return localStorage.getItem('mk_last_email') || ''; } catch (e) { return ''; } })(), text: ('صفحة الفحص\n' + text).slice(0, 3000) });
+      try { if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=utf-8' }))) return; } catch (e) {}
+      try { fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body }); } catch (e) {}
+    }
+    if (u) return go(u);
+    var x = new XMLHttpRequest();
+    x.onload = function () { try { var v = JSON.parse(x.responseText); if (typeof v === 'string' && /^https:\/\//.test(v)) go(v); } catch (e) {} };
+    x.open('GET', DB + '/publicConfig/scriptUrl.json'); x.send();
+  }
+  function finish() {
+    var s = document.getElementById('sum');
+    s.className = 'r ' + (fails ? 'no' : 'ok');
+    s.textContent = fails ? 'اكتمل الفحص: ' + fails + ' مشكلة (بالأحمر)' : 'اكتمل الفحص: كل شيء سليم';
+    if (!sent) { sent = true; try { report(); } catch (e) {} }
+  }
 
   document.getElementById('cp').onclick = function () {
-    var t = lines.join('\n');
-    try { navigator.clipboard.writeText(t); this.textContent = 'تم النسخ'; }
-    catch (e) { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); this.textContent = 'تم النسخ'; } catch (x) {} }
+    var t = lines.join('\n'), b = this;
+    function ok() { b.textContent = 'تم النسخ'; }
+    try { navigator.clipboard.writeText(t).then(ok, fb); } catch (e) { fb(); }
+    function fb() { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); ok(); } catch (x) {} document.body.removeChild(a); }
   };
 })();
 </script>

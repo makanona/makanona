@@ -259,17 +259,32 @@ window.__diagText = function () {
   // حذف قاعدة الجلسة قبل أن تفتحها مكتبة Firebase (المرحلة الثالثة)
   if (q.get('wipe') === '1') { try { indexedDB.deleteDatabase('firebaseLocalStorageDb'); } catch (e) {} }
   // تقرير تلقائي للمشرف: مرة في الساعة لكل نوع ولكل جهاز
+  // رابط السكربت: من الذاكرة، وإن لم يُحفظ بعد (هاتف جديد لم يعمل عليه التطبيق) نقرؤه مباشرة من القاعدة
+  function withScript(cb) {
+    var u = lsGet('mk_script'); if (u) return cb(u);
+    try {
+      var x = new XMLHttpRequest();
+      x.open('GET', 'https://makanona-default-rtdb.europe-west1.firebasedatabase.app/publicConfig/scriptUrl.json');
+      x.timeout = 15000;
+      x.onload = function () { try { var v = JSON.parse(x.responseText); if (typeof v === 'string' && /^https:\/\//.test(v)) { lsSet('mk_script', v); cb(v); } } catch (e) {} };
+      x.send();
+    } catch (e) {}
+  }
   window.__report = function (kind) {
     try {
-      var url = lsGet('mk_script'); if (!url) return;
       var key = 'mk_rep_' + kind; if (Date.now() - (+(lsGet(key) || 0)) < 3600e3) return;
+      withScript(function (url) { send(url, kind, key); });
+    } catch (e) {}
+  };
+  function send(url, kind, key) {
+    try {
       lsSet(key, String(Date.now()));
       var body = JSON.stringify({ action: 'diag', kind: kind, who: lsGet('mk_last_email') || '', text: window.__diagText().slice(0, 3000) });
       var sent = false;
       try { sent = !!(navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=utf-8' }))); } catch (e) {}
       if (!sent) { try { fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body }); } catch (e) {} }
     } catch (e) {}
-  };
+  }
   function go(n, extra) { location.replace(location.pathname + '?heal=' + n + '&v=' + Date.now() + (extra || '')); }
   function clearLocal() {
     try { var ks = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('mk_') !== 0) ks.push(k); } ks.forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
@@ -305,6 +320,23 @@ window.__diagText = function () {
     else if (heal === 2 && kind === 'session') { lsSet('mk_ls_auth', '1'); go(3, '&wipe=1'); }
     else showDiag();
   }, 1000);
+})();
+/* فتح التشخيص يدوياً: 5 ضغطات سريعة على شاشة التحميل أو على اسم التطبيق في شاشة الدخول */
+window.__openDiag = function () {
+  var d = document.getElementById('v-diag'); if (!d) return;
+  document.getElementById('diag-text').textContent = window.__diagText();
+  d.hidden = false;
+  if (window.__report) window.__report('manual');
+};
+(function () {
+  var n = 0, t0 = 0;
+  document.addEventListener('click', function (e) {
+    var el = e.target, hit = false;
+    while (el && el !== document) { if (el.id === 'v-loading' || el.id === 'brand') { hit = true; break; } el = el.parentNode; }
+    if (!hit) return;
+    var now = Date.now(); if (now - t0 > 3000) { n = 0; t0 = now; }
+    if (++n >= 5) { n = 0; window.__openDiag(); }
+  }, true);
 })();
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('diag-retry').onclick = function () { location.reload(); };
