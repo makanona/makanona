@@ -214,6 +214,13 @@ details.acc[open]>summary{margin-bottom:8px}
 #send-bar span{flex:1;min-width:0}
 #fabs{position:absolute;inset-inline-end:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:500;display:flex;flex-direction:column;gap:10px}
 .fab{width:44px;height:44px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 10px #0003;display:grid;place-items:center;cursor:pointer}
+#btn-notif{position:relative}
+.fab-badge{position:absolute;top:-4px;inset-inline-end:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-sizing:border-box}
+.nt-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;text-align:start;background:none;border-inline:0;border-top:0;width:100%;font:inherit;color:inherit}
+.nt-row .ic{font-size:20px;line-height:1.2}
+.nt-row.unread b{color:var(--ink)}
+.nt-row.unread .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bad);margin-inline-start:6px}
+.nt-day{font-weight:700;color:var(--mute);margin:12px 0 2px;font-size:13px}
 .fab svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #sheet-av{display:none;gap:10px;overflow-x:auto;padding:2px 2px 8px}
 .sheet.min #sheet-av{display:flex}
@@ -232,13 +239,15 @@ html[dir=ltr] [data-act=h-prev] svg,html[dir=ltr] [data-act=h-next] svg,html[dir
 <script>
 /* تشخيص: يعمل حتى لو فشل تحميل مكتبات Firebase */
 window.__boot = { t0: Date.now(), errors: [], ok: false };
+/* علامة للتطبيق (2.4+): كود الصفحة يعمل. بطء تحميل المكتبات تعالجه الصفحة بنفسها، فلا تظهر شاشة مشكلة التطبيق إلا إن لم يعمل الكود أصلاً */
+window.__moduleLoaded = true;
 window.__err = function (m) { try { var e = window.__boot.errors; e.push(String(m).slice(0, 200)); if (e.length > 12) e.shift(); } catch (x) {} };
 window.addEventListener('error', function (e) { window.__err((e.message || 'error') + ' @' + String(e.filename || '').split('/').pop() + ':' + (e.lineno || '')); });
 window.addEventListener('unhandledrejection', function (e) { window.__err('promise: ' + ((e.reason && e.reason.message) || e.reason)); });
 window.__diagText = function () {
   var b = window.__boot, L1 = [];
   L1.push('إصدار الواجهة: ' + (window.__ui || 'غير محمّلة'));
-  L1.push('الوحدة الرئيسية: ' + (window.__moduleLoaded ? 'عملت' : 'لم تعمل (فشل تحميل مكتبات Firebase أو خطأ في الصفحة)'));
+  L1.push('الوحدة الرئيسية: ' + (window.__modReal ? 'عملت' : 'لم تعمل (فشل تحميل مكتبات Firebase أو خطأ في الصفحة)'));
   L1.push('الخريطة (Leaflet): ' + (typeof L !== 'undefined' ? 'محمّلة' : 'غير محمّلة'));
   L1.push('الإنترنت: ' + (navigator.onLine ? 'متصل' : 'غير متصل'));
   L1.push('المتصفح: ' + navigator.userAgent);
@@ -305,7 +314,7 @@ window.__diagText = function () {
   // خطأ في بناء الكود (WebView قديم) أثناء التحميل: اعرض التشخيص بعد لحظات بدل شاشة بيضاء
   window.addEventListener('error', function (e) {
     var m = String((e && e.message) || '');
-    if (!window.__moduleLoaded && /SyntaxError|Unexpected|Invalid or unexpected|Illegal|not supported/i.test(m)) setTimeout(function () { window.__showDiag(); }, 1500);
+    if (!window.__modReal && /SyntaxError|Unexpected|Invalid or unexpected|Illegal|not supported/i.test(m)) setTimeout(function () { window.__showDiag(); }, 1500);
   });
   setInterval(function () {
     if (b.ok || done) return;
@@ -416,7 +425,7 @@ window.APP_CONFIG = {
   </div>
 </div>
 
-<div id="v-loading" class="view center"><div class="spin" role="status" aria-label="جارٍ التحميل"></div></div>
+<div id="v-loading" class="view center"><div style="text-align:center"><div class="spin" role="status" aria-label="جارٍ التحميل" style="margin:0 auto"></div><p id="slow-hint" class="hint" hidden style="margin-top:14px;max-width:260px">الإنترنت بطيء، جارٍ التحميل… أول فتح بعد التحديث يأخذ وقتاً أطول.</p></div></div>
 
 <div id="v-auth" class="view" hidden>
   <div class="auth">
@@ -484,6 +493,7 @@ window.APP_CONFIG = {
   <div id="map"></div>
   <div id="top"><div class="chip" id="chip"></div></div>
   <div id="fabs">
+    <button class="fab" id="btn-notif" aria-label="الإشعارات" hidden><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span id="notif-badge" class="fab-badge" hidden></span></button>
     <button class="fab" id="btn-style" aria-label="نمط الخريطة"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="fab" id="btn-fit" aria-label="عرض الجميع"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
@@ -763,12 +773,20 @@ window.APP_CONFIG = {
   </nav>
 </div>
 
+<div id="v-notif" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true" style="width:min(520px,100%);max-height:84vh;display:flex;flex-direction:column">
+    <div class="sw-row" style="margin-bottom:6px"><b style="font-size:18px">الإشعارات</b><button class="btn sm" data-act="notif-close">إغلاق</button></div>
+    <p class="hint" style="margin:0 0 6px">تُحفظ على هاتفك فقط لمدة 30 يوماً.</p>
+    <div id="notif-list" style="overflow:auto;flex:1;min-height:80px"></div>
+    <div class="acts" style="margin-top:10px"><button class="btn sm" data-act="notif-settings">إعدادات التنبيهات</button><button class="btn sm danger" data-act="notif-clear">مسح الكل</button></div>
+  </div>
+</div>
 <div id="v-fix" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <p class="hint" id="fix-count" style="margin:0 0 4px"></p>
     <b id="fix-title" style="font-size:17px"></b>
     <p id="fix-text" style="margin:8px 0 14px"></p>
-    <div class="acts"><button id="fix-go" class="btn primary">أصلح الآن</button><button id="fix-later" class="btn">لاحقاً</button></div>
+    <div class="acts"><button id="fix-go" class="btn primary">أصلح الآن</button><button id="fix-done" class="btn" hidden>تم، فعّلته</button><button id="fix-later" class="btn">لاحقاً</button></div>
   </div>
 </div>
 <div id="modal" class="modal" hidden>
@@ -914,7 +932,8 @@ window.APP_CONFIG = {
 window.__err('المتصفح قديم ولا يدعم وحدات JavaScript، حدّث Android System WebView وChrome');
 setTimeout(function () { if (window.__showDiag) window.__showDiag(); }, 800);
 </script>
-<script>window.__i18nStatic && window.__i18nStatic(document.body);</script>
+<script>window.__i18nStatic && window.__i18nStatic(document.body);
+setTimeout(function () { var l = document.getElementById('v-loading'), h = document.getElementById('slow-hint'); if (l && h && !l.hidden) h.hidden = false; }, 8000);</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -941,7 +960,7 @@ const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.u
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
 const UI_VERSION = '23';
-window.__moduleLoaded = true; window.__ui = UI_VERSION;
+window.__modReal = true; window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: _t("مشي"), bike: _t("دراجة"), car: _t("سيارة") };
 const DEFAULT_SUBJECT = tf("دعوة للانضمام إلى {0}", CFG.appName);
 const DEFAULT_BODY = _t("مرحباً {{name}}،\nتمت دعوتك للانضمام إلى تطبيق {{app}}.\n١) حمّل التطبيق من: {{apk}}\n٢) إن ظهرت رسالة Play Protect فهذا طبيعي لأن التطبيق خارج المتجر: اضغط «More details» ثم «Install anyway».\n٣) اختر «تسجيل جديد» وأدخل رمز الدعوة: {{code}}\nالرمز صالح لمدة ٧ أيام.");
@@ -1291,7 +1310,9 @@ function startMain() {
   $('btn-sos').hidden = S.limited;
   setTimeout(() => {
     reportAppInfo(true);
-    if (DEEP_SOS && !S.deepDone) { S.deepDone = true; S.pendingSos = DEEP_SOS; try { history.replaceState(null, '', location.pathname); } catch {} handleSosIncoming(S.sosIn || {}); }
+    updateNotifBadge();
+    if (DEEP_NOTIF && !S.deepDone && notifOK()) { S.deepDone = true; try { history.replaceState(null, '', location.pathname); } catch {} notifGo(DEEP_NOTIF); }
+    else if (DEEP_SOS && !S.deepDone) { S.deepDone = true; S.pendingSos = DEEP_SOS; try { history.replaceState(null, '', location.pathname); } catch {} handleSosIncoming(S.sosIn || {}); }
     else if (DEEP && !S.deepDone) { S.deepDone = true; openReport('day', DEEP); try { history.replaceState(null, '', location.pathname); } catch {} }
     else maybeReportBanner();
   }, 1200);
@@ -2527,6 +2548,10 @@ const ACTIONS = {
   'pv-open': () => { $('v-privacy').hidden = false; renderPrivacy(); },
   'pv-close': () => { $('v-privacy').hidden = true; },
   'fix-open': id => openFix(id),
+  'notif-go': id => notifGo(id),
+  'notif-close': () => { $('v-notif').hidden = true; },
+  'notif-clear': async () => { if (!(await ask(_t("مسح كل الإشعارات؟"), _t("مسح الكل")))) return; try { window.AndroidBridge.notifClear(); } catch {} renderNotif(); updateNotifBadge(); },
+  'notif-settings': () => { $('v-notif').hidden = true; setTab('me'); const a = $('acc-alerts'); if (a) { a.open = true; setTimeout(() => a.scrollIntoView({ block: 'start' }), 100); } },
   'health-autostart': () => { try { window.AndroidBridge.openAutoStart(); } catch {} },
   'health-dkma': () => { const g = brandGuide((nat() || {}).brand); openExternal('https://dontkillmyapp.com/' + g.slug); },
   'al-save': async () => { try { await saveAlerts(); } catch { toast(_t("تعذر الحفظ")); } },
@@ -2964,6 +2989,8 @@ function mapTap() {
 window.__back = () => {
   const vis = id => { const e = $(id); return !!e && !e.hidden; };
   if (vis('modal-text')) { $('tx-no').click(); return true; }
+  if (vis('v-notif')) { $('v-notif').hidden = true; return true; }
+  if (vis('v-fix')) { $('fix-later').click(); return true; }
   if (vis('modal-fplaces')) { FP.tok++; $('modal-fplaces').hidden = true; return true; }
   if (vis('modal-pmore')) { $('modal-pmore').hidden = true; return true; }
   if (vis('modal-place')) { $('pl-no').click(); return true; }
@@ -3238,6 +3265,7 @@ async function sendDiag() {
 /* ---------- التقارير: يومي وأسبوعي وشهري ---------- */
 const DEEP = (location.hash.match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1];
 const DEEP_SOS = (location.hash.match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
+const DEEP_NOTIF = (location.hash.match(/notif=(\d+)/) || [])[1];
 const RPT = { mode: 'day', heatDays: 7, heatWho: null, heatMap: null, who: null, day: null, shared: {}, token: 0, last: null, text: '', csv: '', sugg: [] };
 const rptWho = () => RPT.who || S.uid;
 const rptThr = () => Math.min(250, Math.max(60, Number((S.alerts || {}).rptSpeed) || 120));
@@ -3462,7 +3490,9 @@ async function renderDrive(tok, uid, own, full) {
 }
 const heatOptions = () => {
   const out = [{ uid: S.uid, name: _t("أنا"), color: S.dir[S.uid]?.color || '#3A6EA5' }], seen = new Set([S.uid]);
-  for (const u of [...Object.keys(RPT.shared || {}), ...Object.keys(S.kids || {})]) if (!seen.has(u)) { seen.add(u); out.push({ uid: u, name: dispName(u) !== '—' ? dispName(u) : (S.kids[u] || _t("صديق")), color: S.dir[u]?.color || '#8E5AA8' }); }
+  const nameOf = u => dispName(u) !== '—' ? dispName(u) : (S.kids[u] || S.users?.[u]?.name || _t("صديق"));
+  // الشخص المعروض تقريره (مثلاً من حساب المشرف) يدخل دائماً في الاختيار
+  for (const u of [rptWho(), ...Object.keys(RPT.shared || {}), ...Object.keys(S.kids || {})]) if (u && !seen.has(u)) { seen.add(u); out.push({ uid: u, name: nameOf(u), color: S.dir[u]?.color || '#8E5AA8' }); }
   return out;
 };
 async function renderHeat(tok, uid, own, full) {
@@ -3540,7 +3570,7 @@ function rptCsv() {
 }
 $('st-notes').addEventListener('input', () => { $('st-notes-n').textContent = $('st-notes').value.length + ' / 1500'; });
 $('rpt-day').onchange = () => { const v = $('rpt-day').value, t = dayKey(Date.now()); if (!v) return; RPT.day = v > t ? t : v; renderReport(); };
-$('rpt-who').onchange = () => { const v = $('rpt-who').value; RPT.who = v === 'me' ? null : v; RPT.blocked = null; renderReport(); };
+$('rpt-who').onchange = () => { const v = $('rpt-who').value; RPT.who = v === 'me' ? null : v; RPT.blocked = null; RPT.heatWho = null; renderReport(); };
 $('rpt-speed').onchange = async () => {
   const v = Number(toLatin($('rpt-speed').value)); if (!(v >= 60 && v <= 250)) return toast(_t("من 60 إلى 250 كم/س"));
   S.alerts = { ...(S.alerts || {}), rptSpeed: v };
@@ -3636,8 +3666,21 @@ const ISSUES = {
 };
 const issueTitle = c => (ISSUES[c] || [c])[0];
 /* التشخيص الكامل من التطبيق 2.4+، وإلا من الحالة المختصرة في النسخ الأقدم */
+/* «هاتفك أغلق التطبيق»: نعدّ فقط الإغلاقات الحقيقية أثناء عمل خدمة الإرسال (لا التحديث ولا التثبيت ولا الخلفية العادية)،
+   ونتجاهل ما حدث قبل أن يؤكد المستخدم أنه أصلح الإعداد */
+const KILL_REASONS = [2, 3, 9, 13];          // أنهاه النظام، نقص الذاكرة، استهلاك زائد، سبب آخر من النظام
+function oemAck() { try { return Number(localStorage.getItem('mk_oem_ack')) || 0; } catch { return 0; } }
+function normalizeKills(d) {
+  if (!d || !Array.isArray(d.exits)) return d;
+  const since = Math.max(Date.now() - 24 * 3600e3, oemAck());
+  const n = d.exits.filter(e => e && e.at > since && KILL_REASONS.includes(Number(e.r)) && (!e.imp || Number(e.imp) <= 125)).length;
+  d.sysKills24 = n;
+  d.issues = (d.issues || []).filter(c => c !== 'oem_kills'); d.warns = (d.warns || []).filter(c => c !== 'oem_kills');
+  if (n >= 2) d.issues.push('oem_kills'); else if (n === 1) d.warns.push('oem_kills');
+  return d;
+}
 function diagNow() {
-  try { if (window.AndroidBridge && typeof window.AndroidBridge.diag === 'function') { const d = JSON.parse(window.AndroidBridge.diag()); if (d && d.issues) return d; } } catch {}
+  try { if (window.AndroidBridge && typeof window.AndroidBridge.diag === 'function') { const d = JSON.parse(window.AndroidBridge.diag()); if (d && d.issues) return normalizeKills(d); } } catch {}
   const s = nat(); if (!s) return null;
   const issues = [];
   if (!s.fine) issues.push('loc_perm'); else if (!s.bg) issues.push('bg_perm');
@@ -3666,6 +3709,9 @@ function maybeFix(force) {
   $('fix-title').textContent = issueTitle(c);
   $('fix-text').textContent = c === 'oem_kills' ? brandGuide(d.brand).text : ISSUES[c][1];
   $('fix-go').onclick = () => openFix(c);
+  const done = $('fix-done');
+  done.hidden = c !== 'oem_kills';
+  done.onclick = () => { try { localStorage.setItem('mk_oem_ack', String(Date.now())); } catch {} box.hidden = true; setTimeout(() => maybeFix(true), 300); };
   $('fix-later').onclick = () => { S.fixDismissed = true; box.hidden = true; };
   box.hidden = false;
 }
@@ -3675,6 +3721,58 @@ document.addEventListener('visibilitychange', () => {
   if (!$('v-fix').hidden) setTimeout(() => maybeFix(true), 600);           // رجع من الإعدادات: هل أُصلح؟
   else if (S.hiddenAt && Date.now() - S.hiddenAt > 60000) { S.fixDismissed = false; setTimeout(() => maybeFix(), 1200); }
 });
+
+/* ---------- مركز الإشعارات: سجل الإشعارات المحفوظ على الهاتف (التطبيق 2.5+) ---------- */
+const notifOK = () => !!(isNative && window.AndroidBridge && typeof window.AndroidBridge.notifLog === 'function');
+const notifList = () => { try { return JSON.parse(window.AndroidBridge.notifLog()) || []; } catch { return []; } };
+const NOTIF_IC = { friend: '📍', guard: '🛡️', phone: '☎️', self_loc: '⚠️', self_net: '📶', self_gap: '⏸️', report: '📊', sos_in: '🆘', sos_ack: '🆘' };
+function updateNotifBadge() {
+  const b = $('btn-notif'); if (!b) return;
+  if (!notifOK() || !S.started) { b.hidden = true; return; }
+  b.hidden = false;
+  let n = 0; try { n = Number(window.AndroidBridge.notifUnread()) || 0; } catch {}
+  const bd = $('notif-badge'); bd.hidden = !n; bd.textContent = n > 99 ? '99+' : String(n);
+}
+function renderNotif() {
+  const L = notifList(), today = dayKey(Date.now()), yest = dayKey(Date.now() - 864e5);
+  if (!L.length) { $('notif-list').innerHTML = `<p class="hint" style="padding:16px 0">${_t("لا توجد إشعارات بعد.")}</p>`; return; }
+  let html = '', last = '';
+  for (const e of L) {
+    const d = dayKey(e.at || 0);
+    if (d !== last) { last = d; html += `<div class="nt-day">${d === today ? _t("اليوم") : d === yest ? _t("أمس") : esc(dayLabel(d))}</div>`; }
+    html += `<button class="nt-row ${e.r ? '' : 'unread'}" data-act="notif-go" data-id="${esc(e.id)}"><span class="ic">${NOTIF_IC[e.k] || '🔔'}</span><span class="grow"><b>${esc(e.t || '')}</b><span class="dot" ${e.r ? 'hidden' : ''}></span><br><span>${esc(e.x || '')}</span><br><span class="hint">${esc(fmtTime(e.at))} · ${tf("قبل {0}", esc(ago(e.at)))}</span></span></button>`;
+  }
+  $('notif-list').innerHTML = html;
+}
+function openNotifCenter() {
+  if (!notifOK()) return;
+  renderNotif(); $('v-notif').hidden = false;
+  try { window.AndroidBridge.notifRead(0); } catch {}          // يمسحها من شريط الهاتف ويصفّر الرقم على الأيقونة
+  updateNotifBadge();
+}
+function notifGo(id) {
+  const e = notifList().find(x => String(x.id) === String(id)); if (!e) return;
+  try { window.AndroidBridge.notifRead(Number(e.id)); } catch {}
+  $('v-notif').hidden = true; updateNotifBadge();
+  const d = e.d || {};
+  if ((e.k === 'friend' || e.k === 'guard') && d.u) {
+    if (visibleIds().includes(d.u)) { setTab('map'); openPerson(d.u); } else toast(_t("هذا الشخص غير ظاهر على خريطتك الآن"));
+  } else if (e.k === 'report' && d.day) openReport('day', d.day);
+  else if (e.k === 'sos_in' && d.from) { setTab('map'); S.pendingSos = d.from; handleSosIncoming(S.sosIn || {}); }
+  else if (e.k === 'self_loc' || e.k === 'self_net' || e.k === 'self_gap') { setTab('me'); const h = $('acc-health'); if (h) { h.open = true; renderNative(); setTimeout(() => h.scrollIntoView({ block: 'start' }), 100); } setTimeout(() => maybeFix(true), 400); }
+  else if (e.k === 'phone') setTab('me');
+  else setTab('map');
+}
+/* الإشعار ضُغط والتطبيق مفتوح أصلاً */
+window.__fromNative = tail => {
+  const n = (String(tail).match(/notif=(\d+)/) || [])[1], rp = (String(tail).match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1], so = (String(tail).match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
+  if (!S.started) return;
+  if (n && notifOK()) return notifGo(n);
+  if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp);
+};
+$('btn-notif').onclick = openNotifCenter;
+document.addEventListener('visibilitychange', () => { if (!document.hidden) updateNotifBadge(); });
+setInterval(() => { if (!document.hidden) updateNotifBadge(); }, 20000);
 function wizNext(s) { for (const st of STEPS) { if (st.only && !st.only(s)) continue; if (st.done(s)) continue; if (st.skipped && st.skipped()) continue; return st; } return null; }
 let wizTimer = null;
 function ensureNative() {
