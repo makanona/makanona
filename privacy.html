@@ -27,7 +27,7 @@
     <li><b>بيانات الحساب:</b> الاسم، والبريد الإلكتروني، ورقم الهاتف، وسنة الميلاد (السنة فقط)، واللون وصورة شخصية مصغّرة اختيارية.</li>
     <li><b>الموقع:</b> موقعك الحالي أثناء تشغيل المشاركة، مع السرعة ونسبة البطارية، ومسار تنقلاتك اليومي (نقاط الرحلات والوقفات).</li>
     <li><b>جهات الاتصال (اختيارية):</b> إن سمحتَ بها، يقرأ التطبيق أرقام جهات اتصالك على هاتفك فقط ليجد من هو مشترك. <b>لا تُرفع الأسماء ولا الأرقام</b>، وتُرسل بصمات مشفّرة (hash) للأرقام لمطابقتها مع المشتركين.</li>
-    <li><b>التقرير اليومي:</b> ملخص أرقام لكل يوم (المسافة ومدة القيادة والمشي وعدد الرحلات وأعلى سرعة وأطول الوقفات) يُحسب من مسارك ويُحفظ 45 يوماً. هو خاص بك افتراضياً، ولا يراه أصدقاؤك إلا إن فعّلتَ مشاركته من صفحة الخصوصية.</li>
+    <li><b>التقرير اليومي:</b> ملخص أرقام لكل يوم (المسافة ومدة القيادة والمشي وعدد الرحلات وأعلى سرعة وأطول الوقفات) يُحسب من مسارك ويُحفظ مع سجلك (45 يوماً، أو 8 شهور لمن لديه «السجل الطويل»). هو خاص بك افتراضياً، ولا يراه أصدقاؤك إلا إن فعّلتَ مشاركته من صفحة الخصوصية.</li>
         <li><b>بيانات تقنية:</b> طراز الهاتف ومعرّف جهاز عشوائي (لتنظيم الدخول من هاتف واحد)، وإعدادات التنبيهات والأماكن التي تحفظها.</li>
     <li><b>حالة الموقع في الجهاز:</b> هل خدمة الموقع مطفأة أو إذن الموقع مسحوب من التطبيق. يراها أصدقاؤك المتصلون، ويصل تنبيه بها إلى أولياء أمور القاصرين.</li>
     <li><b>سرعة كل نقطة:</b> تُسجَّل مع نقاط مسارك لحساب أعلى سرعة والفرملة الحادة والتسارع السريع في تقرير القيادة، وتخضع لخيارات خصوصية السجل نفسها.</li>
@@ -54,6 +54,7 @@
   <ul>
     <li>آخر موقع فقط للعرض المباشر.</li>
     <li>سجل التنقلات يُحذف تلقائياً بعد <b>45 يوماً</b>.</li>
+    <li><b>السجل الطويل:</b> ميزة يفعّلها المشرف لحسابات محددة، فيُحفظ السجل والتقارير <b>8 شهور</b>. الأيام الأقدم من 45 يوماً تُحفظ بنقاط أقل (ترسم المسار نفسه) وتبقى <b>لصاحبها وحده</b>، ويرى أصدقاؤه آخر 45 يوماً فقط. عند انتهاء الاشتراك يبقى السجل القديم 30 يوماً، ثم يُحذف ما هو أقدم من 45 يوماً.</li>
     <li>عند حذف حسابك تُحذف بياناتك كما في البند 7.</li>
   </ul>
 
@@ -89,5 +90,453 @@
 
   <p style="margin-top:28px"><a href="index.html">العودة إلى التطبيق</a></p>
 </main>
+<main id="en" lang="en" dir="ltr" hidden>
+  <h1>Privacy policy</h1>
+  <p class="meta">The Makanona app, last updated: October 2026</p>
+  <p class="note">This page explains in plain language what the app collects and how it is used. Makanona is a free app for sharing location among family and friends, run by one person (the admin) for their friends and family.</p>
+
+  <h2>1) What do we collect?</h2>
+  <ul>
+    <li><b>Account data:</b> name, email, phone number, birth year (year only), color, and an optional small profile photo.</li>
+    <li><b>Location:</b> your current location while sharing is on, with speed and battery level, and your daily route history (trip points and stops).</li>
+    <li><b>Contacts (optional):</b> if you allow it, the app reads your contacts' numbers on your phone only to find who uses the app. <b>Names and numbers are not uploaded</b>; only encrypted fingerprints (hashes) of the numbers are sent to match them with users.</li>
+    <li><b>Daily report:</b> a summary of numbers for each day (distance, driving and walking time, number of trips, top speed and longest stops) calculated from your route and kept with your history (45 days, or 8 months for those with "Long history"). It is private by default, and your friends see it only if you turn on sharing from the privacy page.</li>
+    <li><b>Technical data:</b> phone model and a random device ID (to manage signing in from one phone), and your alert settings and saved places.</li>
+    <li><b>Location state on the device:</b> whether location service is off or the app's location permission is revoked. Your connected friends see it, and guardians of minors get an alert about it.</li>
+    <li><b>Speed of each point:</b> recorded with your route points to calculate top speed, hard braking and rapid acceleration in the driving report, under the same history privacy options.</li>
+    <li><b>Invite codes:</b> when you create a code, your ID and name are stored in it so whoever uses it is added to your friends. A code is valid for 48 hours and works once, and you can delete it.</li>
+  </ul>
+
+  <h2>2) Why do we collect it?</h2>
+  <ul>
+    <li>To show your location to people you approved, and show you theirs.</li>
+    <li>To send the alerts you turn on (proximity, battery, places, speed, inactivity) and SOS alerts.</li>
+    <li>To show route history, and to manage your account and its security.</li>
+  </ul>
+
+  <h2>3) Who sees your data?</h2>
+  <ul>
+    <li><b>Connected friends only, with consent from both sides.</b> You don't appear on anyone's map before they accept, and you can hide your location from a specific person at any time.</li>
+    <li><b>The admin:</b> can see accounts' locations to help if you lose your phone, and manages accounts and invitations.</li>
+    <li>You can hide your past route history from your friends while keeping your live location visible; all privacy options are on one page in "Account".</li>
+    <li>Child accounts (under 18) can't hide their location from their family, for safety. The guardian gets an alert if the phone's location service is turned off or its permission is revoked, and another when it comes back.</li>
+    <li>We don't sell your data or show ads.</li>
+  </ul>
+
+  <h2>4) Retention</h2>
+  <ul>
+    <li>Only the last location is kept for live display.</li>
+    <li>Route history is deleted automatically after <b>45 days</b>.</li>
+    <li><b>Long history:</b> a feature the admin turns on for specific accounts, keeping history and reports for <b>8 months</b>. Days older than 45 days are kept with fewer points (drawing the same route) and stay <b>visible to the owner only</b>; their friends see the last 45 days only. When the subscription ends, the old history stays 30 days, then anything older than 45 days is deleted.</li>
+    <li>When you delete your account, your data is deleted as described in section 7.</li>
+  </ul>
+
+  <h2>5) Where is data stored and which external services are used?</h2>
+  <ul>
+    <li><b>Google Firebase:</b> authentication and database; data is stored on Google's servers.</li>
+    <li><b>OpenStreetMap and Esri:</b> for displaying maps.</li>
+    <li><b>OpenStreetMap (Nominatim):</b> to turn coordinates into a neighborhood or street name; the displayed person's location is sent to it when an address is requested.</li>
+    <li><b>Gmail via Google Apps Script:</b> to send invitations and password recovery codes.</li>
+  </ul>
+
+  <h2>6) Permissions the app asks for</h2>
+  <ul>
+    <li>Location (while in use and in the background) to send your location.</li>
+    <li>Notifications for friend alerts, optional.</li>
+    <li>Contacts to find app users, optional.</li>
+    <li>No battery restriction so the system doesn't stop sending.</li>
+  </ul>
+  <p>Android shows a small notification while sending in the background; this is a system requirement.</p>
+
+  <h2>7) Your rights</h2>
+  <ul>
+    <li><b>Delete your account:</b> from "Account" then "Delete my account"; your data, location, history, settings and photo are deleted, and this can't be undone.</li>
+    <li>Change your name, color and photo from "Account". The admin changes the phone number and birth year.</li>
+    <li>Hide your location from any friend, turn off any alert, and remove any friend.</li>
+  </ul>
+
+  <h2>8) Security</h2>
+  <p>We use Firebase authentication and access rules that prevent reading anyone's data except by those entitled to it. Still, no system is completely secure, so use a strong password and don't share it.</p>
+
+  <h2>9) Changes and contact</h2>
+  <p>We may update this policy; the last update date appears at the top. For questions or to request deletion of your data, contact the admin who invited you, or email <a href="mailto:makanona.team@gmail.com">makanona.team@gmail.com</a>.</p>
+
+  <p style="margin-top:28px"><a href="index.html">Back to the app</a></p>
+</main>
+<main id="de" lang="de" dir="ltr" hidden>
+  <h1>Datenschutzerklärung</h1>
+  <p class="meta">Die App Makanona, zuletzt aktualisiert: Oktober 2026</p>
+  <p class="note">Diese Seite erklärt in einfachen Worten, welche Daten die App erfasst und wie sie verwendet werden. Makanona ist eine kostenlose App zum Teilen des Standorts unter Familie und Freunden, die von einer einzelnen Person (dem Admin) für ihre Freunde und Familie betrieben wird.</p>
+
+  <h2>1) Was erfassen wir?</h2>
+  <ul>
+    <li><b>Kontodaten:</b> Name, E-Mail, Telefonnummer, Geburtsjahr (nur das Jahr), Farbe und ein optionales kleines Profilfoto.</li>
+    <li><b>Standort:</b> dein aktueller Standort, solange das Teilen aktiv ist, mit Geschwindigkeit und Akkustand, sowie dein täglicher Routenverlauf (Fahrtpunkte und Halte).</li>
+    <li><b>Kontakte (optional):</b> Wenn du es erlaubst, liest die App die Nummern deiner Kontakte auf deinem Handy, nur um herauszufinden, wer die App nutzt. <b>Namen und Nummern werden nicht hochgeladen</b>; nur verschlüsselte Fingerabdrücke (Hashes) der Nummern werden gesendet, um sie mit Nutzern abzugleichen.</li>
+    <li><b>Tagesbericht:</b> eine Zusammenfassung von Zahlen für jeden Tag (Strecke, Fahr- und Gehzeit, Anzahl der Fahrten, Höchstgeschwindigkeit und längste Halte), berechnet aus deiner Route und zusammen mit deinem Verlauf gespeichert (45 Tage, oder 8 Monate bei „Langer Verlauf“). Er ist standardmäßig privat, und deine Freunde sehen ihn nur, wenn du das Teilen auf der Datenschutzseite einschaltest.</li>
+    <li><b>Technische Daten:</b> Handymodell und eine zufällige Geräte-ID (um die Anmeldung auf nur einem Handy zu verwalten) sowie deine Alarmeinstellungen und gespeicherten Orte.</li>
+    <li><b>Standortstatus auf dem Gerät:</b> ob der Standortdienst ausgeschaltet oder die Standortberechtigung der App entzogen ist. Deine verbundenen Freunde sehen das, und Erziehungsberechtigte von Minderjährigen erhalten einen Alarm dazu.</li>
+    <li><b>Geschwindigkeit jedes Punktes:</b> wird mit deinen Routenpunkten gespeichert, um Höchstgeschwindigkeit, starkes Bremsen und starkes Beschleunigen im Fahrbericht zu berechnen, unter denselben Datenschutzoptionen wie der Verlauf.</li>
+    <li><b>Einladungscodes:</b> Wenn du einen Code erstellst, werden deine ID und dein Name darin gespeichert, damit jeder, der ihn verwendet, zu deinen Freunden hinzugefügt wird. Ein Code ist 48 Stunden gültig, nur einmal verwendbar, und du kannst ihn löschen.</li>
+  </ul>
+
+  <h2>2) Warum erfassen wir sie?</h2>
+  <ul>
+    <li>Um deinen Standort den Personen zu zeigen, die du bestätigt hast, und dir deren Standort zu zeigen.</li>
+    <li>Um die Alarme zu senden, die du einschaltest (Nähe, Akku, Orte, Geschwindigkeit, Inaktivität), sowie SOS-Alarme.</li>
+    <li>Um den Routenverlauf anzuzeigen und dein Konto und dessen Sicherheit zu verwalten.</li>
+  </ul>
+
+  <h2>3) Wer sieht deine Daten?</h2>
+  <ul>
+    <li><b>Nur verbundene Freunde, mit Zustimmung beider Seiten.</b> Du erscheinst auf niemandes Karte, bevor die Person zustimmt, und du kannst deinen Standort jederzeit vor einer bestimmten Person verbergen.</li>
+    <li><b>Der Admin:</b> kann die Standorte der Konten sehen, um zu helfen, wenn du dein Handy verlierst, und verwaltet Konten und Einladungen.</li>
+    <li>Du kannst deinen vergangenen Routenverlauf vor deinen Freunden verbergen und deinen Live-Standort trotzdem sichtbar lassen; alle Datenschutzoptionen findest du auf einer Seite unter „Konto“.</li>
+    <li>Kinderkonten (unter 18) können ihren Standort aus Sicherheitsgründen nicht vor ihrer Familie verbergen. Der Erziehungsberechtigte erhält einen Alarm, wenn der Standortdienst des Handys ausgeschaltet oder die Berechtigung entzogen wird, und einen weiteren, wenn er wieder funktioniert.</li>
+    <li>Wir verkaufen deine Daten nicht und zeigen keine Werbung.</li>
+  </ul>
+
+  <h2>4) Speicherdauer</h2>
+  <ul>
+    <li>Für die Live-Anzeige wird nur der letzte Standort gespeichert.</li>
+    <li>Der Routenverlauf wird nach <b>45 Tagen</b> automatisch gelöscht.</li>
+    <li><b>Langer Verlauf:</b> eine Funktion, die der Admin für bestimmte Konten einschaltet und die Verlauf und Berichte <b>8 Monate</b> lang speichert. Tage, die älter als 45 Tage sind, werden mit weniger Punkten gespeichert (die dieselbe Route zeichnen) und bleiben <b>nur für den Inhaber sichtbar</b>; seine Freunde sehen nur die letzten 45 Tage. Wenn das Abo endet, bleibt der alte Verlauf noch 30 Tage erhalten, danach wird alles, was älter als 45 Tage ist, gelöscht.</li>
+    <li>Wenn du dein Konto löschst, werden deine Daten wie in Abschnitt 7 beschrieben gelöscht.</li>
+  </ul>
+
+  <h2>5) Wo werden die Daten gespeichert und welche externen Dienste werden genutzt?</h2>
+  <ul>
+    <li><b>Google Firebase:</b> Authentifizierung und Datenbank; die Daten werden auf Servern von Google gespeichert.</li>
+    <li><b>OpenStreetMap und Esri:</b> zur Anzeige der Karten.</li>
+    <li><b>OpenStreetMap (Nominatim):</b> um Koordinaten in einen Stadtteil- oder Straßennamen umzuwandeln; der Standort der angezeigten Person wird dorthin gesendet, wenn eine Adresse abgefragt wird.</li>
+    <li><b>Gmail über Google Apps Script:</b> zum Versenden von Einladungen und Codes zur Passwort-Wiederherstellung.</li>
+  </ul>
+
+  <h2>6) Berechtigungen, die die App anfragt</h2>
+  <ul>
+    <li>Standort (bei Nutzung und im Hintergrund), um deinen Standort zu senden.</li>
+    <li>Benachrichtigungen für Freundesalarme, optional.</li>
+    <li>Kontakte, um App-Nutzer zu finden, optional.</li>
+    <li>Keine Akkueinschränkung, damit das System das Senden nicht stoppt.</li>
+  </ul>
+  <p>Android zeigt beim Senden im Hintergrund eine kleine Benachrichtigung an; das ist eine Vorgabe des Systems.</p>
+
+  <h2>7) Deine Rechte</h2>
+  <ul>
+    <li><b>Konto löschen:</b> unter „Konto“ und dann „Mein Konto löschen“; deine Daten, Standort, Verlauf, Einstellungen und Foto werden gelöscht. Das kann nicht rückgängig gemacht werden.</li>
+    <li>Name, Farbe und Foto änderst du unter „Konto“. Telefonnummer und Geburtsjahr ändert der Admin.</li>
+    <li>Verbirg deinen Standort vor jedem Freund, schalte jeden Alarm aus und entferne jeden Freund.</li>
+  </ul>
+
+  <h2>8) Sicherheit</h2>
+  <p>Wir nutzen die Firebase-Authentifizierung und Zugriffsregeln, die verhindern, dass jemand die Daten anderer liest, außer den dazu Berechtigten. Dennoch ist kein System völlig sicher, also verwende ein starkes Passwort und gib es nicht weiter.</p>
+
+  <h2>9) Änderungen und Kontakt</h2>
+  <p>Wir können diese Erklärung aktualisieren; das Datum der letzten Aktualisierung steht oben. Bei Fragen oder um die Löschung deiner Daten zu beantragen, wende dich an den Admin, der dich eingeladen hat, oder schreib eine E-Mail an <a href="mailto:makanona.team@gmail.com">makanona.team@gmail.com</a>.</p>
+
+  <p style="margin-top:28px"><a href="index.html">Zurück zur App</a></p>
+</main>
+<main id="tr" lang="tr" dir="ltr" hidden>
+  <h1>Gizlilik politikası</h1>
+  <p class="meta">Makanona uygulaması, son güncelleme: Ekim 2026</p>
+  <p class="note">Bu sayfa, uygulamanın neleri topladığını ve bunların nasıl kullanıldığını sade bir dille açıklar. Makanona, aile ve arkadaşlar arasında konum paylaşmak için ücretsiz bir uygulamadır; bir kişi (yönetici) tarafından kendi arkadaşları ve ailesi için işletilir.</p>
+
+  <h2>1) Neleri topluyoruz?</h2>
+  <ul>
+    <li><b>Hesap verileri:</b> ad, e-posta, telefon numarası, doğum yılı (yalnızca yıl), renk ve isteğe bağlı küçük bir profil fotoğrafı.</li>
+    <li><b>Konum:</b> paylaşım açıkken anlık konumun, hız ve pil seviyesiyle birlikte, ayrıca günlük rota geçmişin (yolculuk noktaları ve duraklar).</li>
+    <li><b>Kişiler (isteğe bağlı):</b> izin verirsen uygulama, kimlerin uygulamayı kullandığını bulmak için kişilerindeki numaraları yalnızca telefonunda okur. <b>Adlar ve numaralar yüklenmez</b>; kullanıcılarla eşleştirmek için numaraların yalnızca şifrelenmiş parmak izleri (hash) gönderilir.</li>
+    <li><b>Günlük rapor:</b> her gün için sayısal bir özet (mesafe, araç kullanma ve yürüme süresi, yolculuk sayısı, en yüksek hız ve en uzun duraklar); rotandan hesaplanır ve geçmişinle birlikte saklanır (45 gün, "Uzun geçmiş" olanlar için 8 ay). Varsayılan olarak gizlidir; arkadaşların yalnızca gizlilik sayfasından paylaşımı açarsan görür.</li>
+    <li><b>Teknik veriler:</b> telefon modeli ve rastgele bir cihaz kimliği (tek telefondan girişi yönetmek için), ayrıca uyarı ayarların ve kayıtlı yerlerin.</li>
+    <li><b>Cihazdaki konum durumu:</b> konum hizmetinin kapalı olup olmadığı veya uygulamanın konum izninin kaldırılıp kaldırılmadığı. Bağlı arkadaşların bunu görür, reşit olmayanların velilerine de bununla ilgili uyarı gider.</li>
+    <li><b>Her noktanın hızı:</b> sürüş raporunda en yüksek hızı, sert frenlemeyi ve ani hızlanmayı hesaplamak için rota noktalarınla birlikte kaydedilir; geçmişle aynı gizlilik seçeneklerine tabidir.</li>
+    <li><b>Davet kodları:</b> bir kod oluşturduğunda, onu kullanan kişinin arkadaşlarına eklenmesi için kimliğin ve adın kodda saklanır. Kod 48 saat geçerlidir, yalnızca bir kez çalışır ve onu silebilirsin.</li>
+  </ul>
+
+  <h2>2) Neden topluyoruz?</h2>
+  <ul>
+    <li>Konumunu onayladığın kişilere göstermek ve onlarınkini sana göstermek için.</li>
+    <li>Açtığın uyarıları (yakınlık, pil, yerler, hız, hareketsizlik) ve SOS uyarılarını göndermek için.</li>
+    <li>Rota geçmişini göstermek, hesabını ve güvenliğini yönetmek için.</li>
+  </ul>
+
+  <h2>3) Verilerini kim görür?</h2>
+  <ul>
+    <li><b>Yalnızca bağlı arkadaşlar, iki tarafın da onayıyla.</b> Kimse kabul etmeden onun haritasında görünmezsin ve konumunu istediğin zaman belirli bir kişiden gizleyebilirsin.</li>
+    <li><b>Yönetici:</b> telefonunu kaybedersen yardım edebilmek için hesapların konumunu görebilir; hesapları ve davetleri yönetir.</li>
+    <li>Canlı konumun görünür kalırken geçmiş rota geçmişini arkadaşlarından gizleyebilirsin; tüm gizlilik seçenekleri "Hesap" içinde tek bir sayfadadır.</li>
+    <li>Çocuk hesapları (18 yaş altı), güvenlik için konumlarını ailelerinden gizleyemez. Telefonun konum hizmeti kapatılırsa veya izni kaldırılırsa veliye bir uyarı, geri geldiğinde de bir uyarı daha gider.</li>
+    <li>Verilerini satmıyoruz ve reklam göstermiyoruz.</li>
+  </ul>
+
+  <h2>4) Saklama süresi</h2>
+  <ul>
+    <li>Canlı gösterim için yalnızca son konum saklanır.</li>
+    <li>Rota geçmişi <b>45 gün</b> sonra otomatik olarak silinir.</li>
+    <li><b>Uzun geçmiş:</b> yöneticinin belirli hesaplar için açtığı, geçmişi ve raporları <b>8 ay</b> saklayan bir özellik. 45 günden eski günler daha az noktayla (aynı rotayı çizecek şekilde) saklanır ve <b>yalnızca sahibine görünür</b>; arkadaşları yalnızca son 45 günü görür. Abonelik bittiğinde eski geçmiş 30 gün daha kalır, ardından 45 günden eski her şey silinir.</li>
+    <li>Hesabını sildiğinde verilerin 7. bölümde anlatıldığı gibi silinir.</li>
+  </ul>
+
+  <h2>5) Veriler nerede saklanır ve hangi dış hizmetler kullanılır?</h2>
+  <ul>
+    <li><b>Google Firebase:</b> kimlik doğrulama ve veritabanı; veriler Google sunucularında saklanır.</li>
+    <li><b>OpenStreetMap ve Esri:</b> haritaları göstermek için.</li>
+    <li><b>OpenStreetMap (Nominatim):</b> koordinatları mahalle veya sokak adına çevirmek için; adres istendiğinde gösterilen kişinin konumu buraya gönderilir.</li>
+    <li><b>Google Apps Script üzerinden Gmail:</b> davetleri ve şifre kurtarma kodlarını göndermek için.</li>
+  </ul>
+
+  <h2>6) Uygulamanın istediği izinler</h2>
+  <ul>
+    <li>Konumunu göndermek için konum (kullanım sırasında ve arka planda).</li>
+    <li>Arkadaş uyarıları için bildirimler, isteğe bağlı.</li>
+    <li>Uygulama kullanıcılarını bulmak için kişiler, isteğe bağlı.</li>
+    <li>Sistemin gönderimi durdurmaması için pil kısıtlaması olmaması.</li>
+  </ul>
+  <p>Android, arka planda gönderim yapılırken küçük bir bildirim gösterir; bu bir sistem gereksinimidir.</p>
+
+  <h2>7) Hakların</h2>
+  <ul>
+    <li><b>Hesabını sil:</b> "Hesap" ve ardından "Hesabımı sil" ile; verilerin, konumun, geçmişin, ayarların ve fotoğrafın silinir ve bu geri alınamaz.</li>
+    <li>Adını, rengini ve fotoğrafını "Hesap" bölümünden değiştirebilirsin. Telefon numarasını ve doğum yılını yönetici değiştirir.</li>
+    <li>Konumunu herhangi bir arkadaşından gizleyebilir, herhangi bir uyarıyı kapatabilir ve herhangi bir arkadaşını kaldırabilirsin.</li>
+  </ul>
+
+  <h2>8) Güvenlik</h2>
+  <p>Firebase kimlik doğrulamasını ve hiç kimsenin verisinin, buna yetkili olanlar dışında okunmasını engelleyen erişim kurallarını kullanıyoruz. Yine de hiçbir sistem tamamen güvenli değildir; bu yüzden güçlü bir şifre kullan ve onu kimseyle paylaşma.</p>
+
+  <h2>9) Değişiklikler ve iletişim</h2>
+  <p>Bu politikayı güncelleyebiliriz; son güncelleme tarihi en üstte yer alır. Soruların için veya verilerinin silinmesini istemek için seni davet eden yöneticiyle iletişime geç ya da <a href="mailto:makanona.team@gmail.com">makanona.team@gmail.com</a> adresine e-posta gönder.</p>
+
+  <p style="margin-top:28px"><a href="index.html">Uygulamaya dön</a></p>
+</main>
+<main id="ru" lang="ru" dir="ltr" hidden>
+  <h1>Политика конфиденциальности</h1>
+  <p class="meta">Приложение Makanona, последнее обновление: октябрь 2026</p>
+  <p class="note">На этой странице простым языком объясняется, какие данные собирает приложение и как они используются. Makanona — бесплатное приложение, чтобы делиться местоположением с семьёй и друзьями; его ведёт один человек (администратор) для своих друзей и родных.</p>
+
+  <h2>1) Что мы собираем?</h2>
+  <ul>
+    <li><b>Данные аккаунта:</b> имя, email, номер телефона, год рождения (только год), цвет и необязательное маленькое фото профиля.</li>
+    <li><b>Местоположение:</b> твоё текущее местоположение, пока включён доступ к нему, вместе со скоростью и уровнем заряда, а также ежедневная история маршрутов (точки поездок и остановки).</li>
+    <li><b>Контакты (необязательно):</b> если ты разрешишь, приложение читает номера твоих контактов на телефоне только для того, чтобы найти, кто пользуется приложением. <b>Имена и номера не загружаются</b>; для сравнения с пользователями отправляются только зашифрованные отпечатки (хеши) номеров.</li>
+    <li><b>Ежедневный отчёт:</b> сводка чисел за каждый день (расстояние, время за рулём и пешком, число поездок, максимальная скорость и самые долгие остановки), рассчитанная по твоему маршруту и хранящаяся вместе с историей (45 дней или 8 месяцев для тех, у кого есть «Длинная история»). По умолчанию отчёт приватный, и друзья видят его, только если ты включишь доступ на странице конфиденциальности.</li>
+    <li><b>Технические данные:</b> модель телефона и случайный идентификатор устройства (чтобы вход был только с одного телефона), а также твои настройки оповещений и сохранённые места.</li>
+    <li><b>Состояние геолокации на устройстве:</b> выключена ли геолокация или отозван ли у приложения доступ к местоположению. Это видят твои связанные друзья, а опекуны несовершеннолетних получают об этом оповещение.</li>
+    <li><b>Скорость в каждой точке:</b> записывается вместе с точками маршрута, чтобы рассчитать максимальную скорость, резкие торможения и ускорения в отчёте о вождении, с теми же настройками конфиденциальности, что и история.</li>
+    <li><b>Коды приглашения:</b> когда ты создаёшь код, в нём сохраняются твой идентификатор и имя, чтобы тот, кто его использует, добавился в твои друзья. Код действует 48 часов и срабатывает один раз, и ты можешь его удалить.</li>
+  </ul>
+
+  <h2>2) Зачем мы это собираем?</h2>
+  <ul>
+    <li>Чтобы показывать твоё местоположение одобренным тобой людям, а тебе — их местоположение.</li>
+    <li>Чтобы отправлять включённые тобой оповещения (о приближении, заряде, местах, скорости, бездействии) и сигналы SOS.</li>
+    <li>Чтобы показывать историю маршрутов, а также управлять твоим аккаунтом и его безопасностью.</li>
+  </ul>
+
+  <h2>3) Кто видит твои данные?</h2>
+  <ul>
+    <li><b>Только связанные друзья, с согласия обеих сторон.</b> Ты не появишься ни на чьей карте, пока человек не примет запрос, и можешь в любой момент скрыть своё местоположение от конкретного человека.</li>
+    <li><b>Администратор:</b> может видеть местоположение аккаунтов, чтобы помочь, если ты потеряешь телефон, а также управляет аккаунтами и приглашениями.</li>
+    <li>Ты можешь скрыть от друзей историю прошлых маршрутов, оставив видимым текущее местоположение; все настройки конфиденциальности собраны на одной странице в разделе «Аккаунт».</li>
+    <li>Детские аккаунты (до 18 лет) не могут скрывать местоположение от семьи — ради безопасности. Опекун получает оповещение, если на телефоне выключена геолокация или отозван доступ к ней, и ещё одно, когда всё снова работает.</li>
+    <li>Мы не продаём твои данные и не показываем рекламу.</li>
+  </ul>
+
+  <h2>4) Хранение</h2>
+  <ul>
+    <li>Для отображения в реальном времени хранится только последнее местоположение.</li>
+    <li>История маршрутов автоматически удаляется через <b>45 дней</b>.</li>
+    <li><b>Длинная история:</b> функция, которую администратор включает для отдельных аккаунтов; история и отчёты хранятся <b>8 месяцев</b>. Дни старше 45 дней хранятся с меньшим числом точек (маршрут рисуется тот же) и <b>видны только владельцу</b>; друзья видят только последние 45 дней. Когда подписка заканчивается, старая история хранится ещё 30 дней, затем всё старше 45 дней удаляется.</li>
+    <li>Когда ты удаляешь аккаунт, твои данные удаляются, как описано в разделе 7.</li>
+  </ul>
+
+  <h2>5) Где хранятся данные и какие внешние сервисы используются?</h2>
+  <ul>
+    <li><b>Google Firebase:</b> аутентификация и база данных; данные хранятся на серверах Google.</li>
+    <li><b>OpenStreetMap и Esri:</b> для отображения карт.</li>
+    <li><b>OpenStreetMap (Nominatim):</b> чтобы превращать координаты в название района или улицы; при запросе адреса туда отправляется местоположение показываемого человека.</li>
+    <li><b>Gmail через Google Apps Script:</b> для отправки приглашений и кодов восстановления пароля.</li>
+  </ul>
+
+  <h2>6) Какие разрешения запрашивает приложение</h2>
+  <ul>
+    <li>Местоположение (во время использования и в фоне) — чтобы отправлять твоё местоположение.</li>
+    <li>Уведомления — для оповещений о друзьях, необязательно.</li>
+    <li>Контакты — чтобы находить пользователей приложения, необязательно.</li>
+    <li>Без ограничений батареи — чтобы система не останавливала отправку.</li>
+  </ul>
+  <p>Во время отправки в фоне Android показывает небольшое уведомление; это требование системы.</p>
+
+  <h2>7) Твои права</h2>
+  <ul>
+    <li><b>Удаление аккаунта:</b> в разделе «Аккаунт» → «Удалить мой аккаунт»; твои данные, местоположение, история, настройки и фото удаляются, и это нельзя отменить.</li>
+    <li>Имя, цвет и фото можно изменить в разделе «Аккаунт». Номер телефона и год рождения меняет администратор.</li>
+    <li>Ты можешь скрыть местоположение от любого друга, выключить любое оповещение и удалить любого друга.</li>
+  </ul>
+
+  <h2>8) Безопасность</h2>
+  <p>Мы используем аутентификацию Firebase и правила доступа, которые не позволяют читать чьи-либо данные никому, кроме тех, у кого есть на это право. И всё же ни одна система не защищена полностью, поэтому используй надёжный пароль и никому его не сообщай.</p>
+
+  <h2>9) Изменения и контакты</h2>
+  <p>Мы можем обновлять эту политику; дата последнего обновления указана вверху. С вопросами или чтобы запросить удаление своих данных, обратись к администратору, который тебя пригласил, или напиши на <a href="mailto:makanona.team@gmail.com">makanona.team@gmail.com</a>.</p>
+
+  <p style="margin-top:28px"><a href="index.html">Вернуться в приложение</a></p>
+</main>
+<main id="nl" lang="nl" dir="ltr" hidden>
+  <h1>Privacybeleid</h1>
+  <p class="meta">De app Makanona, laatst bijgewerkt: oktober 2026</p>
+  <p class="note">Deze pagina legt in gewone taal uit wat de app verzamelt en hoe dat wordt gebruikt. Makanona is een gratis app om locatie te delen met familie en vrienden, beheerd door één persoon (de beheerder) voor zijn vrienden en familie.</p>
+
+  <h2>1) Wat verzamelen we?</h2>
+  <ul>
+    <li><b>Accountgegevens:</b> naam, e-mailadres, telefoonnummer, geboortejaar (alleen het jaar), kleur en een optionele kleine profielfoto.</li>
+    <li><b>Locatie:</b> je huidige locatie zolang delen aanstaat, met snelheid en batterijniveau, en je dagelijkse routegeschiedenis (punten van ritten en stops).</li>
+    <li><b>Contacten (optioneel):</b> als je dat toestaat, leest de app de nummers van je contacten op je telefoon, alleen om te vinden wie de app gebruikt. <b>Namen en nummers worden niet geüpload</b>; alleen versleutelde vingerafdrukken (hashes) van de nummers worden verstuurd om ze met gebruikers te vergelijken.</li>
+    <li><b>Dagrapport:</b> een samenvatting in cijfers per dag (afstand, rij- en looptijd, aantal ritten, topsnelheid en langste stops), berekend uit je route en bewaard bij je geschiedenis (45 dagen, of 8 maanden voor wie "Lange geschiedenis" heeft). Het is standaard privé, en je vrienden zien het alleen als je delen aanzet op de privacypagina.</li>
+    <li><b>Technische gegevens:</b> telefoonmodel en een willekeurige apparaat-ID (om inloggen vanaf één telefoon te beheren), en je meldingsinstellingen en opgeslagen plekken.</li>
+    <li><b>Locatiestatus op het apparaat:</b> of de locatieservice uitstaat of de locatietoestemming van de app is ingetrokken. Je verbonden vrienden zien dit, en voogden van minderjarigen krijgen er een melding over.</li>
+    <li><b>Snelheid per punt:</b> vastgelegd bij je routepunten om topsnelheid, hard remmen en snel optrekken te berekenen in het rijrapport, met dezelfde privacyopties als de geschiedenis.</li>
+    <li><b>Uitnodigingscodes:</b> als je een code maakt, worden je ID en naam erin opgeslagen, zodat wie hem gebruikt aan je vrienden wordt toegevoegd. Een code is 48 uur geldig en werkt één keer, en je kunt hem verwijderen.</li>
+  </ul>
+
+  <h2>2) Waarom verzamelen we het?</h2>
+  <ul>
+    <li>Om je locatie te tonen aan mensen die je hebt goedgekeurd, en hun locatie aan jou.</li>
+    <li>Om de meldingen te sturen die je aanzet (nabijheid, batterij, plekken, snelheid, inactiviteit) en SOS-meldingen.</li>
+    <li>Om de routegeschiedenis te tonen en je account en de beveiliging ervan te beheren.</li>
+  </ul>
+
+  <h2>3) Wie ziet je gegevens?</h2>
+  <ul>
+    <li><b>Alleen verbonden vrienden, met toestemming van beide kanten.</b> Je verschijnt op niemands kaart voordat die accepteert, en je kunt je locatie op elk moment voor een specifieke persoon verbergen.</li>
+    <li><b>De beheerder:</b> kan de locaties van accounts zien om te helpen als je je telefoon kwijtraakt, en beheert accounts en uitnodigingen.</li>
+    <li>Je kunt je eerdere routegeschiedenis voor je vrienden verbergen en je live locatie zichtbaar houden; alle privacyopties staan op één pagina in "Account".</li>
+    <li>Kinderaccounts (jonger dan 18) kunnen hun locatie voor hun veiligheid niet voor hun familie verbergen. De voogd krijgt een melding als de locatieservice van de telefoon wordt uitgezet of de toestemming wordt ingetrokken, en nog een als die terugkomt.</li>
+    <li>We verkopen je gegevens niet en tonen geen advertenties.</li>
+  </ul>
+
+  <h2>4) Bewaartermijn</h2>
+  <ul>
+    <li>Alleen de laatste locatie wordt bewaard voor live weergave.</li>
+    <li>Routegeschiedenis wordt na <b>45 dagen</b> automatisch verwijderd.</li>
+    <li><b>Lange geschiedenis:</b> een functie die de beheerder voor specifieke accounts aanzet, waarbij geschiedenis en rapporten <b>8 maanden</b> worden bewaard. Dagen ouder dan 45 dagen worden met minder punten bewaard (dezelfde route) en zijn <b>alleen zichtbaar voor de eigenaar</b>; vrienden zien alleen de laatste 45 dagen. Als het abonnement afloopt, blijft de oude geschiedenis 30 dagen bewaard, daarna wordt alles ouder dan 45 dagen verwijderd.</li>
+    <li>Als je je account verwijdert, worden je gegevens verwijderd zoals beschreven in sectie 7.</li>
+  </ul>
+
+  <h2>5) Waar worden gegevens opgeslagen en welke externe diensten worden gebruikt?</h2>
+  <ul>
+    <li><b>Google Firebase:</b> authenticatie en database; gegevens worden opgeslagen op servers van Google.</li>
+    <li><b>OpenStreetMap en Esri:</b> voor het tonen van kaarten.</li>
+    <li><b>OpenStreetMap (Nominatim):</b> om coördinaten om te zetten in een buurt- of straatnaam; de locatie van de getoonde persoon wordt ernaar verstuurd als een adres wordt opgevraagd.</li>
+    <li><b>Gmail via Google Apps Script:</b> om uitnodigingen en herstelcodes voor wachtwoorden te versturen.</li>
+  </ul>
+
+  <h2>6) Machtigingen die de app vraagt</h2>
+  <ul>
+    <li>Locatie (tijdens gebruik en op de achtergrond) om je locatie te versturen.</li>
+    <li>Meldingen voor meldingen over vrienden, optioneel.</li>
+    <li>Contacten om gebruikers van de app te vinden, optioneel.</li>
+    <li>Geen batterijbeperking, zodat het systeem het versturen niet stopt.</li>
+  </ul>
+  <p>Android toont een kleine melding tijdens het versturen op de achtergrond; dit is een vereiste van het systeem.</p>
+
+  <h2>7) Je rechten</h2>
+  <ul>
+    <li><b>Je account verwijderen:</b> via "Account" en dan "Mijn account verwijderen"; je gegevens, locatie, geschiedenis, instellingen en foto worden verwijderd, en dit kan niet ongedaan worden gemaakt.</li>
+    <li>Je naam, kleur en foto wijzigen via "Account". De beheerder wijzigt het telefoonnummer en geboortejaar.</li>
+    <li>Je locatie voor elke vriend verbergen, elke melding uitzetten en elke vriend verwijderen.</li>
+  </ul>
+
+  <h2>8) Beveiliging</h2>
+  <p>We gebruiken Firebase-authenticatie en toegangsregels die voorkomen dat iemands gegevens worden gelezen, behalve door wie daar recht op heeft. Toch is geen enkel systeem volledig veilig, dus gebruik een sterk wachtwoord en deel het met niemand.</p>
+
+  <h2>9) Wijzigingen en contact</h2>
+  <p>We kunnen dit beleid bijwerken; de datum van de laatste update staat bovenaan. Voor vragen of om verwijdering van je gegevens aan te vragen, neem contact op met de beheerder die je uitnodigde, of mail naar <a href="mailto:makanona.team@gmail.com">makanona.team@gmail.com</a>.</p>
+
+  <p style="margin-top:28px"><a href="index.html">Terug naar de app</a></p>
+</main>
+<main id="fr" lang="fr" dir="ltr" hidden>
+  <h1>Politique de confidentialité</h1>
+  <p class="meta">L'application Makanona, dernière mise à jour : octobre 2026</p>
+  <p class="note">Cette page explique simplement ce que l'application collecte et comment ces données sont utilisées. Makanona est une application gratuite de partage de position entre famille et amis, gérée par une seule personne (l'admin) pour ses amis et sa famille.</p>
+
+  <h2>1) Que collectons-nous ?</h2>
+  <ul>
+    <li><b>Données du compte :</b> nom, e-mail, numéro de téléphone, année de naissance (l'année uniquement), couleur et une petite photo de profil facultative.</li>
+    <li><b>Position :</b> ta position actuelle quand le partage est activé, avec la vitesse et le niveau de batterie, ainsi que l'historique quotidien de tes déplacements (points de trajet et arrêts).</li>
+    <li><b>Contacts (facultatif) :</b> si tu l'autorises, l'application lit les numéros de tes contacts sur ton téléphone uniquement pour trouver qui utilise l'application. <b>Les noms et les numéros ne sont pas envoyés</b> ; seules des empreintes chiffrées (hashes) des numéros sont transmises pour les comparer aux utilisateurs.</li>
+    <li><b>Rapport quotidien :</b> un résumé chiffré de chaque journée (distance, temps de conduite et de marche, nombre de trajets, vitesse max et arrêts les plus longs) calculé à partir de tes déplacements et conservé avec ton historique (45 jours, ou 8 mois pour ceux qui ont l'« Historique long »). Il est privé par défaut, et tes amis ne le voient que si tu actives le partage depuis la page Confidentialité.</li>
+    <li><b>Données techniques :</b> modèle du téléphone et identifiant d'appareil aléatoire (pour gérer la connexion depuis un seul téléphone), ainsi que tes réglages d'alertes et tes lieux enregistrés.</li>
+    <li><b>État de la localisation sur l'appareil :</b> si le service de localisation est désactivé ou si l'autorisation de localisation de l'application a été retirée. Tes amis connectés le voient, et les tuteurs des mineurs reçoivent une alerte à ce sujet.</li>
+    <li><b>Vitesse de chaque point :</b> enregistrée avec les points de ton trajet pour calculer la vitesse max, les freinages brusques et les accélérations rapides dans le rapport de conduite, avec les mêmes options de confidentialité que l'historique.</li>
+    <li><b>Codes d'invitation :</b> quand tu crées un code, ton identifiant et ton nom y sont enregistrés pour que la personne qui l'utilise soit ajoutée à tes amis. Un code est valable 48 heures, ne fonctionne qu'une fois, et tu peux le supprimer.</li>
+  </ul>
+
+  <h2>2) Pourquoi les collectons-nous ?</h2>
+  <ul>
+    <li>Pour montrer ta position aux personnes que tu as acceptées, et te montrer la leur.</li>
+    <li>Pour envoyer les alertes que tu actives (proximité, batterie, lieux, vitesse, inactivité) et les alertes SOS.</li>
+    <li>Pour afficher l'historique des déplacements, et gérer ton compte et sa sécurité.</li>
+  </ul>
+
+  <h2>3) Qui voit tes données ?</h2>
+  <ul>
+    <li><b>Uniquement les amis connectés, avec l'accord des deux côtés.</b> Tu n'apparais sur la carte de personne avant qu'il ait accepté, et tu peux masquer ta position à une personne précise à tout moment.</li>
+    <li><b>L'admin :</b> peut voir la position des comptes pour t'aider si tu perds ton téléphone, et gère les comptes et les invitations.</li>
+    <li>Tu peux masquer l'historique de tes trajets passés à tes amis tout en gardant ta position en direct visible ; toutes les options de confidentialité sont sur une seule page dans « Compte ».</li>
+    <li>Les comptes enfants (moins de 18 ans) ne peuvent pas masquer leur position à leur famille, par sécurité. Le tuteur reçoit une alerte si le service de localisation du téléphone est désactivé ou si son autorisation est retirée, et une autre quand elle revient.</li>
+    <li>Nous ne vendons pas tes données et n'affichons pas de publicité.</li>
+  </ul>
+
+  <h2>4) Conservation</h2>
+  <ul>
+    <li>Seule la dernière position est conservée pour l'affichage en direct.</li>
+    <li>L'historique des déplacements est supprimé automatiquement après <b>45 jours</b>.</li>
+    <li><b>Historique long :</b> une fonction que l'admin active pour certains comptes, qui conserve l'historique et les rapports pendant <b>8 mois</b>. Les jours de plus de 45 jours sont conservés avec moins de points (traçant le même trajet) et restent <b>visibles uniquement par leur propriétaire</b> ; ses amis ne voient que les 45 derniers jours. À la fin de l'abonnement, l'ancien historique reste 30 jours, puis tout ce qui a plus de 45 jours est supprimé.</li>
+    <li>Quand tu supprimes ton compte, tes données sont supprimées comme décrit à la section 7.</li>
+  </ul>
+
+  <h2>5) Où les données sont-elles stockées et quels services externes sont utilisés ?</h2>
+  <ul>
+    <li><b>Google Firebase :</b> authentification et base de données ; les données sont stockées sur les serveurs de Google.</li>
+    <li><b>OpenStreetMap et Esri :</b> pour afficher les cartes.</li>
+    <li><b>OpenStreetMap (Nominatim) :</b> pour convertir des coordonnées en nom de quartier ou de rue ; la position de la personne affichée lui est envoyée quand une adresse est demandée.</li>
+    <li><b>Gmail via Google Apps Script :</b> pour envoyer les invitations et les codes de récupération de mot de passe.</li>
+  </ul>
+
+  <h2>6) Autorisations demandées par l'application</h2>
+  <ul>
+    <li>Localisation (pendant l'utilisation et en arrière-plan) pour envoyer ta position.</li>
+    <li>Notifications pour les alertes des amis, facultatif.</li>
+    <li>Contacts pour trouver les utilisateurs de l'application, facultatif.</li>
+    <li>Pas de restriction de batterie, pour que le système n'arrête pas l'envoi.</li>
+  </ul>
+  <p>Android affiche une petite notification pendant l'envoi en arrière-plan ; c'est une exigence du système.</p>
+
+  <h2>7) Tes droits</h2>
+  <ul>
+    <li><b>Supprimer ton compte :</b> depuis « Compte » puis « Supprimer mon compte » ; tes données, ta position, ton historique, tes réglages et ta photo sont supprimés, sans retour possible.</li>
+    <li>Modifier ton nom, ta couleur et ta photo depuis « Compte ». L'admin modifie le numéro de téléphone et l'année de naissance.</li>
+    <li>Masquer ta position à n'importe quel ami, désactiver n'importe quelle alerte et retirer n'importe quel ami.</li>
+  </ul>
+
+  <h2>8) Sécurité</h2>
+  <p>Nous utilisons l'authentification Firebase et des règles d'accès qui empêchent de lire les données de quiconque, sauf pour les personnes autorisées. Cependant, aucun système n'est totalement sûr : utilise un mot de passe solide et ne le partage pas.</p>
+
+  <h2>9) Modifications et contact</h2>
+  <p>Nous pouvons mettre à jour cette politique ; la date de dernière mise à jour figure en haut de la page. Pour toute question ou pour demander la suppression de tes données, contacte l'admin qui t'a invité(e), ou écris à <a href="mailto:makanona.team@gmail.com">makanona.team@gmail.com</a>.</p>
+
+  <p style="margin-top:28px"><a href="index.html">Retour à l'application</a></p>
+</main>
+<script>
+(function () {
+  var SUP = ['ar', 'en', 'de', 'tr', 'ru', 'nl', 'fr'], pick = null; try { pick = localStorage.getItem('mk_lang'); } catch (e) {}
+  if (SUP.indexOf(pick) < 0) { pick = 'en'; var L = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en']; for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } } }
+  if (pick === 'ar') return;
+  var el = document.getElementById(pick); if (!el) return;
+  document.querySelector('main:not([id])').hidden = true; el.hidden = false;
+  document.documentElement.lang = pick; document.documentElement.dir = 'ltr'; document.title = {"en": "Privacy policy, Makanona", "de": "Datenschutzerklärung, Makanona", "tr": "Gizlilik politikası, Makanona", "ru": "Политика конфиденциальности, Makanona", "nl": "Privacybeleid, Makanona", "fr": "Politique de confidentialité, Makanona"}[pick];
+})();
+</script>
 </body>
 </html>
