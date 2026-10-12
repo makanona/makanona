@@ -959,7 +959,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '23';
+const UI_VERSION = '24';
 window.__modReal = true; window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: _t("مشي"), bike: _t("دراجة"), car: _t("سيارة") };
 const DEFAULT_SUBJECT = tf("دعوة للانضمام إلى {0}", CFG.appName);
@@ -2981,7 +2981,9 @@ async function handleSosIncoming(prev) {
 }
 
 /* ---------- الرجوع بخطوة: لمسة على الخريطة وزر الرجوع في أندرويد ---------- */
+/* الضغط على الخريطة = «رجوع» خفيف: يغلق الأعلى فقط، ولا يخرج من السجل ولا يخفي التطبيق */
 function mapTap() {
+  if (!$('style-menu').hidden) { $('style-menu').hidden = true; return; }
   if (S.histFor) { if (S.hState === 'full') setHState('min'); return; }
   if (S.person) { closePerson(); return; }
   if (S.tab === 'map' && !S.sheetMin) setSheetMin(true);
@@ -3003,6 +3005,7 @@ window.__back = () => {
   if (vis('v-privacy')) { $('v-privacy').hidden = true; return true; }
   if (vis('v-wizard')) return false;
   if (vis('v-main')) {
+    if (vis('style-menu')) { $('style-menu').hidden = true; return true; }
     if (S.pickPlace) { endPick(); return true; }
     if (S.histFor) { if (S.hState === 'full') setHState('min'); else closeHistory(); return true; }
     if (S.person) { closePerson(); return true; }
