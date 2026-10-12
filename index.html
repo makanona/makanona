@@ -119,6 +119,10 @@ button.chip{cursor:pointer;background:#fff;color:var(--ink)}
 .mk-pin{position:absolute;left:8px;top:20px;width:44px;height:44px;background:#fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 3px 10px #0006}
 .mk-ph{position:absolute;inset:4px;border-radius:50%;transform:rotate(45deg);background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:17px}
 .mk.stale .mk-pin{filter:grayscale(.85);opacity:.85}
+.mk.sel .mk-pin{box-shadow:0 0 0 4px #fff,0 0 0 7px var(--c-sel,#E8A33D)}.mk.sel .tag{font-weight:800}
+.mk.dim{opacity:.28}.mk.dim .tag,.mk.dim .mk-lbl,.mk.dim .mk-cone{display:none}
+#ppick-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.mk.frz{opacity:.6}.mk.frz .mk-pin{filter:grayscale(1)}.mk-lbl.frz{color:var(--ink2)}
 .mk-lbl{position:absolute;top:-2px;left:50%;transform:translateX(-50%);background:#fff;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 1px 5px #0004;display:flex;align-items:center;gap:5px;color:var(--ink)}
 .mk-lbl i{width:8px;height:8px;border-radius:50%;background:#2FBF9B;display:inline-block}
 .mk-lbl.old{color:var(--ink2)}.mk-lbl.off{color:var(--bad)}
@@ -212,6 +216,10 @@ details.acc[open]>summary{margin-bottom:8px}
 .contact-line a{color:var(--ink);font-weight:600}
 #send-bar{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:505;background:#FBE9C8;color:#7A4F00;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
 #send-bar span{flex:1;min-width:0}
+#recip-bar{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:505;background:#E3E9EC;color:#10272F;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
+#recip-bar span{flex:1;min-width:0}
+#send-bar:not([hidden]) ~ #recip-bar{top:calc(104px + env(safe-area-inset-top,0px))}
+#v-main.hmode #recip-bar{display:none}
 #fabs{position:absolute;inset-inline-end:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:500;display:flex;flex-direction:column;gap:10px}
 .fab{width:44px;height:44px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 10px #0003;display:grid;place-items:center;cursor:pointer}
 #btn-notif{position:relative}
@@ -383,7 +391,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=24"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=25"><\/script>');
 })();
 </script>
 <script>
@@ -506,6 +514,7 @@ window.APP_CONFIG = {
     <div id="rpt-bar" hidden><span id="rpt-bar-t"></span><button class="btn sm" data-act="rpt-bar-open">عرض</button><button class="btn sm" data-act="rpt-bar-x">×</button></div>
   </div>
   <div id="send-bar" hidden><span>الإرسال متوقف: موقعك لا يصل للعائلة.</span><button class="btn sm" data-act="send-fix">إعداد</button></div>
+  <div id="recip-bar" hidden><span id="recip-t"></span><button class="btn sm primary" id="recip-go">شغّل الموقع</button></div>
   <div id="style-menu" hidden></div>
 
   <div id="sheet" class="sheet">
@@ -821,7 +830,7 @@ window.APP_CONFIG = {
       <button class="btn sm" data-act="rpt-csv" id="rpt-csv">تصدير CSV</button>
     </div>
   </div>
-  <div class="card">
+  <div class="card" id="rpt-mine-card">
     <label>حد السرعة لحساب «فوق السرعة» (كم/س)<input id="rpt-speed" inputmode="numeric" dir="ltr" placeholder="120"></label>
     <div id="rpt-follow"></div>
   </div>
@@ -877,6 +886,13 @@ window.APP_CONFIG = {
     <b style="font-size:14px;margin-top:6px">أماكنه المتكررة</b>
     <div id="fp-his"></div>
     <div class="acts"><button class="btn" data-act="fp-close">إغلاق</button></div>
+  </div>
+</div>
+<div id="modal-ppick" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b>اختر الشخص</b>
+    <div id="ppick-list"></div>
+    <div class="acts"><button class="btn" data-act="ppick-close">إغلاق</button></div>
   </div>
 </div>
 <div id="modal-pmore" class="modal" hidden>
@@ -959,7 +975,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '24';
+const UI_VERSION = '25';
 window.__modReal = true; window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: _t("مشي"), bike: _t("دراجة"), car: _t("سيارة") };
 const DEFAULT_SUBJECT = tf("دعوة للانضمام إلى {0}", CFG.appName);
@@ -980,7 +996,7 @@ const S = {
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
   noteOff: null, pickFriend: null, modeSt: {}, sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {}, myInv: {}, myInvInfo: {},
   adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
-  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false,
+  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false, frz: {}, recipBad: null, badSince: 0, histHides: {},
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
@@ -1282,13 +1298,15 @@ function watchSession() {
 /* ---------- تشغيل التطبيق الرئيسي ---------- */
 function startMain() {
   S.started = true; S.fitted = false;
+  S.myLocLoaded = false; S.hidesLoaded = false; S.hideAllLoaded = false; S.wasGood = false; S.badSince = 0; S.recipBad = null; S.recipDenied = false; S.preFrz = null;
+  try { S.frz = JSON.parse(localStorage.getItem('mk_frz_' + S.uid) || '{}') || {}; } catch { S.frz = {}; }
   $('tab-admin').hidden = !S.isAdmin;
   showView('main'); initMap(); setTab('map');
   ensureDirectory().then(() => (S.limited ? null : ensureIndex())).catch(console.error);
 
   if (!S.limited) {
     S.unsubs.reqs = onValue(ref(db, 'requests/' + S.uid), s => { S.reqs = s.val() || {}; updateBadge(); if (S.tab === 'me') renderPeople(); autoAcceptInvited(); }, e => console.error('reqs', e));
-    S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; S.mineLoaded = true; syncWatch(); syncLocs(); renderAll(); }, e => console.error('links', e));
+    S.unsubs.mine = onValue(ref(db, 'links/' + S.uid), s => { S.mine = s.val() || {}; S.mineLoaded = true; syncWatch(); syncLocs(); recipApply(); renderAll(); }, e => console.error('links', e));
   }
   if (S.isAdmin) {
     S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
@@ -1304,7 +1322,7 @@ function startMain() {
   } else { syncWatch(); if (S.limited) syncLocs(); }
   if (!S.limited) {
     S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') { renderProx(); renderAlerts(); } pushProx(); }, e => console.error('alerts', e));
-    S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; if (S.tab === 'me') renderPeople(); }, e => console.error('hide', e));
+    S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; S.hidesLoaded = true; recipEval(); if (S.tab === 'me') renderPeople(); }, e => console.error('hide', e));
   }
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; S.updLoaded = true; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
@@ -1313,28 +1331,29 @@ function startMain() {
     updateNotifBadge();
     if (DEEP_NOTIF && !S.deepDone && notifOK()) { S.deepDone = true; try { history.replaceState(null, '', location.pathname); } catch {} notifGo(DEEP_NOTIF); }
     else if (DEEP_SOS && !S.deepDone) { S.deepDone = true; S.pendingSos = DEEP_SOS; try { history.replaceState(null, '', location.pathname); } catch {} handleSosIncoming(S.sosIn || {}); }
-    else if (DEEP && !S.deepDone) { S.deepDone = true; openReport('day', DEEP); try { history.replaceState(null, '', location.pathname); } catch {} }
+    else if (DEEP && !S.deepDone) { S.deepDone = true; openReport('day', DEEP, DEEP_RWHO || undefined); try { history.replaceState(null, '', location.pathname); } catch {} }
     else maybeReportBanner();
   }, 1200);
   S.unsubs.phoneReq = onValue(ref(db, 'phoneReq/' + S.uid), s => { S.phoneReq = s.val(); renderPhoneReq(); if (S.phoneReq && S.phoneReq.status !== 'pending') showPhoneResult(); }, e => console.error('phoneReq', e));
   try { S.sosOut = JSON.parse(localStorage.getItem('sosOut') || 'null'); } catch { S.sosOut = null; }
   if (!S.limited) {
     S.unsubs.places = onValue(ref(db, 'places/' + S.uid), s => { S.places = s.val() || {}; renderPlaces(); pushAlerts(); }, e => console.error('places', e));
-    S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; if (S.tab === 'me') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
+    S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; S.hideAllLoaded = true; recipEval(); if (S.tab === 'me') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
     S.unsubs.plan = onValue(ref(db, 'plan/' + S.uid), s => { S.plan = s.val(); renderPlan(); }, () => {});
+    S.unsubs.histHide = onValue(ref(db, 'histHide/' + S.uid), s => { S.histHides = s.val() || {}; renderPrivacy(); if (S.tab === 'me') renderPeople(); }, e => console.error('histHide', e));
     S.unsubs.histPriv = onValue(ref(db, 'histPrivate/' + S.uid), s => { S.histPriv = s.val() === true; renderPrivacy(); }, e => console.error('histPriv', e));
     S.unsubs.reportShare = onValue(ref(db, 'reportShare/' + S.uid), s => { S.reportShare = s.val() === true; renderPrivacy(); }, e => console.error('reportShare', e));
     S.unsubs.follow = onValue(ref(db, 'follow/' + S.uid), s => { S.follow = s.val() || {}; pushAlerts(); }, e => console.error('follow', e));
-    S.unsubs.kids = onValue(ref(db, 'guardianOf/' + S.uid), s => { S.kids = s.val() || {}; pushAlerts(); }, e => console.error('kids', e));
+    S.unsubs.kids = onValue(ref(db, 'guardianOf/' + S.uid), s => { S.kids = s.val() || {}; pushAlerts(); recipEval(); }, e => console.error('kids', e));
     S.unsubs.myInv = onValue(ref(db, 'invitesBy/' + S.uid), s => { S.myInv = s.val() || {}; refreshMyInv(); autoAcceptInvited(); }, e => console.error('myInv', e));
     S.unsubs.myGuardians = onValue(ref(db, 'guardians/' + S.uid), s => { S.myGuardians = s.val() || {}; renderPrivacy(); }, e => console.error('myGuardians', e));
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
-    S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); }, e => console.error('sosIn', e));
+    S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); recipEval(); }, e => console.error('sosIn', e));
     S.unsubs.sosAck = onValue(ref(db, 'sosAck/' + S.uid), s => { S.sosAck = s.val() || {}; renderSosBar(); }, e => console.error('sosAck', e));
   }
   let mn = false; try { mn = localStorage.getItem('sheetMin') === '1'; } catch {}
   setSheetMin(mn);
-  S.tick = setInterval(() => { S.tickN++; if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
+  S.tick = setInterval(() => { S.tickN++; recipEval(); if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
   if (!S.limited) get(ref(db, 'plan/' + S.uid)).then(sn => { S.plan = sn.val(); renderPlan(); return prune(S.uid, myKeep()).then(() => archiveOld(S.uid)); }).catch(() => {});
   if (isNative) ensureNative();
 }
@@ -1343,7 +1362,7 @@ function stopMain() {
   S.unsubs = {};
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
-  clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.migrated = false; S.mode = null;
+  clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.histHides = {}; S.frz = {}; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
   S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {}; S.plan = null; S.plans = {};
 }
@@ -1385,11 +1404,91 @@ function syncLocs() {
   for (const u of want) {
     if (S.locUn[u]) continue;
     S.hidden[u] = false;
-    S.locUn[u] = onValue(ref(db, 'locations/' + u), s => { S.locs[u] = s.val(); S.hidden[u] = false; renderMap(); renderSheet(); },
-      () => { delete S.locUn[u]; delete S.locs[u]; S.hidden[u] = true; renderMap(); renderSheet(); });
+    S.locUn[u] = onValue(ref(db, 'locations/' + u), s => {
+      if (u !== S.uid && recipWhy(u)) return;                            // متجمّد: لا نعرض تحديثاته حتى يعود موقعي
+      S.locs[u] = s.val(); S.hidden[u] = false;
+      if (u === S.uid) { S.myLocLoaded = true; recipEval(); }
+      renderMap(); renderSheet();
+    }, () => {
+      delete S.locUn[u]; delete S.locs[u];
+      if (u !== S.uid && (recipWhy(u) || myLocBad())) { S.recipDenied = true; recipEval(); if (S.frz[u]) S.locs[u] = S.frz[u].l; S.hidden[u] = false; }   // القواعد ترفض لأن موقعي لا يصل
+      else S.hidden[u] = true;
+      renderMap(); renderSheet();
+    });
   }
   for (const u of Object.keys(S.locUn)) if (!want.has(u)) { S.locUn[u]?.(); delete S.locUn[u]; delete S.locs[u]; }
   for (const u of Object.keys(S.locs)) if (!want.has(u)) delete S.locs[u];
+}
+/* ---------- لا ترى من لا يراك ----------
+   من موقعه مطفأ أو سحب الإذن أو توقف إرساله (أكثر من 30 دقيقة) لا تصله تحديثات أصدقائه، ومن أخفى موقعه عن صديق
+   لا يرى موقعه. يبقى آخر موقع لحظة الإطفاء أو الإخفاء ظاهراً «متجمّداً». القواعد تفرض الشيء نفسه.
+   الاستثناءات: المشرف، وولي الأمر لأبنائه، ومن أرسل لي استغاثة. */
+const RECIP_STALE = 30 * 60e3, RECIP_GRACE = 2 * 60e3;
+function myLocBad() {                                                    // off | perm | stop | null
+  if (S.isAdmin || S.limited) return null;
+  const n = isNative ? nat() : null;
+  if (n) { if (n.locOn === false) return 'off'; if (n.fine === false) return 'perm'; if (n.sharing === false) return 'stop'; }
+  if (!S.myLocLoaded) return null;
+  const l = S.locs[S.uid];
+  if (!l) return 'stop';
+  if (l.noperm === true) return 'perm';
+  if (l.off === true) return 'off';
+  if (Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - RECIP_STALE) return 'stop';
+  return null;
+}
+function recipWhy(u) {                                                   // لماذا لا أرى تحديثات u
+  if (!u || u === S.uid || S.isAdmin || S.limited) return null;
+  if ((S.kids && S.kids[u]) || (S.sosIn && S.sosIn[u])) return null;
+  if (S.hideAll || (S.hides && S.hides[u])) return 'hide';
+  return S.recipBad || null;
+}
+const recipReady = () => S.isAdmin || S.limited || (S.myLocLoaded && S.hidesLoaded && S.hideAllLoaded);
+function recipSave() { try { localStorage.setItem('mk_frz_' + S.uid, JSON.stringify(S.frz)); } catch {} }
+function recipEval() {
+  if (!S.started) return;
+  const raw = myLocBad(), now = Date.now();
+  if (raw) { if (!S.badSince) { S.badSince = now; S.preFrz = { ...S.locs }; } }
+  else { S.badSince = 0; S.preFrz = null; S.recipDenied = false; if (recipReady()) S.wasGood = true; }
+  // المهلة (دقيقتان) فقط لإطفاء حدث والتطبيق مفتوح، حتى لا تختفي المواقع عند إطفاء عابر. عند الفتح وموقعي مطفأ أصلاً: فوراً.
+  S.recipBad = raw && (S.recipDenied || !S.wasGood || now - S.badSince >= RECIP_GRACE) ? raw : null;
+  recipApply(); renderRecipBar();
+}
+function recipApply() {
+  if (!recipReady()) return;
+  let changed = false;
+  const ids = Object.keys(S.mine).filter(u => u !== S.uid && connected(u));
+  for (const u of ids) {
+    const why = recipWhy(u);
+    if (why) {
+      if (!S.frz[u]) { const l = (why !== 'hide' && S.preFrz && S.preFrz[u]) || S.locs[u] || null; S.frz[u] = { l, at: Date.now(), why }; changed = true; }
+      else if (S.frz[u].why !== why) { S.frz[u].why = why; changed = true; }
+      if (S.frz[u].l) { S.locs[u] = S.frz[u].l; S.hidden[u] = false; }
+    } else if (S.frz[u]) {
+      delete S.frz[u]; changed = true;
+      if (S.locUn[u]) { S.locUn[u](); delete S.locUn[u]; }                // اشتراك جديد ليصل الموقع الحالي فوراً
+    }
+  }
+  for (const u of Object.keys(S.frz)) if (!ids.includes(u)) { delete S.frz[u]; changed = true; }
+  if (changed) { recipSave(); syncLocs(); renderMap(); renderSheet(); if (S.person) renderPerson(); }
+}
+const frzWhen = ts => (dayKey(ts) === dayKey(Date.now()) ? fmtTime(ts) : fmtFull(ts));
+function frzText(u) {
+  const f = S.frz[u]; if (!f) return '';
+  const t = f.l && typeof f.l.ts === 'number' ? frzWhen(f.l.ts) : '';
+  const M = { off: [_t("آخر موقع قبل إطفاء موقعك، {0}"), _t("لا ترى موقعه لأن موقعك مطفأ")], perm: [_t("آخر موقع قبل سحب إذن الموقع، {0}"), _t("لا ترى موقعه لأنك سحبت إذن الموقع")], stop: [_t("آخر موقع قبل توقف إرسال موقعك، {0}"), _t("لا ترى موقعه لأن موقعك لا يصل")], hide: [_t("آخر موقع قبل إخفاء موقعك عنه، {0}"), _t("لا ترى موقعه لأنك أخفيت موقعك عنه")] }[f.why] || ['', ''];
+  return t ? M[0].replace('{0}', t) : M[1];
+}
+const recipMsg = why => why === 'hide' ? _t("أخفيت موقعك عنه، فلا ترى موقعه ولا سجله ولا تقاريره. ألغِ الإخفاء لتراها.") : _t("موقعك لا يصل لأصدقائك، فلا ترى سجلهم ولا تقاريرهم. شغّل موقعك أولاً.");
+function renderRecipBar() {
+  const bar = $('recip-bar'); if (!bar) return;
+  const why = S.recipBad;
+  if (!why || !S.started || S.tab !== 'map' || S.isAdmin) { bar.hidden = true; return; }
+  const n = isNative ? nat() : null;
+  $('recip-t').textContent = why === 'off' ? _t("موقعك مطفأ، فلا ترى مواقع أصدقائك الحية.") : why === 'perm' ? _t("سحبت إذن الموقع، فلا ترى مواقع أصدقائك الحية.") : n ? _t("موقعك لا يصل لأصدقائك، فلا ترى مواقعهم الحية.") : _t("شغّل المشاركة من تطبيق مكاننا على هاتفك لترى مواقع أصدقائك الحية.");
+  const b = $('recip-go'); b.hidden = !n;
+  b.textContent = why === 'off' ? _t("شغّل الموقع") : why === 'perm' ? _t("أعد الإذن") : _t("إصلاح");
+  b.onclick = () => { if (why === 'off') openFix('loc_off'); else if (why === 'perm') openFix('loc_perm'); else { startShare(); toast(_t("جارٍ تشغيل المشاركة...")); setTimeout(() => maybeFix(true), 1500); } };
+  bar.hidden = false;
 }
 function visibleIds() {
   if (S.limited) return [S.uid];
@@ -1430,7 +1529,7 @@ function initMap() {
   S.hmk = L.layerGroup();
   S.accg = L.layerGroup().addTo(S.map);
   S.plg = L.layerGroup().addTo(S.map);
-  S.map.on('zoomend', syncMarks);
+  S.map.on('zoomend', () => { syncMarks(); if (S.person) renderMap(); });   // التراكب يتغير مع التكبير
   S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng, '', S.pickFriend); else mapTap(); });
   let k = 'osm'; try { k = localStorage.getItem('mapStyle') || 'osm'; } catch {}
   setStyle(k);
@@ -1556,26 +1655,35 @@ function addrOf(id) {
 const fmtKm = m => m < 1000 ? tf("{0} م", (Math.round(m))) : tf("{0} كم", ((m / 1000).toFixed(1)));
 const fmtDur = ms => { const m = Math.max(1, Math.round(ms / 60000)); return m < 60 ? tf("{0} دقيقة", (m)) : tf("{0} س و{1} د", (Math.floor(m / 60)), m % 60); };
 
-function pinIcon(id, l) {
-  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = liveMode(id, l);
+function pinIcon(id, l, extra = '') {
+  const fz = id !== S.uid && !!S.frz[id] && !!recipWhy(id);
+  const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = fz ? null : liveMode(id, l);
   const nm = id === S.uid ? _t("أنا") : dispName(id);
   const sub = m ? `<small>${tf("{0}{1} كم/س", ICON[m.mode], m.kmh)}</small>` : '';
   const bad = l.off === true || l.noperm === true;
-  const lbl = bad ? `<span class="mk-lbl off">${l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
+  const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : bad ? `<span class="mk-lbl off">${l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
   const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
-  const html = `<div class="mk${stale ? ' stale' : ''}">${cone}${lbl}${bad ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
+  const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
   return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
 }
+/* نقطة الدبوس على الشاشة (بالبكسل) لمعرفة الدبابيس المتراكبة */
+const pinPt = l => { try { return S.map.latLngToContainerPoint([l.lat, l.lng]); } catch { return null; } };
+const pxDist = (a, b) => (a && b ? Math.hypot(a.x - b.x, a.y - b.y) : Infinity);
 function renderMap() {
   if (!S.map) return;
   const keep = new Set();
+  // الشخص المختار: دبوسه فوق الجميع، والدبابيس القريبة منه تبهت ويختفي اسمها حتى تُغلق بطاقته
+  const selL = S.person && !S.histFor ? S.locs[S.person] : null, selPt = selL && typeof selL.lat === 'number' ? pinPt(selL) : null;
   for (const id of visibleIds()) {
     const l = S.locs[id];
     if (!l || typeof l.lat !== 'number') continue;
     if (S.histFor && id !== S.histFor) continue;                         // في السجل: دبوس صاحب السجل فقط
     keep.add(id);
-    if (!S.markers[id]) { S.markers[id] = L.marker([l.lat, l.lng], { icon: pinIcon(id, l) }).addTo(S.map); S.markers[id].on('click', () => openPerson(id)); }
-    else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(pinIcon(id, l)); }
+    const sel = !!selPt && id === S.person, dim = !!selPt && !sel && pxDist(pinPt(l), selPt) < 80;
+    const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '');
+    if (!S.markers[id]) { S.markers[id] = L.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id].on('click', () => pinTap(id)); }
+    else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(icon); }
+    try { S.markers[id].setZIndexOffset(sel ? 5000 : dim ? -500 : 0); } catch {}
   }
   for (const id of Object.keys(S.markers)) if (!keep.has(id)) { S.map.removeLayer(S.markers[id]); delete S.markers[id]; }
   if (S.accg) {                                                          // دائرة الدقة للشخص المحدد (أو لي)
@@ -1584,6 +1692,15 @@ function renderMap() {
     if (al && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && keep.has(aid)) L.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
   }
   if (!S.fitted && keep.size) { fitAll(); S.fitted = true; }
+}
+/* الضغط على دبوس: إن كان فوقه أو تحته دبوس آخر (متراكبان) نسأل أي شخص */
+function pinTap(id) {
+  const l = S.locs[id], p = l ? pinPt(l) : null;
+  const near = p ? Object.keys(S.markers).filter(o => o !== id && S.locs[o] && pxDist(pinPt(S.locs[o]), p) < 30) : [];
+  if (!near.length) return openPerson(id);
+  const ids = [id, ...near];
+  $('ppick-list').innerHTML = ids.map(u => { const d = S.dir[u] || {}; return `<button class="btn" data-act="ppick" data-id="${esc(u)}" style="display:flex;gap:10px;align-items:center;justify-content:flex-start"><span class="chav" style="${avStyle(d)}">${avText(d)}</span>${esc(u === S.uid ? _t("أنا") : dispName(u))}</button>`; }).join('');
+  $('modal-ppick').hidden = false;
 }
 function clearMarkers() { if (S.map) for (const id of Object.keys(S.markers)) S.map.removeLayer(S.markers[id]); S.markers = {}; }
 function fitAll() {
@@ -1596,6 +1713,7 @@ function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat,
 function describe(id) {
   const l = S.locs[id];
   let txt, cls = '';
+  if (id !== S.uid && recipWhy(id)) return { txt: frzText(id) || recipMsg(recipWhy(id)), cls: 'off' };
   if (id !== S.uid && !S.isAdmin && S.hidden[id]) return { txt: _t("لا يشارك موقعه الآن"), cls: 'off' };
   if (!l || typeof l.ts !== 'number') txt = _t("لا توجد بيانات بعد");
   else if (l.noperm === true) { cls = 'off'; txt = tf("ألغى إذن الموقع للتطبيق، وآخر موقع قبل {0}", ago(l.ts)); }
@@ -1614,13 +1732,14 @@ function renderSheet() {
   for (const id of ids) {
     const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), name = id === S.uid ? _t("أنا") : dispName(id);
     if (ds.cls === 'on') online++;
-    const off = !!(l && (l.off === true || l.noperm === true));
-    const lowBat = l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 15 && !l.chg;
-    const stale = l && typeof l.ts === 'number' && Date.now() - l.ts > 30 * 60e3;
+    const fz = id !== S.uid && !!recipWhy(id);                          // متجمّد: لا بطارية ولا حركة من بيانات قديمة
+    const off = !fz && !!(l && (l.off === true || l.noperm === true));
+    const lowBat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 15 && !l.chg;
+    const stale = !fz && l && typeof l.ts === 'number' && Date.now() - l.ts > 30 * 60e3;
     const warn = (off || lowBat || stale) ? `<span class="warn-ic" title="${off ? (l.noperm === true ? _t("ألغى إذن الموقع للتطبيق") : _t("الموقع مطفأ في هاتفه")) : lowBat ? _t("بطارية ضعيفة") : _t("انقطع تحديث موقعه")}">!</span>` : '';
-    const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? tf("بطارية {0}%{1}", l.bat, l.chg ? ' ⚡' : '') : '';
+    const bat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 ? tf("بطارية {0}%{1}", l.bat, l.chg ? ' ⚡' : '') : '';
     const ad = addrOf(id);
-    rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${mvHtml(l, id)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
+    rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${fz ? '' : mvHtml(l, id)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
     avs.push(`<button class="avb" style="${avStyle(d)};--ring:${ds.cls === 'on' ? '#2F8F6B' : '#C9D3D7'}" data-act="focus" data-id="${esc(id)}" aria-label="${esc(name)}">${avText(d)}</button>`);
   }
   $('chip').textContent = tf("{0} متصل من {1}", (online), ids.length);
@@ -1646,27 +1765,32 @@ function applyTabVisibility() {
 }
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
-  S.person = id; applyTabVisibility(); renderPerson(); focusOn(id); loadLastTrip(id); loadLastGap(id); loadHomeSuggestion(id);
+  S.person = id; applyTabVisibility(); renderPerson(); renderMap(); focusOn(id); loadLastTrip(id); loadLastGap(id); loadHomeSuggestion(id);
   if (id !== S.uid) get(ref(db, 'reportShare/' + id)).then(s => { S.repShare = S.repShare || {}; S.repShare[id] = s.val() === true; if (S.person === id) renderPerson(); }).catch(() => {});
 }
 /* زر «التقرير» لا يظهر إلا لمن شارك تقريره معي (أو لولي أمره أو للمشرف) */
 const repAllowed = id => id === S.uid || S.isAdmin || !!(S.kids && S.kids[id]) || !!(S.repShare && S.repShare[id] === true);
-function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); }
+function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); renderMap(); }
 function renderPerson() {
   const id = S.person; if (!id) return;
   $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited || !repAllowed(id); $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
   const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), me = S.locs[S.uid];
   $('p-av').textContent = d.photo ? '' : initial(d.name); $('p-av').style.cssText = avStyle(d);
-  $('p-name').innerHTML = esc(id === S.uid ? _t("أنا") : dispName(id)) + mvHtml(l);
+  $('p-name').innerHTML = esc(id === S.uid ? _t("أنا") : dispName(id)) + (id !== S.uid && recipWhy(id) ? '' : mvHtml(l));
   $('p-st').textContent = ds.txt; $('p-st').className = 'st ' + ds.cls;
   $('p-addr').textContent = addrOf(id);
-  const bat = l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
+  const fz = id !== S.uid && !!recipWhy(id);                            // موقعه متجمّد عندي: لا بطارية ولا مسافة قديمة
+  const bat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
-  const offBad = !!(l && (l.off === true || l.noperm === true));
-  $('p-off').hidden = !offBad;
+  const offBad = !fz && !!(l && (l.off === true || l.noperm === true));
+  const longOff = !fz && !offBad && id !== S.uid && !!(l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - RECIP_STALE);
+  $('p-off').hidden = !(offBad || longOff);
   if (offBad) {
-    $('p-off-t').textContent = l.noperm === true ? _t("ألغى إذن الموقع للتطبيق") : _t("الموقع مطفأ في هاتفه");
+    $('p-off-t').textContent = l.noperm === true ? _t("ألغى إذن الموقع، فلا يرى مواقعكم") : _t("موقعه مطفأ، فلا يرى مواقعكم");
     $('p-off-s').textContent = l.noperm === true ? _t("سُحب إذن الموقع من التطبيق في هاتفه، فلا يصلنا موقعه حتى يعيده. اطلب منه ذلك.") : _t("خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.");
+  } else if (longOff) {
+    $('p-off-t').textContent = _t("موقعه لا يصل منذ مدة، فلا يرى مواقعكم");
+    $('p-off-s').textContent = _t("قد يكون التطبيق متوقفاً في هاتفه أو الإنترنت مقطوعاً عنه.");
   }
   const hs = S.homeSug;
   if (hs && hs.id === id) {
@@ -1678,7 +1802,7 @@ function renderPerson() {
   if (gp && Date.now() - gp.to < 864e5) { $('p-gap').textContent = tf("آخر انقطاع: قبل {0}، دام {1}، {2}", ago(gp.to), fmtDur(gp.to - gp.from), gapText(gp)); $('p-gap').hidden = false; }
   else $('p-gap').hidden = true;
   $('p-wa').hidden = !(id !== S.uid && phoneOf(id));
-  if (id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = tf("المسافة منك {0}", fmtKm(haversine(me, l))); $('p-dist').hidden = false; }
+  if (!fz && id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = tf("المسافة منك {0}", fmtKm(haversine(me, l))); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
 }
 function miniRoute(pts) {
@@ -1693,6 +1817,7 @@ function miniRoute(pts) {
 }
 async function loadLastTrip(id) {
   const box = $('p-trip'); box.innerHTML = ''; const tok = ++S.pTok;
+  if (recipWhy(id)) return;
   try {
     const obj = (await get(ref(db, `history/${id}/${dayKey(Date.now())}`))).val() || {};
     if (tok !== S.pTok || S.person !== id) return;
@@ -1703,7 +1828,7 @@ async function loadLastTrip(id) {
     const t = trips[trips.length - 1];
     const seg = pts.slice(t.s, t.e + 1);
     box.innerHTML = `<div class="trip-card"><b>${tf("آخر رحلة اليوم ({0})", esc(MODE[t.mode]))}</b><div class="st">${tf("{0} حتى {1}", esc(fmtTime(t.t0)), esc(fmtTime(t.t1)))}</div><div>${tf("{0}، {1}، متوسط {2} كم/س", esc(fmtKm(t.dist)), esc(fmtDur(t.dur)), Math.round(t.avg))}</div>${miniRoute(seg)}<div class="st" id="lt-names"></div></div>`;
-    if (seg.length >= 2) Promise.all([nameAt(seg[0].lat, seg[0].lng), nameAt(seg[seg.length - 1].lat, seg[seg.length - 1].lng)]).then(([f, e]) => { const el = $('lt-names'); if (S.person === id && el && (f || e)) el.textContent = tf("من {0} إلى {1}", f || _t("مكان غير مسمّى"), e || _t("مكان غير مسمّى")); }).catch(() => {});
+    if (seg.length >= 2) Promise.all([nameAt(seg[0].lat, seg[0].lng, id), nameAt(seg[seg.length - 1].lat, seg[seg.length - 1].lng, id)]).then(([f, e]) => { const el = $('lt-names'); if (S.person === id && el && (f || e)) el.textContent = tf("من {0} إلى {1}", f || _t("مكان غير مسمّى"), e || _t("مكان غير مسمّى")); }).catch(() => {});
   } catch { /* لا صلاحية أو لا اتصال */ }
 }
 
@@ -1885,6 +2010,7 @@ function onRouteClick(e) {
 }
 function openHistory(id, day) {
   if (!id || S.limited) return;
+  if (recipWhy(id)) return toast(recipMsg(recipWhy(id)));
   S.histFor = id; S.hState = 'min'; S.hMin = true; $('hsheet').classList.add('min');
   $('h-name').textContent = id === S.uid ? _t("سجلّي") : dispName(id);
   const today = dayKey(Date.now());
@@ -1927,7 +2053,7 @@ async function loadHistory() {
   $('h-sum').innerHTML = `<p class="hint">${_t("جارٍ التحميل...")}</p>`; barSum(_t("جارٍ التحميل...")); $('h-list').innerHTML = ''; $('h-scrub').hidden = true;
   let obj;
   try { obj = (await get(ref(db, `history/${uid}/${day}`))).val() || {}; }
-  catch { $('h-sum').innerHTML = `<p class="hint">${_t("لا تملك صلاحية عرض هذا السجل الآن.")}</p>`; barSum(_t("لا تملك صلاحية عرض هذا السجل الآن")); return; }
+  catch { $('h-sum').innerHTML = `<p class="hint">${_t("السجل غير متاح حالياً.")}</p>`; barSum(_t("السجل غير متاح حالياً")); return; }
   if (S.histFor !== uid) return;
   S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null;
   const pts = cleanPts(Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts));
@@ -2065,7 +2191,7 @@ function renderPeople() {
   const mine = Object.keys(S.mine).filter(u => u !== S.uid);
   html += `<div class="card"><b>${_t("أشخاصي")}</b>${mine.length ? mine.map(u => {
     const d = S.dir[u] || {}, ok = connected(u);
-    const sw = S.minor ? '' : `<label class="sw-row st" style="margin-top:4px"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(u)}" ${S.hides[u] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>`;
+    const sw = S.minor ? '' : `<label class="sw-row st" style="margin-top:4px"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(u)}" ${S.hides[u] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>` + `<label class="sw-row st"><span>${_t("إخفاء سجلي عنه")}</span><span class="switch"><input type="checkbox" data-hhide="${esc(u)}" ${S.histHides[u] ? 'checked' : ''} aria-label="${_t("إخفاء سجلي عنه")}"><span></span></span></label>`;
     const real = S.nick[u] && d.name && S.nick[u] !== d.name ? `<div class="st">${tf("اسمه في التطبيق: {0}", esc(d.name))}</div>` : '';
     return prow(dispName(u), d.color, real + (ok ? `<span class="badge ok">${_t("متصل")}</span>` : `<span class="badge warn">${_t("بانتظار موافقته")}</span>`) + sw, `<button class="btn sm" data-act="nick" data-id="${esc(u)}">${_t("اسم مستعار")}</button><button class="btn sm ${ok ? 'danger' : ''}" data-act="unlink" data-id="${esc(u)}">${ok ? _t("إزالة") : _t("إلغاء الطلب")}</button>`, d.photo);
   }).join('') : `<p class="hint">${_t("لم تضف أحداً بعد. ابحث عن شخص برقمه، أو اختر من جهات اتصالك.")}</p>`}</div>`;
@@ -2492,10 +2618,12 @@ const ACTIONS = {
   'friends-open': () => openFriends(),
   'req-open': () => openFriends(),
   'pm-close': () => { $('modal-pmore').hidden = true; },
+  'ppick': id => { $('modal-ppick').hidden = true; openPerson(id); },
+  'ppick-close': () => { $('modal-ppick').hidden = true; },
   'p-more': () => {
     const id = S.person; if (!id || id === S.uid) return;
     $('pm-title').textContent = dispName(id);
-    const sw = S.minor ? '' : `<label class="sw-row st"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(id)}" ${S.hides[id] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>`;
+    const sw = S.minor ? '' : `<label class="sw-row st"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(id)}" ${S.hides[id] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>` + `<label class="sw-row st"><span>${_t("إخفاء سجلي عنه")}</span><span class="switch"><input type="checkbox" data-hhide="${esc(id)}" ${S.histHides[id] ? 'checked' : ''} aria-label="${_t("إخفاء سجلي عنه")}"><span></span></span></label>`;
     $('pm-body').innerHTML = `<button class="btn" data-act="nick" data-id="${esc(id)}">${_t("اسم مستعار")}</button>${sw}<button class="btn danger" data-act="unlink" data-id="${esc(id)}">${_t("إزالة الاتصال")}</button>`;
     $('modal-pmore').hidden = false;
   },
@@ -2732,6 +2860,12 @@ const setFlag = async (path, on, el, okOn, okOff) => {
 };
 $('pv-hpriv').onchange = e => setFlag('histPrivate/' + S.uid, e.target.checked, e.target, _t("سجل تنقلاتك صار خاصاً"), _t("يستطيع أصدقاؤك المتصلون رؤية سجلك"));
 $('pv-rshare').onchange = e => setFlag('reportShare/' + S.uid, e.target.checked, e.target, _t("يرى أصدقاؤك ملخص تقريرك"), _t("تقريرك خاص بك الآن"));
+document.addEventListener('change', async ev => {
+  const t = ev.target; if (!t.matches || !t.matches('[data-hhide]')) return;
+  const u = t.dataset.hhide;
+  try { await update(ref(db), { [`histHide/${S.uid}/${u}`]: t.checked ? true : null }); toast(t.checked ? _t("سجلك مخفي عنه الآن، ويبقى يرى موقعك الحي") : _t("عاد سجلك ظاهراً له")); renderPrivacy(); }
+  catch { toast(_t("تعذر التنفيذ")); t.checked = !t.checked; }
+});
 document.addEventListener('change', async ev => {
   const t = ev.target; if (!t.matches || !t.matches('[data-hide]')) return;
   const u = t.dataset.hide;
@@ -2995,6 +3129,7 @@ window.__back = () => {
   if (vis('v-fix')) { $('fix-later').click(); return true; }
   if (vis('modal-fplaces')) { FP.tok++; $('modal-fplaces').hidden = true; return true; }
   if (vis('modal-pmore')) { $('modal-pmore').hidden = true; return true; }
+  if (vis('modal-ppick')) { $('modal-ppick').hidden = true; return true; }
   if (vis('modal-place')) { $('pl-no').click(); return true; }
   if (vis('modal-nick')) { $('nick-no').click(); return true; }
   if (vis('modal-phone')) { $('ph-no').click(); return true; }
@@ -3052,6 +3187,7 @@ async function deleteMyAccount(pass) {
     for (const id of Object.keys(S.places)) ups[`places/${uid}/${id}`] = null;
     for (const f of Object.keys(S.nick)) ups[`nick/${uid}/${f}`] = null;
     for (const v of Object.keys(S.hides)) ups[`hide/${uid}/${v}`] = null;
+    for (const v of Object.keys(S.histHides || {})) ups[`histHide/${uid}/${v}`] = null;
     for (const f of Object.keys(S.mine)) { ups[`links/${uid}/${f}`] = null; ups[`requests/${f}/${uid}`] = null; ups[`sosInbox/${f}/${uid}`] = null; ups[`sosAck/${uid}/${f}`] = null; ups[`sosAck/${f}/${uid}`] = null; }
     for (const f of Object.keys(S.reqs)) ups[`requests/${uid}/${f}`] = null;
     for (const f of Object.keys(S.sosIn)) ups[`sosInbox/${uid}/${f}`] = null;
@@ -3144,7 +3280,7 @@ async function detectHome(id) {
 }
 async function loadHomeSuggestion(id) {
   S.homeSug = null; renderPerson();
-  if (S.limited || id === S.uid || !connected(id)) return;
+  if (S.limited || id === S.uid || !connected(id) || recipWhy(id)) return;
   try { if (localStorage.getItem('mk_home_off_' + id)) return; } catch {}
   const today = dayKey(Date.now()); let res = null;
   try { const c = JSON.parse(localStorage.getItem('mk_home_' + id) || 'null'); if (c && c.d === today) res = c.r; } catch {}
@@ -3168,6 +3304,7 @@ async function openFriendPlaces(id) {
   renderFpMine();
   $('fp-his').innerHTML = `<p class="hint">${_t("جارٍ تحليل وقفاته...")}</p>`;
   $('modal-fplaces').hidden = false;
+  if (recipWhy(id)) { $('fp-his').innerHTML = `<p class="hint">${esc(recipMsg(recipWhy(id)))}</p>`; return; }
   const today = dayKey(Date.now()), days = Array.from({ length: 8 }, (_, i) => shiftDayKey(today, -(7 - i)));
   let rows = null;
   try {
@@ -3181,7 +3318,7 @@ async function openFriendPlaces(id) {
     try { const m = await ensureSummaries(id, days, { compute: false, write: false }); rows = days.map(d => ({ d, s: m[d] || { stops: [] } })); } catch { rows = null; }
   }
   if (tok !== FP.tok) return;
-  if (!rows || !rows.some(r => r.s.stops.length)) { $('fp-his').innerHTML = `<p class="hint">${_t("لا أستطيع رؤية وقفاته: إما أنه أخفى سجله أو لم تتوفر وقفات طويلة بعد.")}</p>`; return; }
+  if (!rows || !rows.some(r => r.s.stops.length)) { $('fp-his').innerHTML = `<p class="hint">${_t("لا تتوفر أماكن متكررة لعرضها حالياً.")}</p>`; return; }
   const cl = clusterStops(rows).sort((a, b) => b.mins - a.mins).slice(0, 5);
   const home = await detectHome(id).catch(() => null), items = [];
   if (home && typeof home.lat === 'number') items.push({ lat: home.lat, lng: home.lng, label: _t("بيته المحتمل"), sub: tf("بات فيه {0} ليالٍ من آخر 7", home.nights) });
@@ -3191,7 +3328,7 @@ async function openFriendPlaces(id) {
   fillFpActions();
   for (let i = 0; i < items.length; i++) {
     if (tok !== FP.tok) return;
-    const nm = await nameAt(items[i].lat, items[i].lng); items[i].name = nm;
+    const sp = savedPlaceAt(items[i].lat, items[i].lng), nm = sp ? mineLbl(sp) : await geocode(items[i].lat, items[i].lng); items[i].name = sp ? null : nm;
     const el = $('fp-n-' + i); if (el && nm) el.textContent = (items[i].label ? items[i].label + ': ' : '') + nm;
   }
 }
@@ -3209,7 +3346,7 @@ const GAP_WHY = { net: _t("انقطع الإنترنت عن الهاتف"), sys:
 const gapText = g => (GAP_WHY[g.why] || GAP_WHY.unk) + (g.note ? ' (' + g.note + ')' : '') + (typeof g.bat === 'number' && g.bat >= 0 && g.bat <= 15 ? tf("، آخر بطارية {0}%", g.bat) : '');
 const gapRow = g => `<div class="row"><div class="grow"><div class="nm">${tf("انقطاع {0}", esc(fmtDur(g.to - g.from)))}</div><div class="st">${tf("{0} – {1}، {2}", esc(fmtTime(g.from)), esc(fmtTime(g.to)), esc(gapText(g)))}</div></div></div>`;
 async function loadLastGap(id) {
-  if (S.limited) return;
+  if (S.limited || recipWhy(id)) { S.gaps[id] = null; return; }
   const days = [dayKey(Date.now()), dayKey(Date.now() - 864e5)];
   let best = null;
   for (const d of days) {
@@ -3267,6 +3404,9 @@ async function sendDiag() {
 
 /* ---------- التقارير: يومي وأسبوعي وشهري ---------- */
 const DEEP = (location.hash.match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1];
+const DEEP_RWHO = (location.hash.match(/rwho=([A-Za-z0-9_-]{6,64})/) || [])[1];
+/* ملخص أمس عن الأصدقاء (إشعار 4600): يفتح تقرير الصديق المذكور، لا تقريري */
+const digestWho = () => Object.keys(S.follow || {}).find(u => S.follow[u] === true) || null;
 const DEEP_SOS = (location.hash.match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
 const DEEP_NOTIF = (location.hash.match(/notif=(\d+)/) || [])[1];
 const RPT = { mode: 'day', heatDays: 7, heatWho: null, heatMap: null, who: null, day: null, shared: {}, token: 0, last: null, text: '', csv: '', sugg: [] };
@@ -3339,7 +3479,9 @@ async function ensureSummaries(uid, days, opt, onProgress) {
   return out;
 }
 const savedPlaceAt = (la, ln) => { for (const p of Object.values(S.places || {})) if (typeof p.lat === 'number' && haversine({ lat: la, lng: ln }, p) <= (p.r || 200) + 60) return p.name; return null; };
-const nameAt = async (la, ln) => savedPlaceAt(la, ln) || (await geocode(la, ln)) || null;
+/* اسم مكان: أماكني المحفوظة أولاً ثم العنوان. على بيانات غيري يُوضَّح أن الاسم من أماكني («البيت» قد يكون بيتي لا بيته) */
+const mineLbl = n => tf("{0} (من أماكني)", n);
+const nameAt = async (la, ln, owner) => { const sp = savedPlaceAt(la, ln); if (sp) return owner && owner !== S.uid ? mineLbl(sp) : sp; return (await geocode(la, ln)) || null; };
 const cmpText = (cur, ref, label) => ref < 1 ? tf("{0}: لا حركة", (label)) : tf("{0} بـ {1}", ((cur >= ref ? `${_t("أكثر من")} ` : `${_t("أقل من")} `) + label), fmtKm(Math.abs(cur - ref)));
 function clusterStops(rows) {
   const cl = [];
@@ -3396,12 +3538,20 @@ async function renderReport() {
   document.querySelectorAll('#rpt-seg button').forEach(b => b.classList.toggle('on', b.dataset.id === RPT.mode));
   if (RPT.blocked && !RPT.who) {
     const nm = dispName(RPT.blocked);
-    $('rpt-title').textContent = tf("تقرير {0}", nm); ++RPT.token;
+    $('rpt-title').textContent = tf("تقرير {0}", nm); ++RPT.token; $('rpt-mine-card').hidden = true;
     if (RPT.heatMap) { try { RPT.heatMap.remove(); } catch {} RPT.heatMap = null; }
     $('rpt-body').innerHTML = `<div class="card"><b>${_t("التقرير غير متوفر")}</b><p class="hint">${_t("لا توجد بيانات تقرير لعرضها حالياً.")}</p></div>`;
     return;
   }
   const tok = ++RPT.token, uid = rptWho(), own = uid === S.uid, full = own || S.isAdmin;
+  $('rpt-mine-card').hidden = !own;
+  if (!own && recipWhy(uid)) {
+    $('rpt-title').textContent = tf("تقرير {0}", dispName(uid));
+    if (RPT.heatMap) { try { RPT.heatMap.remove(); } catch {} RPT.heatMap = null; }
+    RPT.text = ''; RPT.csv = '';
+    $('rpt-body').innerHTML = `<div class="card"><b>${_t("التقرير غير متاح الآن")}</b><p class="hint">${esc(recipMsg(recipWhy(uid)))}</p></div>`;
+    return;
+  }                                      // حد السرعة والمتابعة من إعداداتي، لا تظهر في تقرير غيري
   $('rpt-day').min = dayKey(Date.now() - (own ? myKeep() : S.isAdmin ? planKeep(S.plans[uid]) : PRUNE_DAYS) * 864e5);
   $('rpt-title').textContent = own ? _t("تقريري") : tf("تقرير {0}", dispName(uid));
   $('rpt-body').innerHTML = `<div class="card"><p class="hint">${_t("جارٍ الحساب...")}</p></div>`;
@@ -3433,7 +3583,7 @@ async function renderDay(tok, uid, own, full) {
   html += '</div>';
   const items = s.an ? s.an.items : [];
   const tripRows = items.map((it, idx) => it.type === 'trip' ? `<div class="row tap" data-act="rpt-trip" data-id="${idx}"><div class="grow"><div class="nm">${ICON[it.mode]} ${esc(MODE[it.mode])} · ${esc(fmtKm(it.dist))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))} · ${esc(fmtDur(it.dur))}</div><div class="st" id="rt-${idx}"></div></div></div>` : '').join('');
-  if (tripRows) html += `<div class="card"><b>${_t("المسارات التي سلكتها")}</b>${tripRows}<p class="hint">${_t("اضغط على مسار لعرضه على الخريطة.")}</p></div>`;
+  if (tripRows) html += `<div class="card"><b>${own ? _t("المسارات التي سلكتها") : tf("مسارات {0}", esc(dispName(uid)))}</b>${tripRows}<p class="hint">${_t("اضغط على مسار لعرضه على الخريطة.")}</p></div>`;
   const stopRows = items.map((it, idx) => (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) ? `<div class="row"><div class="grow"><div class="nm">${tf("وقفة {0}", esc(fmtDur(it.t1 - it.t0)))}</div><div class="st">${esc(fmtTime(it.t0))} – ${esc(fmtTime(it.t1))}</div><div class="st" id="rs-${idx}"></div></div></div>` : '').join('');
   if (stopRows) html += `<div class="card"><b>${_t("الوقفات الطويلة")}</b>${stopRows}</div>`;
   body.innerHTML = html;
@@ -3452,17 +3602,19 @@ async function renderDay(tok, uid, own, full) {
     let n = 0;
     for (let idx = 0; idx < items.length && n < 10; idx++) {
       const it = items[idx]; if (tok !== RPT.token) return;
-      if (it.type === 'trip' && s.pts) { n++; const a = s.pts[it.s], b = s.pts[it.e]; const [f, t] = await Promise.all([nameAt(a.lat, a.lng), nameAt(b.lat, b.lng)]); const el = $('rt-' + idx); if (el && (f || t)) el.textContent = tf("من {0} إلى {1}", f || _t("مكان غير مسمّى"), t || _t("مكان غير مسمّى")); }
-      else if (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) { n++; const nm = await nameAt(it.lat, it.lng); const el = $('rs-' + idx); if (el && nm) el.textContent = nm; }
+      if (it.type === 'trip' && s.pts) { n++; const a = s.pts[it.s], b = s.pts[it.e]; const [f, t] = await Promise.all([nameAt(a.lat, a.lng, uid), nameAt(b.lat, b.lng, uid)]); const el = $('rt-' + idx); if (el && (f || t)) el.textContent = tf("من {0} إلى {1}", f || _t("مكان غير مسمّى"), t || _t("مكان غير مسمّى")); }
+      else if (it.type === 'stop' && it.t1 - it.t0 >= 10 * 60e3) { n++; const nm = await nameAt(it.lat, it.lng, uid); const el = $('rs-' + idx); if (el && nm) el.textContent = nm; }
     }
   })();
 }
 async function renderDrive(tok, uid, own, full) {
-  const end = RPT.day, body = $('rpt-body'), thr = rptThr();
+  const end = RPT.day, body = $('rpt-body');
+  let thr = rptThr();
   const days = Array.from({ length: 7 }, (_, i) => shiftDayKey(end, -(6 - i)));
   const m = await ensureSummaries(uid, days, { compute: full, write: own }, (i, t) => { if (tok === RPT.token) body.innerHTML = `<div class="card"><p class="hint">${tf("جارٍ تحليل الأيام {0} من {1}...", i, t)}</p></div>`; });
   if (tok !== RPT.token) return;
   const rows = days.map(d => ({ d, s: m[d] || null }));
+  if (!full) { const r0 = rows.find(r => r.s && typeof r.s.thr === 'number'); if (r0) thr = r0.s.thr; }   // تقرير صديق: محسوب على حد السرعة الذي ضبطه هو
   const car = r => (r.s ? r.s.by.car.d : 0);
   const totalDrive = rows.reduce((a, r) => a + car(r), 0), driveMs = rows.reduce((a, r) => a + (r.s ? r.s.by.car.ms : 0), 0);
   const trips = rows.reduce((a, r) => a + ((r.s && r.s.n) || 0), 0), vmax = Math.max(0, ...rows.map(r => (r.s && r.s.vmax) || 0));
@@ -3479,7 +3631,7 @@ async function renderDrive(tok, uid, own, full) {
   };
   const box = (v, l) => `<div class="rbox"><b>${v}</b><span>${l}</span></div>`;
   const wkEnd = dayLabel(end);
-  let html = `<div class="card"><b>${tf("تقرير القيادة، 7 أيام حتى {0}", esc(wkEnd))}</b>${ring}<p class="hint" style="text-align:center;margin:0">${pct === null ? (totalDrive < 1000 ? _t("لا قيادة كافية في هذه الفترة لحساب النسبة.") : _t("تظهر النسبة بعد اكتمال تحليل أيام الأسبوع.")) : tf("نسبة المسافة التي قُطعت بسرعة أقل من {0} كم/س من مسافة القيادة.", thr)}</p><p class="hint" style="text-align:center">${_t("تقدير من نقاط التتبع، وليست درجة ولا حكماً على القيادة. يمكنك تغيير السرعة من أسفل الشاشة.")}</p></div>`;
+  let html = `<div class="card"><b>${tf("تقرير القيادة، 7 أيام حتى {0}", esc(wkEnd))}</b>${ring}<p class="hint" style="text-align:center;margin:0">${pct === null ? (totalDrive < 1000 ? _t("لا قيادة كافية في هذه الفترة لحساب النسبة.") : _t("تظهر النسبة بعد اكتمال تحليل أيام الأسبوع.")) : tf("نسبة المسافة التي قُطعت بسرعة أقل من {0} كم/س من مسافة القيادة.", thr)}</p><p class="hint" style="text-align:center">${own ? _t("تقدير من نقاط التتبع، وليست درجة ولا حكماً على القيادة. يمكنك تغيير السرعة من أسفل الشاشة.") : _t("تقدير من نقاط التتبع، وليست درجة ولا حكماً على القيادة.")}</p></div>`;
   html += `<div class="rgrid">${box(fmtKm(totalDrive), _t("مسافة القيادة"))}${box(driveMs ? fmtDur(driveMs) : '—', _t("زمن القيادة"))}${box(trips, _t("عدد الرحلات"))}${box(vmax >= 5 ? tf("{0} كم/س", (Math.round(vmax))) : '—', _t("أقصى سرعة تقريبية"))}${box(known ? fmtKm(osd) : '—', tf("مسافة فوق {0} كم/س", thr))}${box(tf("{0} من 7", (drivingRows.length)), _t("أيام فيها قيادة"))}${box(hbRows.length ? hbSum : '—', _t("فرملة حادة"))}${box(hbRows.length ? raSum : '—', _t("تسارع سريع"))}</div>`;
   if (!hbRows.length) html += `<p class="hint">${_t("الفرملة الحادة والتسارع السريع تُحسب من سرعة GPS، وتظهر للأيام المسجّلة بإصدار التطبيق 2.1 فما فوق.")}</p>`;
   html += bars(_t("أقصى سرعة تقريبية (كم/س)"), r => (r.s && r.s.vmax >= 5 ? Math.round(r.s.vmax) : null), v => String(v), r => (r.s && r.s.vmax > thr ? '#C4483B' : '#3A6EA5'));
@@ -3495,14 +3647,14 @@ const heatOptions = () => {
   const out = [{ uid: S.uid, name: _t("أنا"), color: S.dir[S.uid]?.color || '#3A6EA5' }], seen = new Set([S.uid]);
   const nameOf = u => dispName(u) !== '—' ? dispName(u) : (S.kids[u] || S.users?.[u]?.name || _t("صديق"));
   // الشخص المعروض تقريره (مثلاً من حساب المشرف) يدخل دائماً في الاختيار
-  for (const u of [rptWho(), ...Object.keys(RPT.shared || {}), ...Object.keys(S.kids || {})]) if (u && !seen.has(u)) { seen.add(u); out.push({ uid: u, name: nameOf(u), color: S.dir[u]?.color || '#8E5AA8' }); }
+  for (const u of [rptWho(), ...Object.keys(RPT.shared || {}), ...Object.keys(S.kids || {})]) if (u && !seen.has(u) && !recipWhy(u)) { seen.add(u); out.push({ uid: u, name: nameOf(u), color: S.dir[u]?.color || '#8E5AA8' }); }
   return out;
 };
 async function renderHeat(tok, uid, own, full) {
   const n = RPT.heatDays, end = RPT.day, body = $('rpt-body');
   const days = Array.from({ length: n }, (_, i) => shiftDayKey(end, -(n - 1 - i)));
   const options = heatOptions();
-  let sel = (RPT.heatWho && RPT.heatWho.length ? RPT.heatWho : (uid === S.uid ? [uid] : [S.uid, uid])).filter(u => options.some(o => o.uid === u)); if (!sel.length) sel = [S.uid];
+  let sel = (RPT.heatWho && RPT.heatWho.length ? RPT.heatWho : [uid]).filter(u => options.some(o => o.uid === u)); if (!sel.length) sel = [S.uid];
   RPT.heatWho = sel;
   const data = {};
   for (const u of sel) {
@@ -3530,7 +3682,7 @@ async function renderHeat(tok, uid, own, full) {
   const cl = clusterStops(rowsAll).sort((a, b) => b.mins - a.mins).slice(0, 5);
   if (cl.length) {
     $('heat-places').innerHTML = `<div class="card"><b>${_t("أكثر الأماكن زمناً")}</b>${cl.map((c, i) => `<div class="row"><div class="grow"><div class="nm" id="hp-${i}">${_t("مكان")}</div><div class="st">${tf("{0} أيام · {1}", c.days.size, esc(fmtDur(c.mins * 60e3)))}</div></div></div>`).join('')}</div>`;
-    for (let i = 0; i < cl.length; i++) { if (tok !== RPT.token) return; const nmv = await nameAt(cl[i].lat, cl[i].lng); const el = $('hp-' + i); if (el && nmv) el.textContent = nmv; }
+    for (let i = 0; i < cl.length; i++) { if (tok !== RPT.token) return; const nmv = await nameAt(cl[i].lat, cl[i].lng, sel.some(u => u !== S.uid) ? 'mix' : S.uid); const el = $('hp-' + i); if (el && nmv) el.textContent = nmv; }
   }
 }
 async function renderRange(tok, uid, own, full) {
@@ -3557,7 +3709,7 @@ async function renderRange(tok, uid, own, full) {
   RPT.last = { uid, mode: RPT.mode, rows }; 
   RPT.text = [tf("تقرير مكاننا، {0}", title), own ? '' : dispName(uid), tf("المسافة الإجمالية: {0} كم", km1(total)), tf("قيادة: {0} كم، مشي: {1} كم، دراجة: {2} كم", km1(car), km1(walk), km1(bike)), tf("الرحلات: {0}، الأيام النشطة {1} من {2}", trips, active, n), maxCar ? tf("أكثر الأيام قيادة: {0}", dayLabel(maxCar.d)) : ''].filter(Boolean).join('\n');
   RPT.csv = tf("اليوم,الإجمالي كم,قيادة كم,مشي كم,دراجة كم,رحلات\n{0}", rows.map(r => [r.d, km1((r.s && r.s.total) || 0), km1((r.s && r.s.by.car.d) || 0), km1((r.s && r.s.by.walk.d) || 0), km1((r.s && r.s.by.bike.d) || 0), (r.s && r.s.n) || 0].join(',')).join('\n'));
-  (async () => { for (let i = 0; i < Math.min(5, clusters.length); i++) { if (tok !== RPT.token) return; const nm = await nameAt(clusters[i].lat, clusters[i].lng); const el = $('cl-' + i); if (el && nm) el.textContent = nm; } })();
+  (async () => { for (let i = 0; i < Math.min(5, clusters.length); i++) { if (tok !== RPT.token) return; const nm = await nameAt(clusters[i].lat, clusters[i].lng, uid); const el = $('cl-' + i); if (el && nm) el.textContent = nm; } })();
 }
 function rptImage() {
   const lines = RPT.text.split('\n').filter(Boolean); if (!lines.length) return toast(_t("لا يوجد تقرير لحفظه"));
@@ -3606,8 +3758,9 @@ function renderPrivacy() {
   const ids = Object.keys(S.mine).filter(u => u !== S.uid);
   $('pv-who').innerHTML = (minor ? `<p class="hint">${_t("حسابات الأطفال لا تستطيع إخفاء موقعها عن أهلها.")}</p>` : '') + (ids.length ? ids.map(u => {
     const ok = connected(u), d = S.dir[u] || {};
-    const st = !ok ? _t("لم يوافق بعد، لا يرى شيئاً") : (S.hideAll || S.hides[u]) ? _t("موقعك مخفي عنه") : tf("يرى موقعك الحي{0}{1}", S.histPriv ? '' : ` ${_t("وسجل تنقلاتك")}`, S.reportShare ? ` ${_t("وملخص تقريرك")}` : '');
-    const sw = (!ok || minor) ? '' : `<label class="sw-row st" style="margin-top:4px"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(u)}" ${S.hides[u] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>`;
+    const hh = S.histPriv || !!S.histHides[u];
+    const st = !ok ? _t("لم يوافق بعد، لا يرى شيئاً") : (S.hideAll || S.hides[u]) ? _t("موقعك مخفي عنه") : tf("يرى موقعك الحي{0}{1}", hh ? '' : ` ${_t("وسجل تنقلاتك")}`, S.reportShare && !hh ? ` ${_t("وملخص تقريرك")}` : '');
+    const sw = (!ok || minor) ? '' : `<label class="sw-row st" style="margin-top:4px"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(u)}" ${S.hides[u] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>` + `<label class="sw-row st"><span>${_t("إخفاء سجلي عنه")}</span><span class="switch"><input type="checkbox" data-hhide="${esc(u)}" ${S.histHides[u] ? 'checked' : ''} aria-label="${_t("إخفاء سجلي عنه")}"><span></span></span></label>`;
     return prow(dispName(u), d.color, `<div class="st">${esc(st)}</div>` + sw, '', d.photo);
   }).join('') : `<p class="hint">${_t("لا أصدقاء بعد.")}</p>`);
 }
@@ -3618,7 +3771,7 @@ function setTab(t) {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const mapMode = t === 'map';
   $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
-  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode;
+  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; renderRecipBar();
   if (!mapMode) { $('style-menu').hidden = true; endPick(); }
   if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
   renderAll(); updateSendBar();
@@ -3760,7 +3913,7 @@ function notifGo(id) {
   const d = e.d || {};
   if ((e.k === 'friend' || e.k === 'guard') && d.u) {
     if (visibleIds().includes(d.u)) { setTab('map'); openPerson(d.u); } else toast(_t("هذا الشخص غير ظاهر على خريطتك الآن"));
-  } else if (e.k === 'report' && d.day) openReport('day', d.day);
+  } else if (e.k === 'report' && d.day) { const w = d.u || (Number(e.nid) === 4600 ? digestWho() : null); openReport('day', d.day, w || undefined); }
   else if (e.k === 'sos_in' && d.from) { setTab('map'); S.pendingSos = d.from; handleSosIncoming(S.sosIn || {}); }
   else if (e.k === 'self_loc' || e.k === 'self_net' || e.k === 'self_gap') { setTab('me'); const h = $('acc-health'); if (h) { h.open = true; renderNative(); setTimeout(() => h.scrollIntoView({ block: 'start' }), 100); } setTimeout(() => maybeFix(true), 400); }
   else if (e.k === 'phone') setTab('me');
@@ -3768,10 +3921,10 @@ function notifGo(id) {
 }
 /* الإشعار ضُغط والتطبيق مفتوح أصلاً */
 window.__fromNative = tail => {
-  const n = (String(tail).match(/notif=(\d+)/) || [])[1], rp = (String(tail).match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1], so = (String(tail).match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
+  const n = (String(tail).match(/notif=(\d+)/) || [])[1], rp = (String(tail).match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1], rw = (String(tail).match(/rwho=([A-Za-z0-9_-]{6,64})/) || [])[1], so = (String(tail).match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
   if (!S.started) return;
   if (n && notifOK()) return notifGo(n);
-  if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp);
+  if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp, rw || undefined);
 };
 $('btn-notif').onclick = openNotifCenter;
 document.addEventListener('visibilitychange', () => { if (!document.hidden) updateNotifBadge(); });
