@@ -902,5 +902,6 @@ window.I18N.tr = {
 "إخفاء سجلي عنه": "Geçmişimi ondan gizle",
 "سجلك مخفي عنه الآن، ويبقى يرى موقعك الحي": "Geçmişin artık ondan gizli; canlı konumunu görmeye devam eder",
 "عاد سجلك ظاهراً له": "Geçmişin ona yeniden görünür",
-"لا تتوفر أماكن متكررة لعرضها حالياً.": "Şu anda gösterilecek sık gidilen yer yok."
+"لا تتوفر أماكن متكررة لعرضها حالياً.": "Şu anda gösterilecek sık gidilen yer yok.",
+"صديق أطفأ الموقع أو ألغى إذنه، وعند عودته": "Bir arkadaş konumu kapattığında veya iznini kaldırdığında, ve geri açtığında"
 };

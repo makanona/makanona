@@ -902,5 +902,6 @@ window.I18N.fr = {
 "إخفاء سجلي عنه": "Masquer mon historique à cette personne",
 "سجلك مخفي عنه الآن، ويبقى يرى موقعك الحي": "Votre historique lui est maintenant masqué ; elle voit toujours votre position en direct",
 "عاد سجلك ظاهراً له": "Votre historique lui est de nouveau visible",
-"لا تتوفر أماكن متكررة لعرضها حالياً.": "Aucun lieu fréquent à afficher pour le moment."
+"لا تتوفر أماكن متكررة لعرضها حالياً.": "Aucun lieu fréquent à afficher pour le moment.",
+"صديق أطفأ الموقع أو ألغى إذنه، وعند عودته": "Un ami a coupé la localisation ou retiré l'autorisation, et quand elle revient"
 };

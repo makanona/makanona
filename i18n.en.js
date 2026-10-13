@@ -902,5 +902,6 @@ window.I18N.en = {
 "إخفاء سجلي عنه": "Hide my history from them",
 "سجلك مخفي عنه الآن، ويبقى يرى موقعك الحي": "Your history is now hidden from them; they still see your live location",
 "عاد سجلك ظاهراً له": "Your history is visible to them again",
-"لا تتوفر أماكن متكررة لعرضها حالياً.": "No frequent places to show right now."
+"لا تتوفر أماكن متكررة لعرضها حالياً.": "No frequent places to show right now.",
+"صديق أطفأ الموقع أو ألغى إذنه، وعند عودته": "A friend turned off location or revoked permission, and when it's back"
 };

@@ -902,5 +902,6 @@ window.I18N.de = {
 "إخفاء سجلي عنه": "Meinen Verlauf vor dieser Person verbergen",
 "سجلك مخفي عنه الآن، ويبقى يرى موقعك الحي": "Dein Verlauf ist jetzt vor dieser Person verborgen; sie sieht weiterhin deinen Live-Standort",
 "عاد سجلك ظاهراً له": "Dein Verlauf ist für diese Person wieder sichtbar",
-"لا تتوفر أماكن متكررة لعرضها حالياً.": "Gerade keine häufigen Orte zum Anzeigen."
+"لا تتوفر أماكن متكررة لعرضها حالياً.": "Gerade keine häufigen Orte zum Anzeigen.",
+"صديق أطفأ الموقع أو ألغى إذنه، وعند عودته": "Ein Freund hat den Standort ausgeschaltet oder die Berechtigung entzogen, und wenn er zurück ist"
 };

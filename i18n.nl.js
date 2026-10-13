@@ -902,5 +902,6 @@ window.I18N.nl = {
 "إخفاء سجلي عنه": "Mijn geschiedenis voor deze persoon verbergen",
 "سجلك مخفي عنه الآن، ويبقى يرى موقعك الحي": "Je geschiedenis is nu verborgen voor deze persoon; die ziet nog wel je live locatie",
 "عاد سجلك ظاهراً له": "Je geschiedenis is weer zichtbaar voor deze persoon",
-"لا تتوفر أماكن متكررة لعرضها حالياً.": "Nu geen vaste plekken om te tonen."
+"لا تتوفر أماكن متكررة لعرضها حالياً.": "Nu geen vaste plekken om te tonen.",
+"صديق أطفأ الموقع أو ألغى إذنه، وعند عودته": "Een vriend zette locatie uit of trok toestemming in, en wanneer die terug is"
 };
