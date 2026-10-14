@@ -214,11 +214,17 @@ details.acc[open]>summary{margin-bottom:8px}
 .pw-eye svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .contact-line{margin:0;font-size:13px;color:var(--ink2)}
 .contact-line a{color:var(--ink);font-weight:600}
-#send-bar{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:505;background:#FBE9C8;color:#7A4F00;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
+#bars{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:505;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#bars>div{pointer-events:auto}
+#v-main.hmode #bars{display:none}
+.trip-bar{background:#DDEBF7;color:#10272F;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
+.trip-bar span{flex:1;min-width:0}
+.trip-bar.in{background:#DFF1E8}
+#trip-list{display:flex;flex-direction:column;gap:2px;margin:8px 0;max-height:40vh;overflow-y:auto}
+#send-bar{background:#FBE9C8;color:#7A4F00;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
 #send-bar span{flex:1;min-width:0}
-#recip-bar{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:505;background:#E3E9EC;color:#10272F;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
+#recip-bar{background:#E3E9EC;color:#10272F;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
 #recip-bar span{flex:1;min-width:0}
-#send-bar:not([hidden]) ~ #recip-bar{top:calc(104px + env(safe-area-inset-top,0px))}
 #v-main.hmode #recip-bar{display:none}
 #fabs{position:absolute;inset-inline-end:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:500;display:flex;flex-direction:column;gap:10px}
 .fab{width:44px;height:44px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 10px #0003;display:grid;place-items:center;cursor:pointer}
@@ -391,7 +397,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=25"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=26"><\/script>');
 })();
 </script>
 <script>
@@ -513,8 +519,11 @@ window.APP_CONFIG = {
     <div id="note-bar" hidden><span id="note-bar-t"></span><button class="btn sm" id="note-add" data-act="friends-open" hidden>أضف</button><button class="btn sm" data-act="note-x" aria-label="إخفاء">×</button></div>
     <div id="rpt-bar" hidden><span id="rpt-bar-t"></span><button class="btn sm" data-act="rpt-bar-open">عرض</button><button class="btn sm" data-act="rpt-bar-x">×</button></div>
   </div>
+  <div id="bars">
   <div id="send-bar" hidden><span>الإرسال متوقف: موقعك لا يصل للعائلة.</span><button class="btn sm" data-act="send-fix">إعداد</button></div>
   <div id="recip-bar" hidden><span id="recip-t"></span><button class="btn sm primary" id="recip-go">شغّل الموقع</button></div>
+  <div id="trip-bars"></div>
+  </div>
   <div id="style-menu" hidden></div>
 
   <div id="sheet" class="sheet">
@@ -561,6 +570,8 @@ window.APP_CONFIG = {
       <button class="btn sm" id="p-places-btn" data-act="p-places">الأماكن</button>
       <button class="btn sm" id="p-more-btn" data-act="p-more">المزيد</button>
       <button class="btn sm" id="p-wa" data-act="p-wa" hidden>راسله واتساب</button>
+      <button class="btn sm" id="p-nav" data-act="p-nav" hidden>الطريق إليه</button>
+      <button class="btn sm primary" id="p-otw" data-act="p-otw" hidden>أنا في الطريق إليك</button>
       <span class="pchip" id="p-dist" hidden></span>
     </div>
     <div id="p-gap" class="hint" hidden style="margin:0 0 8px"></div>
@@ -888,6 +899,15 @@ window.APP_CONFIG = {
     <div class="acts"><button class="btn" data-act="fp-close">إغلاق</button></div>
   </div>
 </div>
+<div id="modal-trip" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="trip-title"></b>
+    <p class="hint" style="margin:4px 0 0">من يصله إشعار ويرى نقطتك تتحرك حتى تصل:</p>
+    <div id="trip-list"></div>
+    <p class="hint" id="trip-warn" hidden></p>
+    <div class="acts"><button class="btn primary" data-act="trip-go">انطلق</button><button class="btn" data-act="trip-close">إغلاق</button></div>
+  </div>
+</div>
 <div id="modal-ppick" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b>اختر الشخص</b>
@@ -975,7 +995,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '25';
+const UI_VERSION = '26';
 window.__modReal = true; window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: _t("مشي"), bike: _t("دراجة"), car: _t("سيارة") };
 const DEFAULT_SUBJECT = tf("دعوة للانضمام إلى {0}", CFG.appName);
@@ -996,7 +1016,7 @@ const S = {
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
   noteOff: null, pickFriend: null, modeSt: {}, sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {}, myInv: {}, myInvInfo: {},
   adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
-  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false, frz: {}, recipBad: null, badSince: 0, histHides: {},
+  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false, frz: {}, recipBad: null, badSince: 0, histHides: {}, myTrip: null, tripIn: {}, tripsIn: {}, tripUn: {},
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
@@ -1350,10 +1370,12 @@ function startMain() {
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
     S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); recipEval(); }, e => console.error('sosIn', e));
     S.unsubs.sosAck = onValue(ref(db, 'sosAck/' + S.uid), s => { S.sosAck = s.val() || {}; renderSosBar(); }, e => console.error('sosAck', e));
+    S.unsubs.myTrip = onValue(ref(db, 'trips/' + S.uid), s => { S.myTrip = s.val(); renderTrips(); if (S.person) renderPerson(); }, () => {});
+    S.unsubs.tripIn = onValue(ref(db, 'tripIn/' + S.uid), s => { S.tripIn = s.val() || {}; syncTripsIn(); }, () => {});
   }
   let mn = false; try { mn = localStorage.getItem('sheetMin') === '1'; } catch {}
   setSheetMin(mn);
-  S.tick = setInterval(() => { S.tickN++; recipEval(); if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
+  S.tick = setInterval(() => { S.tickN++; recipEval(); if (S.tickN % 2 === 0) tripTickWeb(); renderTrips(); if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
   if (!S.limited) get(ref(db, 'plan/' + S.uid)).then(sn => { S.plan = sn.val(); renderPlan(); return prune(S.uid, myKeep()).then(() => archiveOld(S.uid)); }).catch(() => {});
   if (isNative) ensureNative();
 }
@@ -1362,7 +1384,7 @@ function stopMain() {
   S.unsubs = {};
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
-  clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.histHides = {}; S.frz = {}; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
+  clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.histHides = {}; S.frz = {}; S.myTrip = null; S.tripIn = {}; S.tripsIn = {}; Object.values(S.tripUn || {}).forEach(f => f?.()); S.tripUn = {}; if ($('trip-bars')) $('trip-bars').innerHTML = ''; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
   S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {}; S.plan = null; S.plans = {};
 }
@@ -1438,7 +1460,7 @@ function myLocBad() {                                                    // off 
 }
 function recipWhy(u) {                                                   // لماذا لا أرى تحديثات u
   if (!u || u === S.uid || S.isAdmin || S.limited) return null;
-  if ((S.kids && S.kids[u]) || (S.sosIn && S.sosIn[u])) return null;
+  if ((S.kids && S.kids[u]) || (S.sosIn && S.sosIn[u]) || tripFrom(u)) return null;
   if (S.hideAll || (S.hides && S.hides[u])) return 'hide';
   return S.recipBad || null;
 }
@@ -1666,6 +1688,100 @@ function pinIcon(id, l, extra = '') {
   const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
   return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
 }
+/* ---------- «الطريق إليه» و«أنا في الطريق إليك» ----------
+   رحلتي في trips/<أنا>، وصندوق كل مستلم tripIn/<هو>/<أنا>. التطبيق 2.6 يتابع الرحلة في الخلفية
+   (والملاحة في Google Maps)، والنسخ الأقدم أو المتصفح يتابعها من الصفحة وهي مفتوحة. */
+const navTo = (lat, lng) => openExternal(`https://www.google.com/maps/dir/?api=1&destination=${(+lat).toFixed(6)},${(+lng).toFixed(6)}`);
+const tripLive = t => !!t && (t.state === 'go' || t.state === 'near') && Date.now() - (t.start || 0) < 3 * 3600e3;
+const tripFrom = u => { const t = S.tripsIn && S.tripsIn[u]; return !!(S.tripIn && S.tripIn[u] && tripLive(t)); };
+const fmtLeft = sec => { const m = Math.max(1, Math.round(sec / 60)); return m < 60 ? tf("{0} دقيقة", m) : tf("{0} س و{1} د", Math.floor(m / 60), m % 60); };
+const hasNativeTrip = () => { try { return !!window.AndroidBridge && typeof window.AndroidBridge.setTrip === 'function'; } catch { return false; } };
+function tripEta(lat, lng, to) {                                         // ثوانٍ: المسافة × 1.35 ÷ السرعة (أو 40 كم/س افتراضياً)
+  const d = haversine({ lat, lng }, to), me = S.locs[S.uid] || {};
+  const kmh = typeof me.spd === 'number' && me.spd * 3.6 >= 4 ? Math.max(me.spd * 3.6, me.mode === 'walk' ? 4 : 15) : (me.mode === 'walk' ? 5 : 40);
+  return { d, left: Math.round(d * 1.35 / (kmh / 3.6)) };
+}
+let TRIP_TO = null;
+function openTrip(to) {
+  if (S.limited) return;
+  const me = S.locs[S.uid];
+  if (!me || typeof me.lat !== 'number') return toast(_t("موقعك غير معروف بعد. شغّل المشاركة أولاً."));
+  if (S.myTrip && tripLive(S.myTrip)) return toast(_t("عندك رحلة جارية. ألغها أولاً."));
+  TRIP_TO = to;
+  $('trip-title').textContent = tf("أنا في الطريق إلى {0}", to.name || _t("مكان"));
+  const ids = Object.keys(S.mine).filter(u => u !== S.uid && connected(u));
+  $('trip-list').innerHTML = ids.length ? ids.map(u => `<label class="sw-row st"><span>${esc(dispName(u))}</span><span class="switch"><input type="checkbox" data-trip-rc="${esc(u)}" ${u === to.u ? 'checked' : ''} aria-label="${esc(dispName(u))}"><span></span></span></label>`).join('') : `<p class="hint">${_t("لا أصدقاء متصلين بعد.")}</p>`;
+  tripWarn(); $('modal-trip').hidden = false;
+}
+function tripRc() { return [...document.querySelectorAll('#trip-list [data-trip-rc]')].filter(x => x.checked).map(x => x.dataset.tripRc); }
+function tripWarn() {
+  const hid = tripRc().filter(u => S.hideAll || (S.hides && S.hides[u]));
+  $('trip-warn').hidden = !hid.length;
+  if (hid.length) $('trip-warn').textContent = tf("موقعك مخفي عن {0}، وسيظهر له طوال الرحلة ثم يعود مخفياً.", hid.map(dispName).join(_t("، ")));
+}
+document.addEventListener('change', ev => { if (ev.target && ev.target.matches && ev.target.matches('[data-trip-rc]')) tripWarn(); });
+async function startTrip() {
+  const to = TRIP_TO, rc = tripRc(), me = S.locs[S.uid];
+  if (!to || !me) return;
+  if (!rc.length) return toast(_t("اختر شخصاً واحداً على الأقل"));
+  const now = Date.now(), e = tripEta(me.lat, me.lng, to);
+  const toObj = { lat: +(+to.lat).toFixed(6), lng: +(+to.lng).toFixed(6), name: String(to.name || '').slice(0, 60), ...(to.u ? { u: to.u } : {}) };
+  const trip = { start: now, state: e.d <= 150 ? 'done' : 'go', to: toObj, eta0: Math.min(86400000, e.left * 1000), left: e.left, dist: Math.round(e.d), up: now, rc: Object.fromEntries(rc.map(u => [u, true])) };
+  const ups = { ['trips/' + S.uid]: trip };
+  for (const u of Object.keys((S.myTrip && S.myTrip.rc) || {})) if (!rc.includes(u)) ups[`tripIn/${u}/${S.uid}`] = null;   // صناديق رحلة سابقة
+  const myName = String((S.dir[S.uid] && S.dir[S.uid].name) || S.me?.name || '').slice(0, 60);
+  for (const u of rc) ups[`tripIn/${u}/${S.uid}`] = { at: now, name: myName };
+  try { await update(ref(db), ups); }
+  catch { return toast(_t("تعذر بدء الرحلة")); }
+  $('modal-trip').hidden = true;
+  if (hasNativeTrip()) { try { window.AndroidBridge.setTrip(JSON.stringify(trip)); } catch {} }
+  toast(tf("أُبلغ {0}. الوقت المتوقع {1}", rc.map(dispName).join(_t("، ")), fmtLeft(e.left)));
+  navTo(to.lat, to.lng);
+}
+async function cancelTrip() {
+  const t = S.myTrip; if (!t || !tripLive(t)) return;
+  if (!(await ask(_t("إلغاء الرحلة؟ يصل للمستلمين أنك ألغيتها."), _t("إلغاء الرحلة")))) return;
+  if (hasNativeTrip()) { try { window.AndroidBridge.setTrip(''); } catch {} }
+  try { await update(ref(db), { [`trips/${S.uid}/state`]: 'cancel', [`trips/${S.uid}/end`]: Date.now(), [`trips/${S.uid}/up`]: Date.now() }); toast(_t("أُلغيت الرحلة")); }
+  catch { toast(_t("تعذر التنفيذ")); }
+}
+/* بديل الصفحة: إن لم يكن التطبيق 2.6 نحدّث الرحلة من موقعي الحي ما دامت الصفحة مفتوحة */
+async function tripTickWeb() {
+  const t = S.myTrip; if (!t || !tripLive(t) || hasNativeTrip() || document.hidden) return;
+  const me = S.locs[S.uid]; if (!me || typeof me.lat !== 'number') return;
+  const to = { ...t.to }; if (to.u && S.locs[to.u] && typeof S.locs[to.u].lat === 'number' && !recipWhy(to.u)) { to.lat = S.locs[to.u].lat; to.lng = S.locs[to.u].lng; }
+  const e = tripEta(me.lat, me.lng, to), now = Date.now();
+  const limit = t.start + Math.min(Math.max(2 * (t.eta0 || 1800000), 20 * 60e3), 3 * 3600e3);
+  const st = e.d <= 150 ? 'done' : now > limit ? 'expired' : (t.state === 'near' || e.left <= 180 || e.d <= 1000) ? 'near' : 'go';
+  const ups = { [`trips/${S.uid}/left`]: e.left, [`trips/${S.uid}/dist`]: Math.round(e.d), [`trips/${S.uid}/state`]: st, [`trips/${S.uid}/up`]: now, [`trips/${S.uid}/to/lat`]: +(+to.lat).toFixed(6), [`trips/${S.uid}/to/lng`]: +(+to.lng).toFixed(6) };
+  if (st === 'done' || st === 'expired') ups[`trips/${S.uid}/end`] = now;
+  try { await update(ref(db), ups); } catch {}
+}
+/* المستلم: أتابع رحلات من أرسلوا لي */
+function syncTripsIn() {
+  const want = Object.keys(S.tripIn || {});
+  for (const u of want) if (!S.tripUn[u]) S.tripUn[u] = onValue(ref(db, 'trips/' + u), s => { const prev = tripFrom(u); S.tripsIn[u] = s.val(); if (prev !== tripFrom(u)) { recipEval(); if (S.locUn[u]) { S.locUn[u](); delete S.locUn[u]; } syncLocs(); } renderTrips(); }, () => { delete S.tripsIn[u]; });
+  for (const u of Object.keys(S.tripUn)) if (!want.includes(u)) { S.tripUn[u]?.(); delete S.tripUn[u]; delete S.tripsIn[u]; }
+  recipEval(); renderTrips();
+}
+function renderTrips() {
+  const box = $('trip-bars'); if (!box) return;
+  if (!S.started || S.tab !== 'map') { box.innerHTML = ''; return; }
+  const rows = [], t = S.myTrip, now = Date.now();
+  const leftNow = x => Math.max(0, (x.left || 0) - Math.max(0, (now - (x.up || now)) / 1000));
+  if (t && tripLive(t)) rows.push(`<div class="trip-bar"><span>${esc(tf("في الطريق إلى {0}", t.to && t.to.name || _t("مكان")))} · ${t.state === 'near' ? _t("على وشك الوصول") : esc(fmtLeft(leftNow(t)))}</span><button class="btn sm" data-act="p-nav-trip">${_t("الملاحة")}</button><button class="btn sm danger" data-act="trip-cancel">${_t("إلغاء")}</button></div>`);
+  for (const u of Object.keys(S.tripsIn || {})) {
+    const x = S.tripsIn[u]; if (!x || !S.tripIn[u]) continue;
+    const toMe = x.to && x.to.u === S.uid, nm = dispName(u);
+    let txt = '';
+    if (tripLive(x)) txt = x.state === 'near' ? tf("{0} على وشك الوصول", nm) : (toMe ? tf("{0} في الطريق إليك · {1}", nm, fmtLeft(leftNow(x))) : tf("{0} في الطريق إلى «{1}» · {2}", nm, x.to && x.to.name || '', fmtLeft(leftNow(x))));
+    else if (x.state === 'done' && now - (x.end || 0) < 15 * 60e3) txt = toMe ? tf("{0} وصل", nm) : tf("{0} وصل إلى «{1}»", nm, x.to && x.to.name || '');
+    else if (x.state === 'cancel' && now - (x.end || 0) < 15 * 60e3) txt = tf("{0} ألغى الرحلة", nm);
+    else { if (now - (x.end || x.start || 0) > 15 * 60e3) remove(ref(db, `tripIn/${S.uid}/${u}`)).catch(() => {}); continue; }
+    rows.push(`<div class="trip-bar in"><span>${esc(txt)}</span><button class="btn sm" data-act="trip-see" data-id="${esc(u)}">${_t("عرض")}</button></div>`);
+  }
+  box.innerHTML = rows.join('');
+}
 /* نقطة الدبوس على الشاشة (بالبكسل) لمعرفة الدبابيس المتراكبة */
 const pinPt = l => { try { return S.map.latLngToContainerPoint([l.lat, l.lng]); } catch { return null; } };
 const pxDist = (a, b) => (a && b ? Math.hypot(a.x - b.x, a.y - b.y) : Infinity);
@@ -1802,6 +1918,8 @@ function renderPerson() {
   if (gp && Date.now() - gp.to < 864e5) { $('p-gap').textContent = tf("آخر انقطاع: قبل {0}، دام {1}، {2}", ago(gp.to), fmtDur(gp.to - gp.from), gapText(gp)); $('p-gap').hidden = false; }
   else $('p-gap').hidden = true;
   $('p-wa').hidden = !(id !== S.uid && phoneOf(id));
+  const navOk = id !== S.uid && !S.limited && !recipWhy(id) && !!(l && typeof l.lat === 'number');
+  $('p-nav').hidden = !navOk; $('p-otw').hidden = !(navOk && connected(id) && !(S.myTrip && tripLive(S.myTrip)));
   if (!fz && id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = tf("المسافة منك {0}", fmtKm(haversine(me, l))); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
 }
@@ -2691,6 +2809,15 @@ const ACTIONS = {
   'photo-pick': () => $('photo-file').click(),
   'photo-del': async () => { await update(ref(db), { ['directory/' + S.uid + '/photo']: null }); toast(_t("أُزيلت الصورة")); },
   'p-wa': () => { const ph = phoneOf(S.person); if (ph) openExternal('https://wa.me/' + ph); },
+  'p-nav': () => { const l = S.locs[S.person]; if (l && typeof l.lat === 'number') navTo(l.lat, l.lng); },
+  'p-otw': () => { const id = S.person, l = S.locs[id]; if (l && typeof l.lat === 'number') openTrip({ u: id, lat: l.lat, lng: l.lng, name: dispName(id) }); },
+  'pl-nav': id => { const p = S.places[id]; if (p) navTo(p.lat, p.lng); },
+  'pl-otw': id => { const p = S.places[id]; if (p) openTrip({ lat: p.lat, lng: p.lng, name: String(p.name || '').slice(0, 60) }); },
+  'trip-close': () => { $('modal-trip').hidden = true; },
+  'trip-go': () => startTrip(),
+  'trip-cancel': () => cancelTrip(),
+  'p-nav-trip': () => { const t = S.myTrip; if (t && t.to) navTo(t.to.lat, t.to.lng); },
+  'trip-see': u => { setTab('map'); if (visibleIds().includes(u)) openPerson(u); },
   'del-open': () => { $('del-pass').value = ''; $('del-err').textContent = ''; $('modal-del').hidden = false; },
   'diag-send': () => sendDiag(),
   'sos-cancel': () => cancelSos(),
@@ -2970,7 +3097,7 @@ function renderPlaces() {
   $('places-list').innerHTML = ids.length ? ids.map(id => {
     const p = S.places[id];
     const fr = friends.length ? friends.map(u => `<label class="sw-row st" style="margin-top:2px"><span>${tf("تنبيه عند وصول {0} أو مغادرته", esc(dispName(u)))}</span><span class="switch"><input type="checkbox" data-pl-fr="${esc(id)}|${esc(u)}" ${p.fr && p.fr[u] ? 'checked' : ''} aria-label="${_t("تنبيه")}"><span></span></span></label>`).join('') : `<p class="hint">${_t("أضف أصدقاء متصلين لتشغّل التنبيه لهم.")}</p>`;
-    return `<div class="row" style="padding-bottom:0"><div class="grow"><div class="nm">${esc(p.name)}</div><div class="st">${tf("نصف القطر {0} م", esc(p.r))}</div></div><button class="btn sm danger" data-act="pl-del" data-id="${esc(id)}">${_t("حذف")}</button></div><div class="plfr">${fr}</div>`;
+    return `<div class="row" style="padding-bottom:0"><div class="grow"><div class="nm">${esc(p.name)}</div><div class="st">${tf("نصف القطر {0} م", esc(p.r))}</div></div><button class="btn sm" data-act="pl-nav" data-id="${esc(id)}">${_t("الطريق")}</button><button class="btn sm" data-act="pl-otw" data-id="${esc(id)}">${_t("أنا في الطريق")}</button><button class="btn sm danger" data-act="pl-del" data-id="${esc(id)}">${_t("حذف")}</button></div><div class="plfr">${fr}</div>`;
   }).join('') : `<p class="hint">${_t("لا توجد أماكن بعد.")}</p>`;
   drawPlaces();
 }
@@ -3130,6 +3257,7 @@ window.__back = () => {
   if (vis('modal-fplaces')) { FP.tok++; $('modal-fplaces').hidden = true; return true; }
   if (vis('modal-pmore')) { $('modal-pmore').hidden = true; return true; }
   if (vis('modal-ppick')) { $('modal-ppick').hidden = true; return true; }
+  if (vis('modal-trip')) { $('modal-trip').hidden = true; return true; }
   if (vis('modal-place')) { $('pl-no').click(); return true; }
   if (vis('modal-nick')) { $('nick-no').click(); return true; }
   if (vis('modal-phone')) { $('ph-no').click(); return true; }
@@ -3188,6 +3316,9 @@ async function deleteMyAccount(pass) {
     for (const f of Object.keys(S.nick)) ups[`nick/${uid}/${f}`] = null;
     for (const v of Object.keys(S.hides)) ups[`hide/${uid}/${v}`] = null;
     for (const v of Object.keys(S.histHides || {})) ups[`histHide/${uid}/${v}`] = null;
+    ups['trips/' + uid] = null;
+    for (const f of Object.keys((S.myTrip && S.myTrip.rc) || {})) ups[`tripIn/${f}/${uid}`] = null;
+    for (const f of Object.keys(S.tripIn || {})) ups[`tripIn/${uid}/${f}`] = null;
     for (const f of Object.keys(S.mine)) { ups[`links/${uid}/${f}`] = null; ups[`requests/${f}/${uid}`] = null; ups[`sosInbox/${f}/${uid}`] = null; ups[`sosAck/${uid}/${f}`] = null; ups[`sosAck/${f}/${uid}`] = null; }
     for (const f of Object.keys(S.reqs)) ups[`requests/${uid}/${f}`] = null;
     for (const f of Object.keys(S.sosIn)) ups[`sosInbox/${uid}/${f}`] = null;
@@ -3771,7 +3902,7 @@ function setTab(t) {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const mapMode = t === 'map';
   $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
-  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; renderRecipBar();
+  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; renderRecipBar(); renderTrips();
   if (!mapMode) { $('style-menu').hidden = true; endPick(); }
   if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
   renderAll(); updateSendBar();
@@ -3911,7 +4042,7 @@ function notifGo(id) {
   try { window.AndroidBridge.notifRead(Number(e.id)); } catch {}
   $('v-notif').hidden = true; updateNotifBadge();
   const d = e.d || {};
-  if ((e.k === 'friend' || e.k === 'guard') && d.u) {
+  if ((e.k === 'friend' || e.k === 'guard' || e.k === 'trip') && d.u) {
     if (visibleIds().includes(d.u)) { setTab('map'); openPerson(d.u); } else toast(_t("هذا الشخص غير ظاهر على خريطتك الآن"));
   } else if (e.k === 'report' && d.day) { const w = d.u || (Number(e.nid) === 4600 ? digestWho() : null); openReport('day', d.day, w || undefined); }
   else if (e.k === 'sos_in' && d.from) { setTab('map'); S.pendingSos = d.from; handleSosIncoming(S.sosIn || {}); }
