@@ -242,6 +242,15 @@ details.acc[open]>summary{margin-bottom:8px}
 .warn-ic{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--bad);color:#fff;font-size:12px;font-weight:700;vertical-align:middle;margin-inline-start:4px}
 .phead{display:flex;gap:12px;align-items:center}
 .pbtns{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;align-items:center}
+.bigbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:8px;margin:10px 0 4px}
+.bigb{border:0;border-radius:16px;background:#E9F0F7;color:var(--ink);padding:12px 6px;font:inherit;font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.bigb svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bigb[hidden]{display:none}
+.trip-card.tap{cursor:pointer}
+.mk-lbl.spd{background:#fff;color:var(--ink);font-size:11.5px}
+.mk-lbl.spd .mb svg{width:13px;height:13px}
+#share-durs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#share-list .row{padding:6px 0}
 .pchip{padding:7px 12px;border-radius:10px;background:#E9F0F7;font-size:13px;font-weight:600}
 .trip-card{background:var(--bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
 #h-scrub{margin:8px 0 4px}
@@ -397,7 +406,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=26"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=27"><\/script>');
 })();
 </script>
 <script>
@@ -562,12 +571,17 @@ window.APP_CONFIG = {
     <div class="phead">
       <div class="av" id="p-av"></div>
       <div class="grow"><div class="nm" id="p-name"></div><div class="st" id="p-st"></div><div class="st" id="p-addr"></div></div>
+      <span class="badge warn" id="p-wifi" hidden>WiFi مطفأ</span>
       <span class="badge" id="p-bat" hidden></span>
     </div>
+    <div class="bigbtns">
+      <button class="bigb" id="p-hist-btn" data-act="p-hist"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>السجل</button>
+      <button class="bigb" id="p-drive-btn" data-act="p-drive"><svg viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17M7 17v2M17 17v2"/><circle cx="8.5" cy="14.5" r=".6"/><circle cx="15.5" cy="14.5" r=".6"/></svg>القيادة</button>
+      <button class="bigb" id="p-places-btn" data-act="p-places"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>الأماكن</button>
+      <button class="bigb" id="p-share-btn" data-act="p-share" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>مشاركة</button>
+    </div>
     <div class="pbtns">
-      <button class="btn sm" id="p-hist-btn" data-act="p-hist">السجل</button>
       <button class="btn sm" id="p-rep-btn" data-act="p-report">التقرير</button>
-      <button class="btn sm" id="p-places-btn" data-act="p-places">الأماكن</button>
       <button class="btn sm" id="p-more-btn" data-act="p-more">المزيد</button>
       <button class="btn sm" id="p-wa" data-act="p-wa" hidden>راسله واتساب</button>
       <button class="btn sm" id="p-nav" data-act="p-nav" hidden>الطريق إليه</button>
@@ -899,6 +913,20 @@ window.APP_CONFIG = {
     <div class="acts"><button class="btn" data-act="fp-close">إغلاق</button></div>
   </div>
 </div>
+<div id="modal-share" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b>مشاركة موقعي برابط</b>
+    <p class="hint" style="margin:4px 0 0">رابط يفتحه أي شخص في المتصفح دون حساب، ويرى موقعك الحي حتى تنتهي المدة أو توقفه.</p>
+    <div id="share-durs">
+      <button class="btn sm" data-act="share-new" data-id="1">ساعة</button>
+      <button class="btn sm" data-act="share-new" data-id="4">4 ساعات</button>
+      <button class="btn sm" data-act="share-new" data-id="24">يوم</button>
+      <button class="btn sm" data-act="share-new" data-id="720">حتى أوقفه</button>
+    </div>
+    <div id="share-list"></div>
+    <div class="acts"><button class="btn" data-act="share-close">إغلاق</button></div>
+  </div>
+</div>
 <div id="modal-trip" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b id="trip-title"></b>
@@ -954,6 +982,22 @@ window.APP_CONFIG = {
     <div class="acts"><button id="ph-ok" class="btn primary">إرسال الطلب</button><button id="ph-no" class="btn">إلغاء</button></div>
   </div>
 </div>
+<div id="modal-admsg" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b>رسالة من المشرف</b>
+    <p id="am-text" style="white-space:pre-wrap;margin:10px 0;font-size:15px;line-height:1.6"></p>
+    <p class="hint" id="am-time"></p>
+    <div class="acts"><button class="btn primary" data-act="am-ok">تم</button></div>
+  </div>
+</div>
+<div id="modal-amw" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <b id="amw-title"></b>
+    <textarea id="amw-in" maxlength="500" rows="6" style="width:100%;margin-top:8px;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line)"></textarea>
+    <div class="hint" id="amw-n">0 / 500</div>
+    <div class="acts"><button class="btn primary" data-act="amw-send">إرسال</button><button class="btn" data-act="amw-close">إلغاء</button></div>
+  </div>
+</div>
 <div id="modal-text" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b id="tx-title"></b>
@@ -995,7 +1039,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '26';
+const UI_VERSION = '27';
 window.__modReal = true; window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: _t("مشي"), bike: _t("دراجة"), car: _t("سيارة") };
 const DEFAULT_SUBJECT = tf("دعوة للانضمام إلى {0}", CFG.appName);
@@ -1016,7 +1060,7 @@ const S = {
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
   noteOff: null, pickFriend: null, modeSt: {}, sosAck: {}, sosSeen: {}, pendingSos: null, homeSug: null, kids: {}, myGuardians: {}, guardians: {}, myInv: {}, myInvInfo: {},
   adminAll: (() => { try { return localStorage.getItem('mk_admin_all') === '1'; } catch { return false; } })(), appInfo: {}, _infoAt: 0,
-  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false, frz: {}, recipBad: null, badSince: 0, histHides: {}, myTrip: null, tripIn: {}, tripsIn: {}, tripUn: {},
+  gaps: {}, histPriv: false, reportShare: false, follow: {}, pendingTrip: null, deepDone: false, frz: {}, recipBad: null, badSince: 0, histHides: {}, myTrip: null, tripIn: {}, tripsIn: {}, tripUn: {}, shares: {}, myAdm: {}, admMsgs: {},
   nick: {}, places: {}, sosIn: {}, sosOut: null, phones: {}, pickPlace: false, plg: null, hcum: null, htotal: 0,
   gating: false, gateOk: false, deviceId: null, sessUn: null, kickMsg: '', limited: false, mode: null, histFor: null, hmk: null,
   person: null, pTok: 0, hpts: [], han: null, hsel: null, hmark: null, nonMembers: [], ctFilter: '',
@@ -1334,6 +1378,7 @@ function startMain() {
     S.unsubs.guardians = onValue(ref(db, 'guardians'), s => { S.guardians = s.val() || {}; renderAdmin(); }, e => console.error('guardians', e));
     S.unsubs.devDiag = onValue(ref(db, 'devDiag'), s => { S.devDiag = s.val() || {}; renderAdmin(); }, e => console.error('devDiag', e));
     S.unsubs.plans = onValue(ref(db, 'plan'), s => { S.plans = s.val() || {}; renderAdmin(); }, e => console.error('plans', e));
+    S.unsubs.admMsgs = onValue(ref(db, 'adminMsg'), s => { S.admMsgs = s.val() || {}; renderAdmin(); }, () => {});
     S.unsubs.appInfo = onValue(ref(db, 'appInfo'), s => { S.appInfo = s.val() || {}; renderAdmin(); }, e => console.error('appInfo', e));
     S.unsubs.phoneReqs = onValue(ref(db, 'phoneReq'), s => { S.phoneReqs = s.val() || {}; renderAdmin(); }, e => console.error('phoneReqs', e));
     S.unsubs.users = onValue(ref(db, 'users'), s => { S.users = s.val() || {}; renderAdmin(); }, e => console.error('users', e));
@@ -1370,6 +1415,8 @@ function startMain() {
     S.unsubs.nick = onValue(ref(db, 'nick/' + S.uid), s => { S.nick = s.val() || {}; renderAll(); }, e => console.error('nick', e));
     S.unsubs.sosIn = onValue(ref(db, 'sosInbox/' + S.uid), s => { const prev = S.sosIn || {}; S.sosIn = s.val() || {}; renderSosBar(); handleSosIncoming(prev); recipEval(); }, e => console.error('sosIn', e));
     S.unsubs.sosAck = onValue(ref(db, 'sosAck/' + S.uid), s => { S.sosAck = s.val() || {}; renderSosBar(); }, e => console.error('sosAck', e));
+    S.unsubs.admMine = onValue(ref(db, 'adminMsg/' + S.uid), s => { S.myAdm = s.val() || {}; showAdminMsg(); }, () => {});
+    S.unsubs.shares = onValue(ref(db, 'sharesBy/' + S.uid), s => { S.shares = s.val() || {}; renderShares(); }, () => {});
     S.unsubs.myTrip = onValue(ref(db, 'trips/' + S.uid), s => { S.myTrip = s.val(); renderTrips(); if (S.person) renderPerson(); }, () => {});
     S.unsubs.tripIn = onValue(ref(db, 'tripIn/' + S.uid), s => { S.tripIn = s.val() || {}; syncTripsIn(); }, () => {});
   }
@@ -1681,12 +1728,85 @@ function pinIcon(id, l, extra = '') {
   const fz = id !== S.uid && !!S.frz[id] && !!recipWhy(id);
   const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = fz ? null : liveMode(id, l);
   const nm = id === S.uid ? _t("أنا") : dispName(id);
-  const sub = m ? `<small>${tf("{0}{1} كم/س", ICON[m.mode], m.kmh)}</small>` : '';
+  const sub = '';                                                        // السرعة صارت فقاعة فوق الدبوس
   const bad = l.off === true || l.noperm === true;
-  const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : bad ? `<span class="mk-lbl off">${l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
+  const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : m && !bad ? `<span class="mk-lbl spd">${ICON[m.mode]}${tf("{0} كم/س", m.kmh)}</span>` : bad ? `<span class="mk-lbl off">${l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
   const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
   const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
   return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
+}
+/* ---------- رسائل المشرف ----------
+   adminMsg/<العضو>/<رقم> = {t, at, all?, ack?}. يكتبها المشرف، ويضغط العضو «تم» فيُسجَّل ack (الاستلام). */
+let AMW_TO = null, AM_CUR = null;
+function showAdminMsg() {
+  if (!S.started || !$('modal-admsg')) return;
+  const now = Date.now(), list = Object.entries(S.myAdm || {}).filter(([, m]) => m && !m.ack && typeof m.t === 'string' && now - (m.at || 0) < 30 * 864e5).sort((a, b) => a[1].at - b[1].at);
+  if (!list.length) { if (AM_CUR) { $('modal-admsg').hidden = true; AM_CUR = null; } return; }
+  const [id, m] = list[0];
+  if (AM_CUR === id && !$('modal-admsg').hidden) return;
+  AM_CUR = id; $('am-text').textContent = m.t; $('am-time').textContent = fmtFull(m.at) + (list.length > 1 ? ' · ' + tf("{0} رسائل", list.length) : '');
+  $('modal-admsg').hidden = false;
+}
+async function ackAdminMsg() {
+  const id = AM_CUR; $('modal-admsg').hidden = true; AM_CUR = null;
+  if (!id) return;
+  try { await set(ref(db, `adminMsg/${S.uid}/${id}/ack`), Date.now()); } catch {}
+  setTimeout(showAdminMsg, 300);
+}
+function openAdmWrite(ids) {
+  AMW_TO = ids;
+  const n = ids ? 1 : Object.keys(S.users).filter(u => u !== S.uid && S.users[u].status === 'approved').length;
+  $('amw-title').textContent = ids ? tf("رسالة إلى {0}", S.dir[ids[0]]?.name || S.users[ids[0]]?.name || '') : tf("رسالة لكل الأعضاء ({0})", n);
+  $('amw-in').value = ''; $('amw-n').textContent = '0 / 500'; $('modal-amw').hidden = false; setTimeout(() => $('amw-in').focus(), 50);
+}
+$('amw-in').addEventListener('input', () => { $('amw-n').textContent = $('amw-in').value.length + ' / 500'; });
+async function sendAdmMsg() {
+  const t = $('amw-in').value.trim().slice(0, 500); if (!t) return toast(_t("اكتب نص الرسالة"));
+  const all = !AMW_TO, ids = AMW_TO || Object.keys(S.users).filter(u => u !== S.uid && S.users[u].status === 'approved');
+  if (!ids.length) return;
+  if (all && !(await ask(tf("إرسال الرسالة إلى {0} عضواً؟", ids.length), _t("إرسال")))) return;
+  const now = Date.now(), mid = now.toString(36) + Math.random().toString(36).slice(2, 6), ups = {};
+  for (const u of ids) ups[`adminMsg/${u}/${mid}`] = { t, at: now, ...(all ? { all: true } : {}) };
+  try { await update(ref(db), ups); $('modal-amw').hidden = true; toast(all ? tf("أُرسلت إلى {0} عضواً", ids.length) : _t("أُرسلت الرسالة")); }
+  catch { toast(_t("تعذر الإرسال")); }
+}
+function admLine(u) {
+  const ms = Object.values((S.admMsgs || {})[u] || {}).filter(m => m && m.at).sort((a, b) => b.at - a.at);
+  if (!ms.length) return '';
+  const m = ms[0], st = m.ack ? `<span class="badge ok">${esc(tf("استلمها {0}", fmtFull(m.ack)))}</span>` : `<span class="badge warn">${_t("أُرسلت، لم يضغط «تم» بعد")}</span>`;
+  return `<div class="hint">${esc(tf("آخر رسالة {0}: «{1}»", fmtFull(m.at), m.t.length > 40 ? m.t.slice(0, 40) + '…' : m.t))} ${st}</div>`;
+}
+/* ---------- مشاركة الموقع برابط مؤقت ----------
+   shares/<رمز> = {uid, exp}. صفحة share.html تدخل دخولاً مجهولاً وتسجّل الرمز في shareView، فتسمح القواعد
+   بقراءة موقعي وحده حتى exp. الإيقاف يحذف الرمز فيتوقف العرض فوراً. */
+const shareLink = tok => location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '') + 'share.html#t=' + tok;
+function openShare() { if (S.limited) return; renderShares(); $('modal-share').hidden = false; }
+async function newShare(hours) {
+  const a = new Uint8Array(24); crypto.getRandomValues(a);
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789', tok = [...a].map(x => abc[x % abc.length]).join('');
+  const now = Date.now(), exp = now + Math.min(hours, 720) * 3600e3;
+  const name = String((S.dir[S.uid] && S.dir[S.uid].name) || S.me?.name || '').slice(0, 60);
+  try { await update(ref(db), { ['shares/' + tok]: { uid: S.uid, exp, at: now, name }, [`sharesBy/${S.uid}/${tok}`]: exp }); }
+  catch { return toast(_t("تعذر إنشاء الرابط")); }
+  sendShare(tok, exp);
+}
+function sendShare(tok, exp) {
+  exp = exp || (S.shares || {})[tok];
+  const url = shareLink(tok), txt = tf("موقعي الحي على مكاننا حتى {0}:\n{1}", fmtFull(exp), url);
+  try { if (window.AndroidBridge && typeof window.AndroidBridge.shareText === 'function') { window.AndroidBridge.shareText(txt); return; } } catch {}
+  if (navigator.share) { navigator.share({ text: txt }).catch(() => copy(url)); return; }
+  copy(url);
+}
+async function stopShare(tok) {
+  try { await update(ref(db), { ['shares/' + tok]: null, [`sharesBy/${S.uid}/${tok}`]: null }); toast(_t("أُوقف الرابط، ولم يعد يعرض موقعك")); }
+  catch { toast(_t("تعذر التنفيذ")); }
+}
+function renderShares() {
+  const box = $('share-list'); if (!box) return;
+  const now = Date.now(), live = Object.entries(S.shares || {}).filter(([, e]) => e > now).sort((a, b) => a[1] - b[1]);
+  const dead = Object.entries(S.shares || {}).filter(([, e]) => e <= now);
+  if (dead.length) { const ups = {}; dead.forEach(([k]) => { ups['shares/' + k] = null; ups[`sharesBy/${S.uid}/${k}`] = null; }); update(ref(db), ups).catch(() => {}); }
+  box.innerHTML = live.length ? `<b style="font-size:14px">${_t("روابط تعمل الآن")}</b>` + live.map(([k, e]) => `<div class="row"><div class="grow"><div class="st">${esc(tf("ينتهي {0}", fmtFull(e)))}</div></div><button class="btn sm" data-act="share-send" data-id="${esc(k)}">${_t("إرسال")}</button><button class="btn sm danger" data-act="share-stop" data-id="${esc(k)}">${_t("إيقاف")}</button></div>`).join('') : '';
 }
 /* ---------- «الطريق إليه» و«أنا في الطريق إليك» ----------
    رحلتي في trips/<أنا>، وصندوق كل مستلم tripIn/<هو>/<أنا>. التطبيق 2.6 يتابع الرحلة في الخلفية
@@ -1890,6 +2010,7 @@ function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); render
 function renderPerson() {
   const id = S.person; if (!id) return;
   $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited || !repAllowed(id); $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
+  $('p-drive-btn').hidden = S.limited || !repAllowed(id); $('p-share-btn').hidden = S.limited || id !== S.uid;
   const d = S.dir[id] || {}, l = S.locs[id], ds = describe(id), me = S.locs[S.uid];
   $('p-av').textContent = d.photo ? '' : initial(d.name); $('p-av').style.cssText = avStyle(d);
   $('p-name').innerHTML = esc(id === S.uid ? _t("أنا") : dispName(id)) + (id !== S.uid && recipWhy(id) ? '' : mvHtml(l));
@@ -1898,6 +2019,7 @@ function renderPerson() {
   const fz = id !== S.uid && !!recipWhy(id);                            // موقعه متجمّد عندي: لا بطارية ولا مسافة قديمة
   const bat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (l.chg ? ' ⚡' : '') : '';
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
+  $('p-wifi').hidden = !(!fz && l && l.wifi === false && typeof l.ts === 'number' && Date.now() - l.ts < 600000);   // التطبيق 2.7: الواي فاي مطفأ فتقل الدقة داخل المباني
   const offBad = !fz && !!(l && (l.off === true || l.noperm === true));
   const longOff = !fz && !offBad && id !== S.uid && !!(l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - RECIP_STALE);
   $('p-off').hidden = !(offBad || longOff);
@@ -1941,11 +2063,12 @@ async function loadLastTrip(id) {
     if (tok !== S.pTok || S.person !== id) return;
     const pts = cleanPts(Object.values(obj).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number' && typeof p.ts === 'number').sort((a, b) => a.ts - b.ts));
     if (!pts.length) return;
-    const trips = analyzeDay(pts, bikeOf(id)).items.filter(i => i.type === 'trip');
+    const an0 = analyzeDay(pts, bikeOf(id)), trips = an0.items.filter(i => i.type === 'trip');
     if (!trips.length) { box.innerHTML = `<div class="trip-card"><span class="hint">${_t("لا رحلات اليوم.")}</span></div>`; return; }
     const t = trips[trips.length - 1];
     const seg = pts.slice(t.s, t.e + 1);
-    box.innerHTML = `<div class="trip-card"><b>${tf("آخر رحلة اليوم ({0})", esc(MODE[t.mode]))}</b><div class="st">${tf("{0} حتى {1}", esc(fmtTime(t.t0)), esc(fmtTime(t.t1)))}</div><div>${tf("{0}، {1}، متوسط {2} كم/س", esc(fmtKm(t.dist)), esc(fmtDur(t.dur)), Math.round(t.avg))}</div>${miniRoute(seg)}<div class="st" id="lt-names"></div></div>`;
+    const tIdx = an0.items.indexOf(t);                                  // الضغط على البطاقة يفتح السجل على هذه الرحلة
+    box.innerHTML = `<div class="trip-card${tIdx >= 0 && !S.limited ? ' tap' : ''}" ${tIdx >= 0 && !S.limited ? `data-act="lt-open" data-id="${tIdx}"` : ''}><b>${tf("آخر رحلة اليوم ({0})", esc(MODE[t.mode]))}</b><div class="st">${tf("{0} حتى {1}", esc(fmtTime(t.t0)), esc(fmtTime(t.t1)))}</div><div>${tf("{0}، {1}، متوسط {2} كم/س", esc(fmtKm(t.dist)), esc(fmtDur(t.dur)), Math.round(t.avg))}</div>${miniRoute(seg)}<div class="st" id="lt-names"></div></div>`;
     if (seg.length >= 2) Promise.all([nameAt(seg[0].lat, seg[0].lng, id), nameAt(seg[seg.length - 1].lat, seg[seg.length - 1].lng, id)]).then(([f, e]) => { const el = $('lt-names'); if (S.person === id && el && (f || e)) el.textContent = tf("من {0} إلى {1}", f || _t("مكان غير مسمّى"), e || _t("مكان غير مسمّى")); }).catch(() => {});
   } catch { /* لا صلاحية أو لا اتصال */ }
 }
@@ -2445,7 +2568,7 @@ function renderAdmin() {
     return `<details class="hint"><summary style="cursor:pointer">${_t("تشخيص الجهاز")} ${iss.length ? `<span class="badge bad">${iss.length}</span>` : `<span class="badge ok">${_t("سليم")}</span>`} · ${tf("قبل {0}", esc(ago(d._at || d.at)))}</summary>${chips.trim() ? `<div style="margin:4px 0">${chips}</div>` : ''}<div dir="ltr" style="text-align:right">${esc(meta)}</div></details>`;
   };
   const sickIds = ids.filter(u => { const d = dgOf(u); return d && (d.issues || []).length && S.users[u].status !== 'disabled'; });
-  const sickCard = sickIds.length ? `<div class="card"><b>${tf("أجهزة فيها مشاكل قد توقف الإرسال: {0}", sickIds.length)}</b>${sickIds.map(u => `<div class="row" style="padding:4px 0"><div class="grow"><div class="nm">${esc(S.dir[u]?.name || S.users[u]?.name || u)}</div><div class="st">${esc((dgOf(u).issues || []).map(issueTitle).join(`${_t("،")} `))}</div></div></div>`).join('')}</div>` : '';
+  const sickCard = sickIds.length ? `<div class="card"><b>${tf("أجهزة فيها مشاكل قد توقف الإرسال: {0}", sickIds.length)}</b>${sickIds.map(u => `<div class="row" style="padding:4px 0"><div class="grow"><div class="nm">${esc(S.dir[u]?.name || S.users[u]?.name || u)}</div><div class="st">${esc((dgOf(u).issues || []).map(issueTitle).join(`${_t("،")} `))}</div>${admLine(u)}</div><button class="btn sm" data-act="amw-one" data-id="${esc(u)}">${_t("رسالة")}</button></div>`).join('')}</div>` : '';
   const planLine = u => {
     const p = S.plans[u]; if (!p || !(p.days > PRUNE_DAYS)) return '';
     const until = Number(p.until) || 0;
@@ -2455,7 +2578,8 @@ function renderAdmin() {
   };
   const guardLine = u => { const x = S.users[u]; if (!(x.birthYear && isMinor(x.birthYear))) return ''; const g = Object.values(S.guardians[u] || {}); return `<div class="hint">${tf("أولياء الأمور: {0}", g.length ? esc(g.join(`${_t("،")} `)) : _t("لا أحد"))}</div>`; };
   const modeCard = `<div class="card"><label class="sw-row"><span><b>${_t("عرض كل الأعضاء على الخريطة")}</b><br><span class="hint">${_t("للإشراف فقط. افتراضياً تظهر لك الخريطة أصدقاءك المتصلين فقط.")}</span></span><span class="switch"><input type="checkbox" data-adm-all ${S.adminAll ? 'checked' : ''} aria-label="${_t("عرض كل الأعضاء على الخريطة")}"><span></span></span></label></div>`;
-  $('adm-members').innerHTML = modeCard + sickCard + reqHtml + verCard + (ids.length ? ids.map(u => {
+  const msgCard = `<div class="card"><div class="sw-row"><span><b>${_t("رسائل للأعضاء")}</b><br><span class="hint">${_t("تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.")}</span></span><button class="btn sm" data-act="amw-all">${_t("رسالة للجميع")}</button></div></div>`;
+  $('adm-members').innerHTML = modeCard + msgCard + sickCard + reqHtml + verCard + (ids.length ? ids.map(u => {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name, waiting = x.status === 'pending' || x.status === 'limited';
     const badge = x.status === 'limited' ? `<span class="badge warn">${_t("قيد الاعتماد")}</span>` : x.status === 'pending' ? `<span class="badge warn">${_t("بانتظار الموافقة")}</span>` : x.status === 'approved' ? `<span class="badge ok">${_t("مفعّل")}</span>` : `<span class="badge bad">${_t("معطّل")}</span>`;
     const role = x.role === 'admin' ? ` <span class="badge">${_t("مشرف")}</span>` : '';
@@ -2468,7 +2592,8 @@ function renderAdmin() {
     b += `<button class="btn sm" data-act="plan-edit" data-id="${esc(u)}">${_t("السجل الطويل")}</button>`;
     if (x.birthYear && isMinor(x.birthYear)) b += `<button class="btn sm" data-act="guard-edit" data-id="${esc(u)}">${_t("أولياء الأمور")}</button>`;
     if (!self && x.status !== 'disabled') b += `<button class="btn sm" data-act="end-session" data-id="${esc(u)}">${_t("إنهاء جلسته")}</button>`;
-    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ` ${_t("(أنت)")}` : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || _t("بدون رقم"))} / ${esc(x.birthYear || _t("بدون سنة ميلاد"))}</div>${infoLine(u)}${guardLine(u)}${planLine(u)}${diagLine(u)}</div>${badge}</div><div class="acts">${b}</div></div>`;
+    if (!self && x.status === 'approved') b += `<button class="btn sm" data-act="amw-one" data-id="${esc(u)}">${_t("رسالة")}</button>`;
+    return `<div class="card"><div class="sw-row"><div><b>${esc(name)}${self ? ` ${_t("(أنت)")}` : ''}</b>${role}${kid}<div class="hint" dir="ltr" style="text-align:right">${esc(x.email || '')}</div><div class="hint" dir="ltr" style="text-align:right">${esc(x.phone || _t("بدون رقم"))} / ${esc(x.birthYear || _t("بدون سنة ميلاد"))}</div>${infoLine(u)}${guardLine(u)}${planLine(u)}${diagLine(u)}${admLine(u)}</div>${badge}</div><div class="acts">${b}</div></div>`;
   }).join('') : `<div class="card"><p class="hint">${_t("لا توجد حسابات.")}</p></div>`);
 }
 function setAdm(t) {
@@ -2816,6 +2941,18 @@ const ACTIONS = {
   'trip-close': () => { $('modal-trip').hidden = true; },
   'trip-go': () => startTrip(),
   'trip-cancel': () => cancelTrip(),
+  'am-ok': () => ackAdminMsg(),
+  'amw-one': u => openAdmWrite([u]),
+  'amw-all': () => openAdmWrite(null),
+  'amw-close': () => { $('modal-amw').hidden = true; },
+  'amw-send': () => sendAdmMsg(),
+  'p-drive': () => { const id = S.person; if (id) openReport('drive', null, id === S.uid ? null : id); },
+  'p-share': () => openShare(),
+  'share-close': () => { $('modal-share').hidden = true; },
+  'share-new': h => newShare(+h),
+  'share-stop': tok => stopShare(tok),
+  'share-send': tok => sendShare(tok),
+  'lt-open': idx => { const id = S.person; if (!id) return; S.pendingTrip = +idx; openHistory(id, dayKey(Date.now())); },
   'p-nav-trip': () => { const t = S.myTrip; if (t && t.to) navTo(t.to.lat, t.to.lng); },
   'trip-see': u => { setTab('map'); if (visibleIds().includes(u)) openPerson(u); },
   'del-open': () => { $('del-pass').value = ''; $('del-err').textContent = ''; $('modal-del').hidden = false; },
@@ -3258,6 +3395,9 @@ window.__back = () => {
   if (vis('modal-pmore')) { $('modal-pmore').hidden = true; return true; }
   if (vis('modal-ppick')) { $('modal-ppick').hidden = true; return true; }
   if (vis('modal-trip')) { $('modal-trip').hidden = true; return true; }
+  if (vis('modal-share')) { $('modal-share').hidden = true; return true; }
+  if (vis('modal-amw')) { $('modal-amw').hidden = true; return true; }
+  if (vis('modal-admsg')) { ackAdminMsg(); return true; }
   if (vis('modal-place')) { $('pl-no').click(); return true; }
   if (vis('modal-nick')) { $('nick-no').click(); return true; }
   if (vis('modal-phone')) { $('ph-no').click(); return true; }
@@ -3317,6 +3457,7 @@ async function deleteMyAccount(pass) {
     for (const v of Object.keys(S.hides)) ups[`hide/${uid}/${v}`] = null;
     for (const v of Object.keys(S.histHides || {})) ups[`histHide/${uid}/${v}`] = null;
     ups['trips/' + uid] = null;
+    for (const k of Object.keys(S.shares || {})) { ups['shares/' + k] = null; ups[`sharesBy/${uid}/${k}`] = null; }
     for (const f of Object.keys((S.myTrip && S.myTrip.rc) || {})) ups[`tripIn/${f}/${uid}`] = null;
     for (const f of Object.keys(S.tripIn || {})) ups[`tripIn/${uid}/${f}`] = null;
     for (const f of Object.keys(S.mine)) { ups[`links/${uid}/${f}`] = null; ups[`requests/${f}/${uid}`] = null; ups[`sosInbox/${f}/${uid}`] = null; ups[`sosAck/${uid}/${f}`] = null; ups[`sosAck/${f}/${uid}`] = null; }
@@ -4048,6 +4189,7 @@ function notifGo(id) {
   else if (e.k === 'sos_in' && d.from) { setTab('map'); S.pendingSos = d.from; handleSosIncoming(S.sosIn || {}); }
   else if (e.k === 'self_loc' || e.k === 'self_net' || e.k === 'self_gap') { setTab('me'); const h = $('acc-health'); if (h) { h.open = true; renderNative(); setTimeout(() => h.scrollIntoView({ block: 'start' }), 100); } setTimeout(() => maybeFix(true), 400); }
   else if (e.k === 'phone') setTab('me');
+  else if (e.k === 'admin') { setTab('map'); showAdminMsg(); }
   else setTab('map');
 }
 /* الإشعار ضُغط والتطبيق مفتوح أصلاً */
