@@ -959,5 +959,12 @@ window.I18N.fr = {
 "رسائل للأعضاء": "Messages aux membres",
 "تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.": "Ils reçoivent une notification et le voient à l'ouverture de l'app jusqu'à toucher « Terminé ». Chaque membre a aussi un bouton « Message ».",
 "رسالة للجميع": "Message à tous",
-"رسالة من المشرف": "Message de l'administrateur"
+"رسالة من المشرف": "Message de l'administrateur",
+"بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.": "Hors ligne. Dernières positions connues affichées ; elles se mettront à jour au retour d'internet.",
+"جارٍ الاتصال… تُعرض آخر مواقع محفوظة.": "Connexion… positions enregistrées affichées.",
+"متوقف": "Arrêtée",
+"التطبيق متوقف في هاتفه منذ {0}": "L'application est arrêtée sur son téléphone depuis {0}",
+"التطبيق متوقف في هاتفه، فلا يرى مواقعكم": "L'application est arrêtée sur son téléphone, il ne voit donc pas vos positions",
+"غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».": "Le système l'a probablement fermée pour économiser la batterie. Demandez-lui d'ouvrir Makanona, de vérifier « Santé de l'app » dans Compte et de régler la batterie sur « Non restreinte ».",
+"إعدادات التطبيق ثم البطارية: اختر «غير مقيّد». ثم البطارية ثم حدود الاستخدام في الخلفية: أطفئ وضع التطبيقات غير المستخدمة في السكون، وأضف التطبيق إلى «لا تنام أبداً». وراجع «الأوضاع والروتين» ألا يطفئ أي روتين الموقع أو يشغّل توفير الطاقة. ثم أبقِ التطبيق مفتوحاً من التطبيقات الأخيرة.": "Paramètres de l'app → Batterie : « Non restreinte ». Puis Batterie → Limites d'utilisation en arrière-plan : désactivez la mise en veille des apps inutilisées et ajoutez l'app aux « Applications jamais en veille ». Vérifiez dans « Modes et routines » qu'aucune routine ne coupe la localisation ni n'active l'économie d'énergie. Puis gardez l'app ouverte depuis les apps récentes."
 };

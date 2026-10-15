@@ -959,5 +959,12 @@ window.I18N.nl = {
 "رسائل للأعضاء": "Berichten aan leden",
 "تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.": "Ze krijgen een melding en zien het bij het openen van de app tot ze op ‘Klaar’ tikken. Elk lid heeft ook een knop ‘Bericht’.",
 "رسالة للجميع": "Bericht aan iedereen",
-"رسالة من المشرف": "Bericht van de beheerder"
+"رسالة من المشرف": "Bericht van de beheerder",
+"بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.": "Offline. Laatst bekende locaties worden getoond en bijgewerkt zodra er weer internet is.",
+"جارٍ الاتصال… تُعرض آخر مواقع محفوظة.": "Verbinden… opgeslagen locaties worden getoond.",
+"متوقف": "Gestopt",
+"التطبيق متوقف في هاتفه منذ {0}": "De app staat al {0} stil op zijn telefoon",
+"التطبيق متوقف في هاتفه، فلا يرى مواقعكم": "De app staat stil op zijn telefoon, dus hij ziet jullie locaties niet",
+"غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».": "Waarschijnlijk heeft het systeem hem gesloten om batterij te sparen. Vraag hem Makanona te openen, ‘App-status’ bij Account te controleren en de batterij op ‘Onbeperkt’ te zetten.",
+"إعدادات التطبيق ثم البطارية: اختر «غير مقيّد». ثم البطارية ثم حدود الاستخدام في الخلفية: أطفئ وضع التطبيقات غير المستخدمة في السكون، وأضف التطبيق إلى «لا تنام أبداً». وراجع «الأوضاع والروتين» ألا يطفئ أي روتين الموقع أو يشغّل توفير الطاقة. ثم أبقِ التطبيق مفتوحاً من التطبيقات الأخيرة.": "App-instellingen → Batterij: kies ‘Onbeperkt’. Daarna Batterij → Limieten achtergrondgebruik: zet slaapstand voor ongebruikte apps uit en voeg de app toe aan ‘Nooit slapende apps’. Controleer bij ‘Modi en routines’ dat geen routine locatie uitzet of energiebesparing aanzet. Houd de app daarna open via recente apps."
 };

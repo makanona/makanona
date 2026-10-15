@@ -531,6 +531,7 @@ window.APP_CONFIG = {
   <div id="bars">
   <div id="send-bar" hidden><span>الإرسال متوقف: موقعك لا يصل للعائلة.</span><button class="btn sm" data-act="send-fix">إعداد</button></div>
   <div id="recip-bar" hidden><span id="recip-t"></span><button class="btn sm primary" id="recip-go">شغّل الموقع</button></div>
+  <div id="conn-bar" class="trip-bar" hidden style="background:#E3E9EC"></div>
   <div id="trip-bars"></div>
   </div>
   <div id="style-menu" hidden></div>
@@ -1274,6 +1275,7 @@ async function ensurePending(u) {
   try { await set(ref(db, 'users/' + u.uid), { name: u.displayName || (u.email || '').split('@')[0], email: u.email || '', role: 'member', status: 'limited', createdAt: Date.now() }); } catch (e) { console.error(e); }
 }
 const logout = async () => {
+  dropSnap();
   if (isNative) {
     try { window.AndroidBridge.stopSharing(); } catch {}
     try { const cur = (await get(ref(db, 'sessions/' + S.uid))).val(); if (cur && S.deviceId && cur.id === S.deviceId) await remove(ref(db, 'sessions/' + S.uid)); } catch {}
@@ -1298,6 +1300,9 @@ onAuthStateChanged(auth, u => {
   cleanup(true);
   if (!u) { S.uid = null; showView('auth'); if ((window.__boot.heal || 0) >= 3 && !S.kickMsg) S.kickMsg = _t("أُعيد ضبط الجلسة تلقائياً لإصلاح مشكلة في التشغيل. سجّل الدخول من جديد."); if (S.kickMsg) { $('auth-err').textContent = S.kickMsg; S.kickMsg = ''; } return; }
   S.uid = u.uid; showView('loading');
+  /* فتح فوري: آخر حالة محفوظة على الهاتف تُعرض حالاً، ثم تتحدث حين يكتمل الاتصال */
+  const sn = loadSnap(u.uid);
+  if (sn) { S.fromSnap = sn; S.me = { ...sn.me }; try { route(); } catch (e) { console.error(e); } }
   S.meUn = onValue(ref(db, 'users/' + u.uid), snap => {
     S.me = snap.val();
     if (!S.me) { if (!S.registering) ensurePending(u); return; }
@@ -1310,16 +1315,20 @@ function route() {
   if (st === 'approved' || st === 'limited') {
     S.isAdmin = S.me.role === 'admin';
     if (!S.me.phone || !S.me.birthYear) { if (S.started) stopMain(); showView('profile'); return; }
-    if (!S.gateOk) { gate(); return; }
+    if (!S.gateOk) {
+      if (S.fromSnap && !S.gateBg) { S.gateBg = true; S.gateOk = true; bgGate(); }   // من الحفظ: فحص الجلسة في الخلفية دون انتظار
+      else { gate(); return; }
+    }
     S.minor = isMinor(S.me.birthYear);
     if (S.me.phone && S._ph !== S.me.phone) { S._ph = S.me.phone; phoneHash(S.me.phone).then(hh => { S.myHash = hh; }); }
     const mode = st === 'approved' ? 'approved' : 'limited';
-    if (S.started && S.mode !== mode) stopMain();
+    if (S.started && (S.mode !== mode || S.startedAdmin !== S.isAdmin)) stopMain();   // تغيّر الدور عمّا في الحفظ المحلي: نعيد التشغيل
     S.mode = mode; S.limited = mode === 'limited';
     if (!S.started) startMain(); else { $('tab-admin').hidden = !S.isAdmin; renderMe(); renderAll(); }
     return;
   }
   if (S.started) stopMain();
+  dropSnap();
   if (isNative) { try { window.AndroidBridge.stopSharing(); } catch {} }
   if (st === 'pending') { $('pend-title').textContent = _t("حسابك بانتظار الموافقة"); $('pend-text').textContent = _t("سيفعّل المشرف حسابك قريباً، وتُفتح الخريطة تلقائياً بمجرد الموافقة."); }
   else { $('pend-title').textContent = _t("الحساب غير مفعّل"); $('pend-text').textContent = _t("أوقف المشرف هذا الحساب. تواصل معه إن كان ذلك بالخطأ."); }
@@ -1333,6 +1342,35 @@ function gate() {
     if (!ok) { S.kickMsg = _t("تم إلغاء الدخول لأن الحساب مفتوح على هاتف آخر."); signOut(auth); return; }
     S.gateOk = true; watchSession(); route();
   }).catch(() => { S.gating = false; S.gateOk = true; route(); });
+}
+function bgGate() {
+  sessionGate(auth.currentUser).then(ok => {
+    if (!ok) { dropSnap(); S.kickMsg = _t("تم إلغاء الدخول لأن الحساب مفتوح على هاتف آخر."); signOut(auth); return; }
+    watchSession();
+  }).catch(() => {});
+}
+/* ---------- الحفظ المحلي لآخر حالة (للفتح الفوري وبلا إنترنت) ---------- */
+const SNAP_K = u => 'mk_snap_' + u;
+function loadSnap(uid) {
+  try {
+    const sn = JSON.parse(localStorage.getItem(SNAP_K(uid)) || 'null');
+    if (!sn || !sn.me || !(sn.me.status === 'approved' || sn.me.status === 'limited') || !sn.me.phone || !sn.me.birthYear || Date.now() - (sn.at || 0) > 30 * 864e5) return null;
+    return sn;
+  } catch { return null; }
+}
+function dropSnap() { try { for (const k of Object.keys(localStorage)) if (k.startsWith('mk_snap_')) localStorage.removeItem(k); } catch {} }
+function saveSnap() {
+  if (!S.started || !S.me || !S.uid || !S.live) return;                 // نحفظ فقط بعد وصول بيانات حقيقية
+  const ids = visibleIds().slice(0, 60), pk = o => Object.fromEntries(ids.filter(i => o && o[i]).map(i => [i, o[i]]));
+  const sn = { v: 1, at: Date.now(), me: { status: S.me.status, role: S.me.role, phone: S.me.phone, birthYear: S.me.birthYear, name: S.me.name || '' }, dir: pk(S.dir), locs: pk(S.locs), mine: Object.fromEntries(ids.filter(i => i !== S.uid).map(i => [i, true])), their: Object.fromEntries(ids.filter(i => i !== S.uid).map(i => [i, true])), nick: S.nick || {} };
+  try { localStorage.setItem(SNAP_K(S.uid), JSON.stringify(sn)); }
+  catch { try { for (const k of Object.keys(sn.dir)) delete sn.dir[k].photo; localStorage.setItem(SNAP_K(S.uid), JSON.stringify(sn)); } catch {} }
+}
+function renderConnBar() {
+  const b = $('conn-bar'); if (!b) return;
+  const show = S.started && S.tab === 'map' && !S.online && Date.now() - (S.startAt || 0) > 3000;
+  b.hidden = !show;
+  if (show) b.textContent = S.live ? _t("بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.") : _t("جارٍ الاتصال… تُعرض آخر مواقع محفوظة.");
 }
 async function sessionGate(u) {
   if (!isNative || S.me.role === 'admin') return true;
@@ -1361,7 +1399,8 @@ function watchSession() {
 
 /* ---------- تشغيل التطبيق الرئيسي ---------- */
 function startMain() {
-  S.started = true; S.fitted = false;
+  S.started = true; S.fitted = false; S.startAt = Date.now(); S.online = false; S.live = false; S.startedAdmin = S.isAdmin;
+  if (S.fromSnap) { const sn = S.fromSnap; S.dir = { ...(sn.dir || {}) }; S.locs = { ...(sn.locs || {}) }; S.mine = { ...(sn.mine || {}) }; S.their = { ...(sn.their || {}) }; S.nick = { ...(sn.nick || {}) }; }
   S.myLocLoaded = false; S.hidesLoaded = false; S.hideAllLoaded = false; S.wasGood = false; S.badSince = 0; S.recipBad = null; S.recipDenied = false; S.preFrz = null;
   try { S.frz = JSON.parse(localStorage.getItem('mk_frz_' + S.uid) || '{}') || {}; } catch { S.frz = {}; }
   $('tab-admin').hidden = !S.isAdmin;
@@ -1374,7 +1413,7 @@ function startMain() {
   }
   if (S.isAdmin) {
     S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
-    S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; renderMap(); renderSheet(); }, e => console.error('locs', e));
+    S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; if (!S.live) { S.live = true; renderConnBar(); setTimeout(saveSnap, 4000); } renderMap(); renderSheet(); }, e => console.error('locs', e));
     S.unsubs.guardians = onValue(ref(db, 'guardians'), s => { S.guardians = s.val() || {}; renderAdmin(); }, e => console.error('guardians', e));
     S.unsubs.devDiag = onValue(ref(db, 'devDiag'), s => { S.devDiag = s.val() || {}; renderAdmin(); }, e => console.error('devDiag', e));
     S.unsubs.plans = onValue(ref(db, 'plan'), s => { S.plans = s.val() || {}; renderAdmin(); }, e => console.error('plans', e));
@@ -1389,6 +1428,8 @@ function startMain() {
     S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') { renderProx(); renderAlerts(); } pushProx(); }, e => console.error('alerts', e));
     S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; S.hidesLoaded = true; recipEval(); if (S.tab === 'me') renderPeople(); }, e => console.error('hide', e));
   }
+  S.unsubs.conn = onValue(ref(db, '.info/connected'), s => { S.online = s.val() === true; renderConnBar(); }, () => {});
+  setTimeout(() => { renderConnBar(); if (S.fromSnap) { renderMap(); renderSheet(); } }, 3200);
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; S.updLoaded = true; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
   setTimeout(() => {
@@ -1422,7 +1463,7 @@ function startMain() {
   }
   let mn = false; try { mn = localStorage.getItem('sheetMin') === '1'; } catch {}
   setSheetMin(mn);
-  S.tick = setInterval(() => { S.tickN++; recipEval(); if (S.tickN % 2 === 0) tripTickWeb(); renderTrips(); if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
+  S.tick = setInterval(() => { S.tickN++; recipEval(); renderConnBar(); if (S.tickN % 6 === 0) saveSnap(); if (S.tickN % 2 === 0) tripTickWeb(); renderTrips(); if (S.tickN % 3 === 0) syncLocs(); renderSheet(); updateSendBar(); if (S.tab === 'me') renderNative(); }, 10000);
   if (!S.limited) get(ref(db, 'plan/' + S.uid)).then(sn => { S.plan = sn.val(); renderPlan(); return prune(S.uid, myKeep()).then(() => archiveOld(S.uid)); }).catch(() => {});
   if (isNative) ensureNative();
 }
@@ -1431,12 +1472,12 @@ function stopMain() {
   S.unsubs = {};
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.locUn = {};
-  clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.hides = {}; S.histHides = {}; S.frz = {}; S.myTrip = null; S.tripIn = {}; S.tripsIn = {}; Object.values(S.tripUn || {}).forEach(f => f?.()); S.tripUn = {}; if ($('trip-bars')) $('trip-bars').innerHTML = ''; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
+  clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.live = false; S.online = false; if ($('conn-bar')) $('conn-bar').hidden = true; S.hides = {}; S.histHides = {}; S.frz = {}; S.myTrip = null; S.tripIn = {}; S.tripsIn = {}; Object.values(S.tripUn || {}).forEach(f => f?.()); S.tripUn = {}; if ($('trip-bars')) $('trip-bars').innerHTML = ''; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
   S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {}; S.plan = null; S.plans = {};
 }
 function cleanup(all) {
-  stopMain();
+  stopMain(); S.fromSnap = null; S.gateBg = false;
   if (all) { if (S.meUn) { S.meUn(); S.meUn = null; } if (S.sessUn) { S.sessUn(); S.sessUn = null; } S.gateOk = false; S.gating = false; }
   S.me = null; S.isAdmin = false; S.minor = false; S.limited = false;
 }
@@ -1477,6 +1518,7 @@ function syncLocs() {
       if (u !== S.uid && recipWhy(u)) return;                            // متجمّد: لا نعرض تحديثاته حتى يعود موقعي
       S.locs[u] = s.val(); S.hidden[u] = false;
       if (u === S.uid) { S.myLocLoaded = true; recipEval(); }
+      if (!S.live) { S.live = true; renderConnBar(); setTimeout(saveSnap, 4000); }
       renderMap(); renderSheet();
     }, () => {
       delete S.locUn[u]; delete S.locs[u];
@@ -1729,8 +1771,8 @@ function pinIcon(id, l, extra = '') {
   const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = fz ? null : liveMode(id, l);
   const nm = id === S.uid ? _t("أنا") : dispName(id);
   const sub = '';                                                        // السرعة صارت فقاعة فوق الدبوس
-  const bad = l.off === true || l.noperm === true;
-  const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : m && !bad ? `<span class="mk-lbl spd">${ICON[m.mode]}${tf("{0} كم/س", m.kmh)}</span>` : bad ? `<span class="mk-lbl off">${l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
+  const bad = l.off === true || l.noperm === true, dead = bad && appStale(l);
+  const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : m && !bad ? `<span class="mk-lbl spd">${ICON[m.mode]}${tf("{0} كم/س", m.kmh)}</span>` : bad ? `<span class="mk-lbl off">${dead ? _t("متوقف") : l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
   const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
   const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
   return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
@@ -1946,12 +1988,15 @@ function fitAll() {
 }
 function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat, l.lng], 16, { duration: .8 }); }
 
+/* علامة «مطفأ» تبقى حتى أول موقع بعدها: إن لم يصل من هاتفه شيء منذ 30 دقيقة فالأدق أن التطبيق متوقف */
+const appStale = l => !!l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - 30 * 60e3;
 function describe(id) {
   const l = S.locs[id];
   let txt, cls = '';
   if (id !== S.uid && recipWhy(id)) return { txt: frzText(id) || recipMsg(recipWhy(id)), cls: 'off' };
   if (id !== S.uid && !S.isAdmin && S.hidden[id]) return { txt: _t("لا يشارك موقعه الآن"), cls: 'off' };
   if (!l || typeof l.ts !== 'number') txt = _t("لا توجد بيانات بعد");
+  else if ((l.noperm === true || l.off === true) && appStale(l)) { cls = 'off'; txt = tf("التطبيق متوقف في هاتفه منذ {0}", ago(Math.max(Number(l.ts) || 0, Number(l.hb) || 0))); }
   else if (l.noperm === true) { cls = 'off'; txt = tf("ألغى إذن الموقع للتطبيق، وآخر موقع قبل {0}", ago(l.ts)); }
   else if (l.off === true) { cls = 'off'; txt = tf("الموقع مطفأ في هاتفه، وآخر موقع قبل {0}", ago(l.ts)); }
   else if (Date.now() - l.ts >= 180000 && typeof l.hb === 'number' && Date.now() - l.hb < 600000) { cls = 'off'; txt = tf("هاتفه متصل لكن لا يصل موقعه (آخر موقع قبل {0})", ago(l.ts)); }
@@ -2023,7 +2068,10 @@ function renderPerson() {
   const offBad = !fz && !!(l && (l.off === true || l.noperm === true));
   const longOff = !fz && !offBad && id !== S.uid && !!(l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - RECIP_STALE);
   $('p-off').hidden = !(offBad || longOff);
-  if (offBad) {
+  if (offBad && appStale(l)) {
+    $('p-off-t').textContent = _t("التطبيق متوقف في هاتفه، فلا يرى مواقعكم");
+    $('p-off-s').textContent = _t("غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».");
+  } else if (offBad) {
     $('p-off-t').textContent = l.noperm === true ? _t("ألغى إذن الموقع، فلا يرى مواقعكم") : _t("موقعه مطفأ، فلا يرى مواقعكم");
     $('p-off-s').textContent = l.noperm === true ? _t("سُحب إذن الموقع من التطبيق في هاتفه، فلا يصلنا موقعه حتى يعيده. اطلب منه ذلك.") : _t("خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.");
   } else if (longOff) {
@@ -3640,7 +3688,7 @@ const BRAND_GUIDE = [
   [['oppo', 'realme', 'oneplus'], 'oppo', _t("إعدادات التطبيق ثم استخدام البطارية: اسمح بالنشاط في الخلفية، وفعّل «التشغيل التلقائي»، وأقفل التطبيق في التطبيقات الأخيرة.")],
   [['vivo', 'iqoo'], 'vivo', _t("البطارية ثم نشاط الخلفية: اسمح، وفعّل «التشغيل التلقائي»، وأقفل التطبيق في التطبيقات الأخيرة.")],
   [['huawei', 'honor'], 'huawei', _t("إطلاق التطبيقات: ألغِ «الإدارة التلقائية» وفعّل الثلاثة: التشغيل التلقائي، والتشغيل الثانوي، والعمل في الخلفية.")],
-  [['samsung'], 'samsung', _t("البطارية ثم حدود الاستخدام في الخلفية: أزل التطبيق من «التطبيقات النائمة» وأضفه إلى «لا تنام أبداً»، وأقفل التطبيق في الأخيرة.")],
+  [['samsung'], 'samsung', _t("إعدادات التطبيق ثم البطارية: اختر «غير مقيّد». ثم البطارية ثم حدود الاستخدام في الخلفية: أطفئ وضع التطبيقات غير المستخدمة في السكون، وأضف التطبيق إلى «لا تنام أبداً». وراجع «الأوضاع والروتين» ألا يطفئ أي روتين الموقع أو يشغّل توفير الطاقة. ثم أبقِ التطبيق مفتوحاً من التطبيقات الأخيرة.")],
   [['infinix', 'tecno', 'itel', 'transsion'], 'tecno', _t("مدير الهاتف ثم التشغيل التلقائي: فعّله لمكاننا. وفي البطارية اجعله بلا قيود، وأقفل التطبيق في التطبيقات الأخيرة.")]
 ];
 const brandGuide = b => { b = String(b || '').toLowerCase(); const g = BRAND_GUIDE.find(x => x[0].some(k => b.includes(k))); return g ? { slug: g[1], text: g[2] } : { slug: '', text: _t("اجعل استخدام البطارية للتطبيق «بلا قيود»، وأقفله في قائمة التطبيقات الأخيرة بالضغط المطول على بطاقته.") }; };
@@ -4043,7 +4091,7 @@ function setTab(t) {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const mapMode = t === 'map';
   $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
-  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; renderRecipBar(); renderTrips();
+  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; renderRecipBar(); renderTrips(); renderConnBar();
   if (!mapMode) { $('style-menu').hidden = true; endPick(); }
   if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
   renderAll(); updateSendBar();
@@ -4200,7 +4248,12 @@ window.__fromNative = tail => {
   if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp, rw || undefined);
 };
 $('btn-notif').onclick = openNotifCenter;
-document.addEventListener('visibilitychange', () => { if (!document.hidden) updateNotifBadge(); });
+/* حفظ الصفحة ومكتباتها على الهاتف: تُفتح فوراً حتى بلا إنترنت وتُحدَّث في الخلفية. ?nosw يلغيه للتجربة */
+if ('serviceWorker' in navigator) {
+  if (/[?&]nosw/.test(location.search)) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
+  else window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) updateNotifBadge(); else saveSnap(); });
 setInterval(() => { if (!document.hidden) updateNotifBadge(); }, 20000);
 function wizNext(s) { for (const st of STEPS) { if (st.only && !st.only(s)) continue; if (st.done(s)) continue; if (st.skipped && st.skipped()) continue; return st; } return null; }
 let wizTimer = null;

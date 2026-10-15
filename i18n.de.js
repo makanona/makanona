@@ -959,5 +959,12 @@ window.I18N.de = {
 "رسائل للأعضاء": "Nachrichten an Mitglieder",
 "تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.": "Sie erhalten eine Benachrichtigung und sehen sie beim Öffnen der App, bis sie „Fertig“ tippen. Jedes Mitglied hat auch einen Button „Nachricht“.",
 "رسالة للجميع": "Nachricht an alle",
-"رسالة من المشرف": "Nachricht vom Administrator"
+"رسالة من المشرف": "Nachricht vom Administrator",
+"بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.": "Offline. Letzte bekannte Standorte werden angezeigt und aktualisiert, sobald das Internet zurück ist.",
+"جارٍ الاتصال… تُعرض آخر مواقع محفوظة.": "Verbinde… gespeicherte Standorte werden angezeigt.",
+"متوقف": "Gestoppt",
+"التطبيق متوقف في هاتفه منذ {0}": "Die App ist auf dem Handy seit {0} gestoppt",
+"التطبيق متوقف في هاتفه، فلا يرى مواقعكم": "Die App ist auf dem Handy gestoppt, daher sieht er eure Standorte nicht",
+"غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».": "Wahrscheinlich hat das System sie zum Akkusparen geschlossen. Bitte ihn, Makanona zu öffnen, „App-Zustand“ unter Konto zu prüfen und den Akku auf „Uneingeschränkt“ zu stellen.",
+"إعدادات التطبيق ثم البطارية: اختر «غير مقيّد». ثم البطارية ثم حدود الاستخدام في الخلفية: أطفئ وضع التطبيقات غير المستخدمة في السكون، وأضف التطبيق إلى «لا تنام أبداً». وراجع «الأوضاع والروتين» ألا يطفئ أي روتين الموقع أو يشغّل توفير الطاقة. ثم أبقِ التطبيق مفتوحاً من التطبيقات الأخيرة.": "App-Einstellungen → Akku: „Uneingeschränkt“ wählen. Dann Akku → Grenzen für Hintergrundnutzung: Ruhezustand für ungenutzte Apps ausschalten und die App zu „Nie schlafende Apps“ hinzufügen. In „Modi und Routinen“ prüfen, dass keine Routine den Standort ausschaltet oder Energiesparen einschaltet. Dann die App in den letzten Apps offen halten."
 };

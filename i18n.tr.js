@@ -959,5 +959,12 @@ window.I18N.tr = {
 "رسائل للأعضاء": "Üyelere mesajlar",
 "تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.": "Telefonlarına bildirim gider ve “Tamam”a basana kadar uygulamayı açınca görünür. Her üyenin bir “Mesaj” düğmesi de var.",
 "رسالة للجميع": "Herkese mesaj",
-"رسالة من المشرف": "Yöneticiden mesaj"
+"رسالة من المشرف": "Yöneticiden mesaj",
+"بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.": "Çevrimdışı. Son bilinen konumlar gösteriliyor; internet gelince güncellenecek.",
+"جارٍ الاتصال… تُعرض آخر مواقع محفوظة.": "Bağlanıyor… kayıtlı konumlar gösteriliyor.",
+"متوقف": "Durdu",
+"التطبيق متوقف في هاتفه منذ {0}": "Uygulama {0} süredir telefonunda durmuş",
+"التطبيق متوقف في هاتفه، فلا يرى مواقعكم": "Uygulama telefonunda durmuş, bu yüzden konumlarınızı göremiyor",
+"غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».": "Büyük olasılıkla sistem pil tasarrufu için kapattı. Makanona'yı açmasını, Hesap'ta “Uygulama sağlığı”nı kontrol etmesini ve pili “Kısıtlanmamış” yapmasını iste.",
+"إعدادات التطبيق ثم البطارية: اختر «غير مقيّد». ثم البطارية ثم حدود الاستخدام في الخلفية: أطفئ وضع التطبيقات غير المستخدمة في السكون، وأضف التطبيق إلى «لا تنام أبداً». وراجع «الأوضاع والروتين» ألا يطفئ أي روتين الموقع أو يشغّل توفير الطاقة. ثم أبقِ التطبيق مفتوحاً من التطبيقات الأخيرة.": "Uygulama ayarları → Pil: “Kısıtlanmamış” seç. Sonra Pil → Arka plan kullanım sınırları: kullanılmayan uygulamaları uyutmayı kapat ve uygulamayı “Asla uyumayan uygulamalar”a ekle. “Modlar ve Rutinler”de hiçbir rutinin konumu kapatmadığını veya güç tasarrufunu açmadığını kontrol et. Sonra son uygulamalardan uygulamayı açık tut."
 };

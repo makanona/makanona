@@ -959,5 +959,12 @@ window.I18N.en = {
 "رسائل للأعضاء": "Messages to members",
 "تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.": "They get a notification on their phones, and it shows when they open the app until they tap “Done”. Each member also has a “Message” button.",
 "رسالة للجميع": "Message to all",
-"رسالة من المشرف": "Message from the admin"
+"رسالة من المشرف": "Message from the admin",
+"بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.": "Offline. Showing last known locations; they'll update when the internet is back.",
+"جارٍ الاتصال… تُعرض آخر مواقع محفوظة.": "Connecting… showing saved locations.",
+"متوقف": "Stopped",
+"التطبيق متوقف في هاتفه منذ {0}": "The app has been stopped on their phone for {0}",
+"التطبيق متوقف في هاتفه، فلا يرى مواقعكم": "The app is stopped on their phone, so they can't see your locations",
+"غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».": "Most likely the phone's system closed it to save battery. Ask them to open Makanona, check “App health” in Account, and set battery to “Unrestricted”.",
+"إعدادات التطبيق ثم البطارية: اختر «غير مقيّد». ثم البطارية ثم حدود الاستخدام في الخلفية: أطفئ وضع التطبيقات غير المستخدمة في السكون، وأضف التطبيق إلى «لا تنام أبداً». وراجع «الأوضاع والروتين» ألا يطفئ أي روتين الموقع أو يشغّل توفير الطاقة. ثم أبقِ التطبيق مفتوحاً من التطبيقات الأخيرة.": "App settings → Battery: choose “Unrestricted”. Then Battery → Background usage limits: turn off putting unused apps to sleep, and add the app to “Never sleeping apps”. Check “Modes and Routines” that no routine turns off location or turns on power saving. Then keep the app open from recent apps."
 };
