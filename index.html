@@ -7,7 +7,7 @@
 <title>مكاننا</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -253,11 +253,34 @@ details.acc[open]>summary{margin-bottom:8px}
 #share-list .row{padding:6px 0}
 .pchip{padding:7px 12px;border-radius:10px;background:#E9F0F7;font-size:13px;font-weight:600}
 .trip-card{background:var(--bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-#h-scrub{margin:8px 0 4px}
+#h-scrub{margin:8px 0 4px;max-width:860px;margin-inline:auto}
+#h-tlabel{font-weight:700;font-size:13.5px;line-height:1.35}
+#h-tlabel,#h-tlabel2{text-align:center}
+#h-tlabel2{min-height:1.3em;margin:1px 0 0}
+.hctl{display:flex;align-items:center;gap:6px;margin-top:6px}
+.hctl .btn.sm{min-width:40px;padding:6px 10px;display:inline-flex;align-items:center;justify-content:center}
+.hctl .seg{padding:3px;flex:0 0 auto}
+.hctl .seg button{padding:5px 12px;font-size:12.5px;flex:0 0 auto}
+.legend i.lg-stop{border-radius:50%;background:#E8A33D}
+.legend i.lg-nd{background:repeating-linear-gradient(135deg,#EEF1F2 0 2px,#B5C1C6 2px 3px)}
+.legend i.lg-max{width:0;height:0;border-radius:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #C4483B;vertical-align:0}
 #h-slider{padding:0;border:0;accent-color:var(--acc);height:28px}
 #h-tlabel{text-align:center;font-weight:600}
 html[dir=ltr] [style*="text-align:right"]{text-align:left!important}
 html[dir=ltr] [data-act=h-prev] svg,html[dir=ltr] [data-act=h-next] svg,html[dir=ltr] [data-act=rpt-prev] svg,html[dir=ltr] [data-act=rpt-next] svg{transform:scaleX(-1)}
+/* 2.8 الواجهة المبسطة (تجريبية، تُفعَّل من حسابي) */
+.ui28 #photo-card,.ui28 #acc-report,.ui28 #acc-health{display:none!important}
+.bigb.dis,.btn.dis{opacity:.42}
+.prof-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.prof-top .acts{margin:0}
+details.sub{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:6px 0}
+details.sub>summary{font-weight:700;cursor:pointer}
+#health-alert{background:#F6D9D5;cursor:pointer}
+#health-alert b{color:var(--bad)}
+#btn-gear{display:none}
+.simple #btn-gear{display:flex}
+.simple:not(.tab-other) #tabs,.simple #btn-style,.simple #btn-fit,.simple #btn-notif{display:none!important}
+#wn-list li{margin:6px 0}
 </style>
 <script>
 /* تشخيص: يعمل حتى لو فشل تحميل مكتبات Firebase */
@@ -406,7 +429,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=27"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=29"><\/script>');
 })();
 </script>
 <script>
@@ -520,6 +543,7 @@ window.APP_CONFIG = {
     <button class="fab" id="btn-style" aria-label="نمط الخريطة"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="fab" id="btn-fit" aria-label="عرض الجميع"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
+    <button class="fab" id="btn-gear" data-act="simple-exit" aria-label="الإعدادات"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
     <button class="fab sos" id="btn-sos" aria-label="استغاثة SOS">SOS</button>
   </div>
   <div id="pick-bar" hidden><span id="pick-bar-t">اضغط على الخريطة لتحديد المكان</span><button class="btn sm" data-act="pick-me">موقعي</button><button class="btn sm" data-act="pick-cancel">إلغاء</button></div>
@@ -559,8 +583,15 @@ window.APP_CONFIG = {
     <button class="btn sm hide-btn" data-act="h-hide">إخفاء</button>
     <div id="h-scrub" hidden>
       <div id="h-tlabel"></div>
-      <canvas id="h-chart" style="width:100%;height:64px;display:block;margin-top:4px;touch-action:none;border-radius:10px;background:#fff" aria-label="مخطط السرعات على طول المسار"></canvas>
-      <div class="legend"><span title="أقل من 7 كم/س"><i style="background:#3A6EA5"></i>مشي</span><span title="من 7 إلى 25 كم/س"><i style="background:#2F8F6B"></i>دراجة</span><span><i style="background:#E8A33D"></i>25-60</span><span><i style="background:#D2691E"></i>60-90</span><span><i style="background:#C4483B"></i>فوق 90</span></div>
+      <div id="h-tlabel2" class="hint"></div>
+      <div class="hctl">
+        <button class="btn sm" id="h-play" data-act="h-play" aria-label="تشغيل"></button>
+        <button class="btn sm" id="h-spd" data-act="h-spd" aria-label="سرعة الإعادة">×60</button>
+        <span style="flex:1"></span>
+        <div class="seg small" id="h-axis"><button data-act="h-axis" data-id="dist">المسافة</button><button data-act="h-axis" data-id="time">الوقت</button></div>
+      </div>
+      <canvas id="h-chart" style="width:100%;height:84px;display:block;margin-top:4px;touch-action:none;border-radius:10px;background:#fff" aria-label="مخطط السرعات على طول المسار"></canvas>
+      <div class="legend"><span title="أقل من 7 كم/س"><i style="background:#3A6EA5"></i>مشي</span><span title="من 7 إلى 25 كم/س"><i style="background:#2F8F6B"></i>دراجة</span><span><i style="background:#E8A33D"></i>25-60</span><span><i style="background:#D2691E"></i>60-90</span><span><i style="background:#C4483B"></i>فوق 90</span><span><i class="lg-stop"></i>وقفة</span><span><i class="lg-nd"></i>لا بيانات</span><span><i class="lg-max"></i>أعلى سرعة</span></div>
       <input id="h-slider" type="range" min="0" max="1000" step="1" value="0" dir="ltr" aria-label="الوقت">
       <div id="h-chartinfo" class="hint" style="text-align:center;margin-top:2px"></div>
     </div>
@@ -579,6 +610,8 @@ window.APP_CONFIG = {
       <button class="bigb" id="p-hist-btn" data-act="p-hist"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>السجل</button>
       <button class="bigb" id="p-drive-btn" data-act="p-drive"><svg viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17M7 17v2M17 17v2"/><circle cx="8.5" cy="14.5" r=".6"/><circle cx="15.5" cy="14.5" r=".6"/></svg>القيادة</button>
       <button class="bigb" id="p-places-btn" data-act="p-places"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>الأماكن</button>
+      <button class="bigb" id="p-nav-big" data-act="p-nav" hidden><svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>الملاحة</button>
+      <button class="bigb" id="p-rep-big" data-act="p-report" hidden><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>التقرير</button>
       <button class="bigb" id="p-share-btn" data-act="p-share" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>مشاركة</button>
     </div>
     <div class="pbtns">
@@ -597,14 +630,15 @@ window.APP_CONFIG = {
 
   <div id="t-me" class="panel" hidden>
     <h2>حسابي</h2>
-    <div class="card">
+    <div class="card" id="health-alert" data-act="health-go" hidden><b>تنبيه: قد يتوقف إرسال موقعك</b><p class="hint" id="health-alert-t"></p><p class="hint">اضغط هنا لعرض «صحة التطبيق» وإصلاحها.</p></div>
+    <div class="card" id="prof-card">
       <label>الاسم<input id="me-name"></label>
       <div class="hint">رقم الهاتف: <span id="me-phone" dir="ltr"></span></div>
       <div id="phone-req" class="hint"></div>
       <button class="btn sm" id="phone-btn" data-act="phone-change">طلب تعديل الرقم</button>
-      <div style="font-weight:500;font-size:14px;color:var(--ink2)">اللون على الخريطة</div>
+      <div style="font-weight:500;font-size:14px;color:var(--ink2)" id="me-colors-l">اللون على الخريطة</div>
       <div id="me-colors" class="colors"></div>
-      <div class="sw-row"><span>أستعمل دراجة هوائية (يظهر رمز الدراجة لرحلاتي)</span><label class="switch"><input type="checkbox" id="me-bike" aria-label="أستعمل دراجة هوائية"><span></span></label></div>
+      <div class="sw-row" id="me-bike-row"><span>أستعمل دراجة هوائية (يظهر رمز الدراجة لرحلاتي)</span><label class="switch"><input type="checkbox" id="me-bike" aria-label="أستعمل دراجة هوائية"><span></span></label></div>
       <button id="btn-save-profile" class="btn primary">حفظ</button>
     </div>
     <div class="card" id="minor-note" hidden>
@@ -708,6 +742,11 @@ window.APP_CONFIG = {
       <p class="hint">الإشعار شرط من أندرويد لأي تطبيق يرسل الموقع في الخلفية، ولا يمكن حذفه من التطبيق. يظهر 10 ثوانٍ ثم يتحول إلى إشعار صغير صامت فيه اسم المكان الذي أنت فيه (من «أماكني») وآخر وقت تحديث. وتستطيع إخفاءه بنفسك: اضغط الزر أعلاه ثم أوقف إظهار هذه القناة. يستمر الإرسال في الأغلب، وإن لاحظت أن موقعك تأخر فأعد تفعيلها. تنبيهاتك في قنوات منفصلة فلا تتأثر.</p>
     </div>
     </details>
+    <details class="acc" id="acc-set" hidden><summary><span>الإعدادات</span></summary><div id="set-body"></div>
+      <div class="card" id="simple-card">
+        <div class="sw-row"><div><b>الوضع المبسّط</b><p class="hint">الخريطة والأشخاص والاستغاثة فقط. للخروج منه اضغط زر الترس على الخريطة.</p></div><label class="switch"><input type="checkbox" id="simple-on" aria-label="الوضع المبسّط"><span></span></label></div>
+      </div>
+    </details>
     <div class="card" id="web-note" hidden>
       <p class="hint">إرسال الموقع يعمل من تطبيق أندرويد فقط. هذه الصفحة للعرض.</p>
     </div>
@@ -716,6 +755,8 @@ window.APP_CONFIG = {
     </div>
     <div class="card">
       <p class="hint" id="ver-line"></p>
+      <p class="hint" id="off-line"></p>
+      <div class="sw-row" id="ui28-row"><div><span>الواجهة السابقة</span><p class="hint">ترتيب الأزرار القديم. متاحة لفترة مؤقتة.</p></div><label class="switch"><input type="checkbox" id="ui28-on" aria-label="الواجهة السابقة"><span></span></label></div>
       <button class="btn primary" data-act="pv-open">الخصوصية: من يراني وماذا يرى</button>
       <button class="btn" data-act="diag-send">إرسال بيانات التشخيص للمشرف</button>
       <button id="btn-pw" class="btn">إرسال رابط تغيير كلمة السر</button>
@@ -859,6 +900,7 @@ window.APP_CONFIG = {
   <div class="card" id="rpt-mine-card">
     <label>حد السرعة لحساب «فوق السرعة» (كم/س)<input id="rpt-speed" inputmode="numeric" dir="ltr" placeholder="120"></label>
     <div id="rpt-follow"></div>
+    <div id="rpt-set28"></div>
   </div>
 </div>
 <div id="v-privacy" class="subview" hidden>
@@ -942,6 +984,27 @@ window.APP_CONFIG = {
     <b>اختر الشخص</b>
     <div id="ppick-list"></div>
     <div class="acts"><button class="btn" data-act="ppick-close">إغلاق</button></div>
+  </div>
+</div>
+<div id="modal-simple" class="modal" hidden>
+  <div class="box">
+    <b>الخروج من الوضع المبسّط</b>
+    <p class="hint">ستظهر كل القوائم والإعدادات من جديد.</p>
+    <div class="acts"><button class="btn primary" data-act="simple-off">نعم، أظهر كل شيء</button><button class="btn" data-act="simple-stay">إلغاء</button></div>
+  </div>
+</div>
+<div id="modal-wn" class="modal" hidden>
+  <div class="box">
+    <b>ما الجديد في الواجهة</b>
+    <ul id="wn-list" class="hint" style="padding-inline-start:18px">
+      <li>بطاقة الشخص: «السجل» و«الملاحة» في الأعلى، ثم «أبلغه بقدومي» و«واتساب» و«المزيد».</li>
+      <li>التقرير والقيادة والأماكن صارت داخل «المزيد».</li>
+      <li>الصورة واللون في بطاقة ملفك، وإعداد إشعار التقرير داخل شاشة التقرير.</li>
+      <li>اللغة والخصوصية وصحة التطبيق وكلمة السر والخروج في قسم «الإعدادات».</li>
+      <li>الزر الباهت يبقى في مكانه، واضغطه لمعرفة سبب عدم توفره.</li>
+      <li>تستطيع الرجوع إلى الواجهة السابقة من «الإعدادات».</li>
+    </ul>
+    <div class="acts"><button class="btn primary" data-act="wn-ok">فهمت</button></div>
   </div>
 </div>
 <div id="modal-pmore" class="modal" hidden>
@@ -1040,7 +1103,10 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '27';
+const UI_VERSION = '29';
+// الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
+// الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
+const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
 window.__modReal = true; window.__moduleLoaded = true; window.__ui = UI_VERSION;
 const MODE = { walk: _t("مشي"), bike: _t("دراجة"), car: _t("سيارة") };
 const DEFAULT_SUBJECT = tf("دعوة للانضمام إلى {0}", CFG.appName);
@@ -1297,6 +1363,18 @@ $('pf-save').onclick = async () => {
 onAuthStateChanged(auth, u => {
   if (window.__setStep) window.__setStep(u ? 'profile' : 'auth');
   if (u && u.email) { try { localStorage.setItem('mk_last_email', u.email); } catch {} }
+  try { if (u) localStorage.setItem('mk_last_uid', u.uid); else { localStorage.removeItem('mk_last_uid'); dropSnap(); } } catch {}
+  if (u && S.early && S.uid === u.uid) {                                  // الخريطة معروضة من الحفظ قبل اكتمال الدخول: نكمل دون إعادة
+    S.early = false;
+    if (S.needBgGate) { S.needBgGate = false; bgGate(); }
+    S.meUn = onValue(ref(db, 'users/' + u.uid), snap => {
+      S.me = snap.val();
+      if (!S.me) { if (!S.registering) ensurePending(u); return; }
+      route();
+    }, e => { console.error(e); });
+    return;
+  }
+  S.early = false;
   cleanup(true);
   if (!u) { S.uid = null; showView('auth'); if ((window.__boot.heal || 0) >= 3 && !S.kickMsg) S.kickMsg = _t("أُعيد ضبط الجلسة تلقائياً لإصلاح مشكلة في التشغيل. سجّل الدخول من جديد."); if (S.kickMsg) { $('auth-err').textContent = S.kickMsg; S.kickMsg = ''; } return; }
   S.uid = u.uid; showView('loading');
@@ -1316,7 +1394,7 @@ function route() {
     S.isAdmin = S.me.role === 'admin';
     if (!S.me.phone || !S.me.birthYear) { if (S.started) stopMain(); showView('profile'); return; }
     if (!S.gateOk) {
-      if (S.fromSnap && !S.gateBg) { S.gateBg = true; S.gateOk = true; bgGate(); }   // من الحفظ: فحص الجلسة في الخلفية دون انتظار
+      if (S.fromSnap && !S.gateBg) { S.gateBg = true; S.gateOk = true; if (auth.currentUser) bgGate(); else S.needBgGate = true; }   // من الحفظ: فحص الجلسة في الخلفية دون انتظار
       else { gate(); return; }
     }
     S.minor = isMinor(S.me.birthYear);
@@ -1368,9 +1446,10 @@ function saveSnap() {
 }
 function renderConnBar() {
   const b = $('conn-bar'); if (!b) return;
-  const show = S.started && S.tab === 'map' && !S.online && Date.now() - (S.startAt || 0) > 3000;
+  const syncing = S.started && !S.live && !!S.fromSnap;                  // معروض من الحفظ ولم تصل المواقع الجديدة بعد
+  const show = S.started && S.tab === 'map' && (syncing || (!S.online && Date.now() - (S.startAt || 0) > 3000));
   b.hidden = !show;
-  if (show) b.textContent = S.live ? _t("بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.") : _t("جارٍ الاتصال… تُعرض آخر مواقع محفوظة.");
+  if (show) b.textContent = !S.live ? _t("جارٍ المزامنة لتحديث مواقع الأصدقاء…") : _t("بلا اتصال. تُعرض آخر مواقع معروفة، وتتحدث حين يعود الإنترنت.");
 }
 async function sessionGate(u) {
   if (!isNative || S.me.role === 'admin') return true;
@@ -1429,7 +1508,7 @@ function startMain() {
     S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; S.hidesLoaded = true; recipEval(); if (S.tab === 'me') renderPeople(); }, e => console.error('hide', e));
   }
   S.unsubs.conn = onValue(ref(db, '.info/connected'), s => { S.online = s.val() === true; renderConnBar(); }, () => {});
-  setTimeout(() => { renderConnBar(); if (S.fromSnap) { renderMap(); renderSheet(); } }, 3200);
+  renderConnBar(); setTimeout(() => { renderConnBar(); if (S.fromSnap) { renderMap(); renderSheet(); } }, 3200);
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; S.updLoaded = true; renderUpdate(); }, e => console.error('upd', e));
   $('btn-sos').hidden = S.limited;
   setTimeout(() => {
@@ -1613,11 +1692,11 @@ function visibleIds() {
 const OSM = '© OpenStreetMap';
 const ESRI = 'Tiles © Esri';
 const STYLES = {
-  osm: { name: _t("عادية (أسماء عربية)"), layers: [['https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: OSM }]] },
-  sat: { name: _t("قمر صناعي"), layers: [['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI }]] },
+  osm: { name: _t("عادية (أسماء عربية)"), layers: [['https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: OSM, crossOrigin: 'anonymous' }]] },
+  sat: { name: _t("قمر صناعي"), layers: [['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI, crossOrigin: 'anonymous' }]] },
   hybrid: { name: _t("هجين (قمر صناعي وأسماء)"), layers: [
-    ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI }],
-    ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }]] }
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI, crossOrigin: 'anonymous' }],
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, crossOrigin: 'anonymous' }]] }
 };
 function setStyle(k) {
   if (!STYLES[k]) k = 'osm';
@@ -2090,6 +2169,18 @@ function renderPerson() {
   $('p-wa').hidden = !(id !== S.uid && phoneOf(id));
   const navOk = id !== S.uid && !S.limited && !recipWhy(id) && !!(l && typeof l.lat === 'number');
   $('p-nav').hidden = !navOk; $('p-otw').hidden = !(navOk && connected(id) && !(S.myTrip && tripLive(S.myTrip)));
+  if (UI28) {                                                            // 2.8: أزرار ثابتة المكان، والمعطّل يبقى ظاهراً مع سببه
+    const self = id === S.uid, lim = S.limited, why = recipWhy(id);
+    $('p-drive-btn').hidden = true; $('p-places-btn').hidden = true; $('p-rep-btn').hidden = true; $('p-nav').hidden = true;
+    $('p-hist-btn').hidden = lim; $('p-share-btn').hidden = !self || lim; $('p-rep-big').hidden = !self || lim;
+    $('p-nav-big').hidden = self; $('p-otw').hidden = self; $('p-wa').hidden = self; $('p-more-btn').hidden = self;
+    if (!self) {
+      const navWhy = lim ? _t("تتفعل بعد اعتماد حسابك") : why ? recipMsg(why) : !(l && typeof l.lat === 'number') ? _t("موقعه غير معروف حالياً") : '';
+      setDis($('p-nav-big'), navWhy);
+      setDis($('p-otw'), navWhy || (!connected(id) ? _t("يتاح بعد أن يقبل كل منكما الآخر") : '') || (S.myTrip && tripLive(S.myTrip) ? _t("لديك إبلاغ قدوم جارٍ الآن") : ''));
+      setDis($('p-wa'), phoneOf(id) ? '' : _t("رقمه ليس في جهات اتصالك"));
+    }
+  }
   if (!fz && id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = tf("المسافة منك {0}", fmtKm(haversine(me, l))); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
 }
@@ -2187,85 +2278,218 @@ function posAt(t) {
   }
   const l = pts[pts.length - 1]; return { lat: l.lat, lng: l.lng, spd: 0 };
 }
-function scrub(v) {
-  const pts = S.hpts; if (pts.length < 2 || !S.hcum) return;
-  const total = S.hcum[S.hcum.length - 1], dist = total * (v / 1000);
-  let i = 1; while (i < pts.length - 1 && S.hcum[i] < dist) i++;
-  const a = pts[i - 1], b = pts[i], c0 = S.hcum[i - 1], c1 = S.hcum[i];
-  const f = c1 > c0 ? Math.min(1, Math.max(0, (dist - c0) / (c1 - c0))) : 0;
-  const a1 = a.ets || a.ts, t = a1 + f * (b.ts - a1);
-  const lat = a.lat + (b.lat - a.lat) * f, lng = a.lng + (b.lng - a.lng) * f;
-  const sg = (S.hsegs || []).find(sx => dist >= sx.x0 - 1 && dist <= sx.x1 + 1), spd = sg ? sg.v : 0;
-  const d = S.dir[S.huid] || {};
-  const icon = L.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d)}">${avText(d)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
-  if (!S.hmark) S.hmark = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([lat, lng]);
-  if (S.histFor && S.map.panInside) { const i = histInsets(); S.map.panInside([lat, lng], { paddingTopLeft: [40, i.top + 24], paddingBottomRight: [40, i.bottom + 24], animate: false }); }
-  let txt = fmtTime(t) + (spd >= 4 ? tf("، {0} كم/س", Math.round(spd)) : '');
-  const st = pts.find(p => p.ets && p.ets - p.ts >= 5 * 60e3 && haversine(p, { lat, lng }) < 40);
-  if (st) txt = tf("وقفة من {0} إلى {1}", fmtTime(st.ts), fmtTime(st.ets));
-  $('h-tlabel').textContent = txt;
-  drawChart(v);
-}
-$('h-slider').oninput = e => scrub(+e.target.value);
-
-/* ---------- مخطط السرعات تحت المنزلق (المحور الأفقي = طول المسار نفسه) ---------- */
+/* ---------- مخطط السجل: محور بالمسافة أو بالوقت، مع الانقطاعات والرحلات وأعلى سرعة وإعادة التشغيل ---------- */
 const SPD_COLORS = [[7, '#3A6EA5'], [25, '#2F8F6B'], [60, '#E8A33D'], [90, '#D2691E'], [Infinity, '#C4483B']];
 const spdColor = v => SPD_COLORS.find(c => v < c[0])[1];
-function speedSegs() {
-  const pts = S.hpts, cum = S.hcum, segs = [];
-  if (!cum || pts.length < 2) return segs;
+const ND_GAP = 10 * 60e3;                                                // أكثر من 10 دقائق بلا أي نقطة (وليست وقفة) = لا بيانات
+const PLAY_SP = [10, 60, 300];
+S.hAxis = (() => { try { return localStorage.getItem('mk_haxis') === 'time' ? 'time' : 'dist'; } catch { return 'dist'; } })();
+S.hPlayI = 1; S.hv = 0; S.hStopNm = {}; S.hgapRec = [];
+const hTotal = () => (S.hcum && S.hcum[S.hcum.length - 1]) || 1;
+const hEnd = () => { const l = S.hpts[S.hpts.length - 1]; return l ? (l.ets || l.ts) : 0; };
+function distAt(t) {
+  const pts = S.hpts, c = S.hcum; if (!pts.length || t <= pts[0].ts) return 0;
   for (let i = 1; i < pts.length; i++) {
-    const len = cum[i] - cum[i - 1]; if (len <= 0) continue;            // وقفة أو قفزة بلا اتصال
-    const dt = (pts[i].ts - (pts[i - 1].ets || pts[i - 1].ts)) / 1000;
-    segs.push({ x0: cum[i - 1], x1: cum[i], v: dt >= 4 ? (len / dt * 3.6 > SPEED_CAP ? 0 : len / dt * 3.6) : 0 });
+    const a = pts[i - 1], a1 = a.ets || a.ts;
+    if (t <= a1) return c[i - 1];
+    if (t < pts[i].ts) return c[i - 1] + (c[i] - c[i - 1]) * (t - a1) / (pts[i].ts - a1);
   }
-  return segs.map((s, i) => {                                            // تنعيم بمتوسط ثلاث نقاط لتخفيف اهتزاز GPS
-    let sum = s.v * 2, w = 2;
-    if (segs[i - 1]) { sum += segs[i - 1].v; w++; }
-    if (segs[i + 1]) { sum += segs[i + 1].v; w++; }
-    return { x0: s.x0, x1: s.x1, v: sum / w };
-  });
+  return c[c.length - 1];
+}
+function timeAtDist(d) {
+  const pts = S.hpts, c = S.hcum;
+  let i = 1; while (i < pts.length - 1 && c[i] < d) i++;
+  const a = pts[i - 1], b = pts[i], f = c[i] > c[i - 1] ? Math.min(1, Math.max(0, (d - c[i - 1]) / (c[i] - c[i - 1]))) : 0, a1 = a.ets || a.ts;
+  return a1 + f * (b.ts - a1);
+}
+const v2t = v => S.hAxis === 'time' ? S.hT0 + (S.hT1 - S.hT0) * v / 1000 : timeAtDist(hTotal() * v / 1000);
+const t2v = t => Math.min(1000, Math.max(0, S.hAxis === 'time' ? (t - S.hT0) / (S.hT1 - S.hT0) * 1000 : distAt(t) / hTotal() * 1000));
+function ndList() {                                                      // انقطاعات: فجوات بين النقاط + انقطاعات سجّلها التطبيق
+  const out = (S.hsegs || []).filter(s => s.nd).map(s => ({ t0: s.t0, t1: s.t1 }));
+  for (const g of S.hgapRec) if (!out.some(o => g.from < o.t1 && g.to > o.t0) && !S.hstops.some(s => g.from >= s.t0 && g.to <= s.t1)) out.push({ t0: g.from, t1: g.to });
+  return out.sort((a, b) => a.t0 - b.t0);
 }
 function chartSetup() {
-  S.hsegs = speedSegs();
-  const sp = S.hsegs.map(s => s.v).sort((a, b) => a - b);
+  const pts = S.hpts, cum = S.hcum, raw = [];
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], t0 = a.ets || a.ts, t1 = b.ts, len = cum[i] - cum[i - 1], dt = (t1 - t0) / 1000, nd = t1 - t0 > ND_GAP;
+    let v = 0; if (!nd && len > 0 && dt >= 4) { v = len / dt * 3.6; if (v > SPEED_CAP) v = 0; }
+    raw.push({ i, t0, t1, x0: cum[i - 1], x1: cum[i], v, nd });
+  }
+  const ok = s => s && !s.nd && s.x1 > s.x0;
+  S.hsegs = raw.map((s, k) => {                                          // تنعيم بمتوسط ثلاث نقاط لتخفيف اهتزاز GPS
+    if (!ok(s)) return s;
+    let sum = s.v * 2, w = 2; for (const n of [raw[k - 1], raw[k + 1]]) if (ok(n)) { sum += n.v; w++; }
+    return { ...s, v: sum / w };
+  });
+  const an = S.han || { items: [] };
+  S.hstops = an.items.filter(it => it.type === 'stop').map(it => ({ k: it.k, t0: it.t0, t1: it.t1, lat: it.lat, lng: it.lng, x: cum[it.k] }));
+  S.htrips = an.items.filter(it => it.type === 'trip').map((it, n) => ({ n: n + 1, t0: it.t0, t1: it.t1, x0: cum[it.s], x1: cum[it.e], dist: it.dist, dur: it.dur }));
+  const H = 3600e3; S.hT0 = Math.floor(pts[0].ts / H) * H; S.hT1 = Math.max(S.hT0 + H, Math.ceil(hEnd() / H) * H);
+  const sp = S.hsegs.filter(ok).map(s => s.v).sort((a, b) => a - b);
   const p98 = sp.length ? sp[Math.min(sp.length - 1, Math.floor(sp.length * .98))] : 0;
   S.hchartMax = Math.min(220, Math.max(40, Math.ceil(p98 / 20) * 20));
-  let mv = 0, mt = 0; const pts = S.hpts;
-  for (let i = 1; i < pts.length; i++) {
-    const len = S.hcum[i] - S.hcum[i - 1]; if (len <= 0) continue;
-    const dt = (pts[i].ts - (pts[i - 1].ets || pts[i - 1].ts)) / 1000;
-    if (dt > 0 && dt <= 600) { mv += len; mt += dt; }
-  }
+  S.hmax = S.hsegs.filter(ok).reduce((m, s) => (!m || s.v > m.v ? s : m), null);
+  if (S.hmax && S.hmax.v < 5) S.hmax = null;
+  let mv = 0, mt = 0;
+  for (const s of S.hsegs) { const dt = (s.t1 - s.t0) / 1000; if (ok(s) && dt > 0 && dt <= 600) { mv += s.x1 - s.x0; mt += dt; } }
   const avg = mt ? mv / mt * 3.6 : 0;
   $('h-chartinfo').textContent = tf("أعلى سرعة تقريبية {0} كم/س، والمتوسط أثناء الحركة {1} كم/س", Math.round((S.han && S.han.vmax) || p98), Math.round(avg));
+  renderHctl();
 }
-function drawChart(v) {
-  const cv = $('h-chart'); if (!cv || $('h-scrub').hidden || !S.hcum) return;
-  const w = cv.clientWidth || 300, h = 64, dpr = window.devicePixelRatio || 1;
-  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+function renderHctl() {
+  document.querySelectorAll('#h-axis button').forEach(b => b.classList.toggle('on', b.dataset.id === S.hAxis));
+  $('h-spd').textContent = '×' + PLAY_SP[S.hPlayI];
+  $('h-play').innerHTML = S.hPlay ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>' : '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 5l12 7-12 7z"/></svg>';
+  $('h-play').setAttribute('aria-label', S.hPlay ? _t("إيقاف") : _t("تشغيل"));
+}
+function scrub(v) {
+  const pts = S.hpts; if (pts.length < 2 || !S.hcum) return;
+  S.hv = v;
+  const t = Math.min(hEnd(), Math.max(pts[0].ts, v2t(v))), d = distAt(t), p = posAt(t), total = hTotal();
+  const d0 = S.dir[S.huid] || {};
+  const icon = L.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d0)}">${avText(d0)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
+  if (!S.hmark) S.hmark = L.marker([p.lat, p.lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([p.lat, p.lng]);
+  if (S.histFor && S.map.panInside) { const i = histInsets(); S.map.panInside([p.lat, p.lng], { paddingTopLeft: [40, i.top + 24], paddingBottomRight: [40, i.bottom + 24], animate: false }); }
+  const seg = S.hsegs.find(s => t >= s.t0 && t <= s.t1 && (s.x1 > s.x0 || s.nd || S.hAxis === 'time'));
+  const st = S.hAxis === 'time' ? S.hstops.find(s => t >= s.t0 && t <= s.t1) : S.hstops.find(s => Math.abs(s.x - d) < 40);
+  const nd = !st && ndList().find(g => t > g.t0 && t < g.t1);
+  let txt;
+  if (st) {
+    txt = tf("وقفة من {0} إلى {1} ({2})", fmtTime(st.t0), fmtTime(st.t1), fmtDur(st.t1 - st.t0));
+    const nm = S.hStopNm[st.k];
+    if (nm) txt += ' · ' + nm;
+    else if (nm === undefined) { S.hStopNm[st.k] = ''; const uid = S.huid; nameAt(st.lat, st.lng, uid).then(n => { if (S.huid !== uid) return; S.hStopNm[st.k] = n || ''; if (n && !S.hPlay) scrub(S.hv); }); }
+  } else if (nd) txt = tf("لا بيانات من {0} إلى {1}", fmtTime(nd.t0), fmtTime(nd.t1));
+  else txt = fmtTime(t) + (seg && !seg.nd && seg.v >= 4 ? tf("، {0} كم/س", Math.round(seg.v)) : '');
+  $('h-tlabel').textContent = txt;
+  const tr = S.htrips.find(x => t >= x.t0 && t <= x.t1);
+  $('h-tlabel2').textContent = tf("قطعت {0} من {1} كم", (d / 1000).toFixed(1), (total / 1000).toFixed(1)) + (tr ? ' · ' + tf("الرحلة {0}: {1}، {2}", tr.n, fmtKm(tr.dist), fmtDur(tr.dur)) : '');
+  drawChart();
+}
+let hatchPat = null;
+function hatch(g) {
+  if (hatchPat) return hatchPat;
+  const c = document.createElement('canvas'); c.width = c.height = 6; const x = c.getContext('2d');
+  x.fillStyle = '#EEF1F2'; x.fillRect(0, 0, 6, 6); x.strokeStyle = '#B5C1C6'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(0, 6); x.lineTo(6, 0); x.moveTo(-1, 1); x.lineTo(1, -1); x.moveTo(5, 7); x.lineTo(7, 5); x.stroke();
+  return (hatchPat = g.createPattern(c, 'repeat'));
+}
+function niceStep(range, maxN, steps) { return steps.find(s => range / s <= maxN) || steps[steps.length - 1]; }
+function chartGeom() {
+  const cv = $('h-chart'), want = S.hState === 'full' ? 124 : 84;
+  if (cv.style.height !== want + 'px') cv.style.height = want + 'px';
+  const w = cv.clientWidth || 300, h = cv.clientHeight || want;
+  const timeAx = S.hAxis === 'time', padT = 16, axisH = 14, base = h - axisH - 9, span = base - padT;
+  const xT = t => (t - S.hT0) / (S.hT1 - S.hT0) * w, xD = x => x / hTotal() * w;
+  const X = (t, x) => timeAx ? xT(t) : xD(x != null ? x : distAt(t));
+  return { cv, w, h, timeAx, padT, axisH, base, span, xT, xD, X };
+}
+function drawChart() {
+  const cv = $('h-chart'); if (!cv || $('h-scrub').hidden || !S.hcum || !S.hsegs) return;
+  const G = chartGeom(), { w, h, timeAx, padT, base, span, X } = G, dpr = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
   const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
-  g.direction = 'ltr'; g.textAlign = 'left';
-  const total = S.hcum[S.hcum.length - 1], top = S.hchartMax || 60, base = h - 12, span = base - 8;
-  g.strokeStyle = '#E1E8EB'; g.lineWidth = 1; g.fillStyle = '#768B94'; g.font = '10px sans-serif';
-  [0.5, 1].forEach(f => { const y = Math.round(base - f * span) + .5; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); g.fillText(String(Math.round(top * f)), 3, y - 2); });
-  for (const s of (S.hsegs || [])) {
-    const x0 = s.x0 / total * w, x1 = s.x1 / total * w, bh = Math.min(s.v / top, 1) * span;
-    g.fillStyle = spdColor(s.v); g.fillRect(x0, base - bh, Math.max(1.2, x1 - x0 + .6), Math.max(bh, s.v > 0 ? 1 : 0));
+  g.direction = 'ltr'; g.textBaseline = 'alphabetic'; g.font = '10px system-ui,sans-serif';
+  const top = S.hchartMax || 60;
+  g.strokeStyle = '#E1E8EB'; g.lineWidth = 1; g.fillStyle = '#768B94'; g.textAlign = 'left';
+  [0.5, 1].forEach(f => { const y = Math.round(base - f * span) + .5; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); });
+  // الوقفات (بعرضها الحقيقي على محور الوقت)
+  if (timeAx) for (const s of S.hstops) { const a = X(s.t0), b = X(s.t1); g.fillStyle = '#FBF1DD'; g.fillRect(a, padT, Math.max(2, b - a), base - padT); }
+  // لا بيانات
+  for (const n of ndList()) {
+    let a = X(n.t0), b = X(n.t1); if (b - a < 4) { const m = (a + b) / 2; a = m - 2; b = m + 2; }
+    g.fillStyle = hatch(g); g.fillRect(a, padT, b - a, base - padT);
+  }
+  // السرعات
+  for (const s of S.hsegs) {
+    if (s.nd || s.v <= 0) continue;
+    const a = X(s.t0, s.x0), b = X(s.t1, s.x1), bh = Math.min(s.v / top, 1) * span;
+    g.fillStyle = spdColor(s.v); g.fillRect(a, base - bh, Math.max(1.2, b - a + .6), Math.max(bh, 1));
+  }
+  // فواصل الرحلات وأرقامها
+  g.textAlign = 'center'; g.font = 'bold 10px system-ui,sans-serif';
+  for (const tr of S.htrips) {
+    const a = X(tr.t0, tr.x0), b = X(tr.t1, tr.x1);
+    if (tr.n > 1) { g.strokeStyle = '#9AAAB0'; g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(Math.round(a) + .5, padT - 4); g.lineTo(Math.round(a) + .5, base); g.stroke(); g.setLineDash([]); }
+    if (b - a >= 14) { g.fillStyle = '#10272F'; g.fillText(String(tr.n), Math.min(Math.max((a + b) / 2, 6), w - 6), 11); }
   }
   g.strokeStyle = '#10272F'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, base + .5); g.lineTo(w, base + .5); g.stroke();
-  S.hpts.forEach((p, i) => { if (p.ets && p.ets - p.ts >= 5 * 60e3) { g.fillStyle = '#E8A33D'; g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.beginPath(); g.arc(S.hcum[i] / total * w, base + 4, 3.5, 0, 6.3); g.fill(); g.stroke(); } });
-  const px = Math.min(Math.max(v / 1000 * w, 1), w - 1);
-  g.strokeStyle = '#10272F'; g.lineWidth = 2; g.beginPath(); g.moveTo(px, 2); g.lineTo(px, base + 7); g.stroke();
+  g.font = '10px system-ui,sans-serif'; g.textAlign = 'left'; g.lineJoin = 'round';                 // أرقام السرعة فوق الأعمدة بإطار أبيض
+  [0.5, 1].forEach(f => { const y = Math.round(base - f * span) + 11, lb = String(Math.round(top * f)); g.strokeStyle = '#fff'; g.lineWidth = 3; g.strokeText(lb, 3, y); g.fillStyle = '#5F747C'; g.fillText(lb, 3, y); });
+  // نقاط الوقفات
+  for (const s of S.hstops) { const x = timeAx ? (X(s.t0) + X(s.t1)) / 2 : X(s.t0, s.x); g.fillStyle = '#E8A33D'; g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.beginPath(); g.arc(x, base + 4.5, 3.5, 0, 6.3); g.fill(); g.stroke(); }
+  // أعلى سرعة
+  if (S.hmax) {
+    const m = S.hmax, x = (X(m.t0, m.x0) + X(m.t1, m.x1)) / 2, y = base - Math.min(m.v / top, 1) * span - 3;
+    g.fillStyle = '#C4483B'; g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x - 5.5, y - 8); g.lineTo(x + 5.5, y - 8); g.lineTo(x, y); g.closePath(); g.stroke(); g.fill();
+  }
+  // محور المسافة أو الساعات
+  g.font = '10px system-ui,sans-serif'; g.fillStyle = '#5F747C'; g.strokeStyle = '#9AAAB0'; g.lineWidth = 1;
+  const ticks = [];
+  if (timeAx) {
+    const hrs = (S.hT1 - S.hT0) / 3600e3, st = niceStep(hrs, Math.max(2, Math.floor(w / 56)), [1, 2, 3, 4, 6, 12, 24]);
+    for (let k = 0; k <= hrs + 1e-6; k += st) { const t = S.hT0 + k * 3600e3; ticks.push([G.xT(t), new Date(t).toLocaleTimeString(LOC, { hour: 'numeric' })]); }
+  } else {
+    const km = hTotal() / 1000, st = niceStep(km, Math.max(2, Math.floor(w / 48)), [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]);
+    for (let k = 0; k <= km + 1e-9; k += st) { const kk = Math.round(k * 10) / 10; ticks.push([G.xD(kk * 1000), kk === 0 ? _t("كم") : String(kk)]); }
+  }
+  for (const [x, lb] of ticks) {
+    g.beginPath(); g.moveTo(Math.round(x) + .5, base + 1); g.lineTo(Math.round(x) + .5, base + 4); g.stroke();
+    const tw = g.measureText(lb).width; g.textAlign = 'left'; g.fillText(lb, Math.min(Math.max(x - tw / 2, 1), w - tw - 1), h - 3);
+  }
+  // المؤشر
+  const px = Math.min(Math.max(S.hv / 1000 * w, 1), w - 1);
+  g.strokeStyle = '#10272F'; g.lineWidth = 2; g.beginPath(); g.moveTo(px, 2); g.lineTo(px, base + 8); g.stroke();
 }
+function playStop() { if (!S.hPlay) return; S.hPlay = null; renderHctl(); }
+function playStep(now) {
+  const P = S.hPlay; if (!P) return;
+  if (!S.histFor || $('h-scrub').hidden) return playStop();
+  let dt = now - P.last; P.last = now; if (dt > 250) dt = 250;
+  P.t += dt * PLAY_SP[S.hPlayI];
+  const st = S.hstops.find(s => P.t > s.t0 && P.t < s.t1 - 1000); if (st) P.t = st.t1;          // تخطي الوقفات والانقطاعات
+  const nd = ndList().find(g => P.t > g.t0 && P.t < g.t1); if (nd) P.t = nd.t1;
+  const end = hEnd(), done = P.t >= end; if (done) P.t = end;
+  const v = t2v(P.t); $('h-slider').value = Math.round(v); scrub(v);
+  if (done) playStop(); else requestAnimationFrame(playStep);
+}
+const H_ACTIONS = ({
+  'h-play': () => {
+    if (S.hPlay) return playStop();
+    if (!S.hpts.length || $('h-scrub').hidden) return;
+    let t = Math.max(S.hpts[0].ts, v2t(S.hv || 0)); if (t >= hEnd() - 1000) t = S.hpts[0].ts;
+    S.hPlay = { t, last: performance.now() }; renderHctl(); requestAnimationFrame(playStep);
+  },
+  'h-spd': () => { S.hPlayI = (S.hPlayI + 1) % PLAY_SP.length; renderHctl(); },
+  'h-axis': a => {
+    if (a === S.hAxis || !S.hcum) return;
+    const t = Math.min(hEnd(), Math.max(S.hpts[0].ts, v2t(S.hv || 0)));
+    S.hAxis = a === 'time' ? 'time' : 'dist'; try { localStorage.setItem('mk_haxis', S.hAxis); } catch {}
+    if (S.hPlay) S.hPlay.t = t;
+    const v = t2v(t); $('h-slider').value = Math.round(v); renderHctl(); scrub(v);
+  }
+});
+$('h-slider').oninput = e => { playStop(); scrub(+e.target.value); };
 {
   const cv = $('h-chart'); let drag = false;
-  const at = e => { const r = cv.getBoundingClientRect(); return Math.round(Math.min(Math.max(e.clientX - r.left, 0), r.width) / (r.width || 1) * 1000); };
-  const go = e => { const v = at(e); $('h-slider').value = v; scrub(v); };
-  cv.addEventListener('pointerdown', e => { drag = true; try { cv.setPointerCapture(e.pointerId); } catch {} go(e); });
-  cv.addEventListener('pointermove', e => { if (drag) go(e); });
+  const at = e => { const r = cv.getBoundingClientRect(); return { x: Math.min(Math.max(e.clientX - r.left, 0), r.width), y: e.clientY - r.top, w: r.width || 1 }; };
+  const go = (e, snap) => {
+    const p = at(e); let v = p.x / p.w * 1000;
+    if (snap && S.hcum) {                                                  // لمسة قرب أعلى سرعة أو وقفة: القفز إليها
+      const G = chartGeom();
+      if (S.hmax && p.y < G.base) { const m = S.hmax, x = (G.X(m.t0, m.x0) + G.X(m.t1, m.x1)) / 2; if (Math.abs(x - p.x) <= 14) v = t2v((m.t0 + m.t1) / 2); }
+      if (p.y >= G.base - 4) {
+        let best = null;
+        for (const s of S.hstops) { const x = G.timeAx ? (G.X(s.t0) + G.X(s.t1)) / 2 : G.X(s.t0, s.x), dx = Math.abs(x - p.x); if (dx <= 14 && (!best || dx < best.dx)) best = { dx, s }; }
+        if (best) v = G.timeAx ? t2v((best.s.t0 + best.s.t1) / 2) : t2v(best.s.t0);
+      }
+    }
+    $('h-slider').value = Math.round(v); scrub(v);
+  };
+  cv.addEventListener('pointerdown', e => { playStop(); drag = true; try { cv.setPointerCapture(e.pointerId); } catch {} go(e, true); });
+  cv.addEventListener('pointermove', e => { if (drag) go(e, false); });
   ['pointerup', 'pointercancel'].forEach(evn => cv.addEventListener(evn, () => { drag = false; }));
-  window.addEventListener('resize', () => { if (!$('h-scrub').hidden) drawChart(+$('h-slider').value); if (S.histFor) fitHistory(); });
+  let rz = 0; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!$('h-scrub').hidden) drawChart(); if (S.histFor) fitHistory(); }, 120); });
 }
 const fmtFull = ts => new Date(ts).toLocaleString(LOC, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 /* علامات وقت على الرحلات الطويلة: كل 10 دقائق (أقل من ساعة) أو 15 (حتى 4 ساعات) أو 30 (أكثر) */
@@ -2294,7 +2518,7 @@ function onRouteClick(e) {
     if (!best || d < best.d) best = { d, i, f };
   }
   const a = pts[best.i - 1], b = pts[best.i], a1 = a.ets || a.ts, gap = b.ts - a1, dd = haversine(a, b);
-  const sg = (S.hsegs || []).find(sx => sx.x1 === (S.hcum || [])[best.i]), t = a1 + best.f * gap, kmh = sg ? sg.v : 0;
+  const sg = (S.hsegs || []).find(sx => sx.i === best.i && !sx.nd), t = a1 + best.f * gap, kmh = sg ? sg.v : 0;
   L.popup().setLatLng(e.latlng).setContent('<b>' + esc(fmtFull(t)) + '</b>' + (kmh >= 3 ? `<br>${tf("السرعة التقريبية {0} كم/س", Math.round(kmh))}` : '')).openOn(S.map);
 }
 function openHistory(id, day) {
@@ -2324,10 +2548,10 @@ function setHState(s) {
   S.hState = s; S.hMin = s !== 'full';
   $('hsheet').classList.toggle('min', s === 'min');
   applyTabVisibility();
-  setTimeout(() => { fitHistory(); drawChart(+$('h-slider').value); }, 90);
+  setTimeout(() => { fitHistory(); drawChart(); }, 90);
 }
 function closeHistory() {
-  S.histFor = null; S.hState = 'min'; S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null; S.hpts = [];
+  playStop(); S.histFor = null; S.hState = 'min'; S.hl.clearLayers(); S.hsel.clearLayers(); S.hmk.clearLayers(); S.hmark = null; S.hpts = [];
   renderMap(); applyTabVisibility();
 }
 function shiftDay(delta) {
@@ -2339,6 +2563,7 @@ $('h-day').onchange = () => loadHistory();
 async function loadHistory() {
   const uid = S.histFor, day = $('h-day').value;
   if (!uid || !day) return;
+  playStop(); S.hStopNm = {}; S.hgapRec = []; S.hsegs = null; S.hstops = []; S.htrips = []; S.hmax = null;
   $('h-sum').innerHTML = `<p class="hint">${_t("جارٍ التحميل...")}</p>`; barSum(_t("جارٍ التحميل...")); $('h-list').innerHTML = ''; $('h-scrub').hidden = true;
   let obj;
   try { obj = (await get(ref(db, `history/${uid}/${day}`))).val() || {}; }
@@ -2378,6 +2603,7 @@ async function loadHistory() {
   barSum(tf("{0} – {1}، {2} كم، {3} رحلة، {4} وقفة", fmtTime(first.ts), fmtTime(end), (an.dist / 1000).toFixed(1), trips.length, stops.length));
   $('h-sum').innerHTML = `<b>${tf("{0} حتى {1}", esc(fmtTime(first.ts)), esc(fmtTime(end)))}</b><span class="hint">${tf("المسافة {0} كم، الرحلات {1}، الوقفات {2}{3}", (an.dist / 1000).toFixed(1), trips.length, stops.length, an.vmax >= 5 ? tf("، أسرع سرعة تقريبية {0} كم/س", Math.round(an.vmax)) : '')}</span>`;
   if (cum[cum.length - 1] >= 50) { const sl = $('h-slider'); sl.min = 0; sl.max = 1000; sl.step = 1; sl.value = 0; $('h-scrub').hidden = false; chartSetup(); scrub(0); }
+  else $('h-scrub').hidden = true;
   $('h-list').innerHTML = an.items.map((it, i) => it.type === 'trip'
     ? `<div class="row tap" data-act="h-trip" data-id="${i}"><div class="grow"><div class="nm">${ICON[it.mode]} ${esc(MODE[it.mode])}</div><div class="st">${tf("{0} – {1}، {2}، {3}، متوسط {4} كم/س", esc(fmtTime(it.t0)), esc(fmtTime(it.t1)), esc(fmtKm(it.dist)), esc(fmtDur(it.dur)), Math.round(it.avg))}</div></div></div>`
     : `<div class="row tap" data-act="h-stop" data-id="${i}"><div class="grow"><div class="nm">${_t("وقفة")}</div><div class="st">${tf("{0} – {1}، {2}", esc(fmtTime(it.t0)), esc(fmtTime(it.t1)), esc(fmtDur(it.t1 - it.t0)))}</div><div class="st" id="hs-${i}"></div></div></div>`
@@ -2539,6 +2765,8 @@ function renderMe() {
   $('minor-note').hidden = !S.minor; $('lim-note').hidden = !S.limited; $('prox-card').hidden = S.limited;
   { const sv = isNative ? nat() : null; $('ver-line').textContent = tf("إصدار الواجهة {0}{1}", UI_VERSION, sv && sv.verName ? tf("، إصدار التطبيق {0} ({1})", sv.verName, sv.ver) : ''); }
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
+  offlineStatus().then(ok => { const el = $('off-line'); if (el) { el.textContent = ok ? _t("الفتح بلا إنترنت: جاهز") : _t("الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه."); el.style.color = ok ? 'var(--ok)' : ''; } });
+  $('ui28-on').checked = !UI28;
   renderProx();
   renderAlerts();
   renderPlaces();
@@ -2578,6 +2806,7 @@ function renderNative() {
   const dg = diagNow(), known = ['loc_perm', 'bg_perm', 'loc_off', 'battery_opt', 'not_sharing'];
   const extra = dg && !dg.legacy ? [...(dg.issues || []).map(c => [c, 1]), ...(dg.warns || []).map(c => [c, 0])].filter(([c]) => !known.includes(c) && ISSUES[c]) : [];
   const bad = items.filter(i => !i[1] && !i[2]).length + extra.filter(x => x[1]).length;
+  if (UI28) { $('health-alert').hidden = !bad; if (bad) $('health-alert-t').textContent = tf("{0} من البنود قد توقف إرسال موقعك", (bad)); }
   const extraHtml = extra.map(([c, crit]) => `<div class="row" style="padding:6px 0"><div class="grow">${esc(issueTitle(c))}</div><button class="btn sm ${crit ? 'danger' : ''}" data-act="fix-open" data-id="${esc(c)}">${_t("أصلح")}</button></div>`).join('');
   const wasOpen = $('native-status').querySelector('details')?.open;
   const g = brandGuide(s.brand);
@@ -2817,6 +3046,7 @@ const ACTIONS = {
     const seg = S.hpts.slice(it.s, it.e + 1).map(p => [p.lat, p.lng]);
     L.polyline(chaikin(seg, 2), { color: '#E8A33D', weight: 9, opacity: .95, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hsel);
     setHState('min'); setTimeout(() => fitPad(L.latLngBounds(seg)), 150);
+    if (S.hcum && !$('h-scrub').hidden) { playStop(); const v = t2v(it.t0); $('h-slider').value = Math.round(v); scrub(v); }
   },
   'h-stop': id => { const it = S.han && S.han.items[+id]; if (!it) return; setHState('min'); setTimeout(() => fitPad(L.latLngBounds([[it.lat, it.lng]]), 17), 150); },
   'h-hide': () => setHState('off'),
@@ -2915,7 +3145,9 @@ const ACTIONS = {
     const id = S.person; if (!id || id === S.uid) return;
     $('pm-title').textContent = dispName(id);
     const sw = S.minor ? '' : `<label class="sw-row st"><span>${_t("إخفاء موقعي عنه")}</span><span class="switch"><input type="checkbox" data-hide="${esc(id)}" ${S.hides[id] ? 'checked' : ''} aria-label="${_t("إخفاء موقعي عنه")}"><span></span></span></label>` + `<label class="sw-row st"><span>${_t("إخفاء سجلي عنه")}</span><span class="switch"><input type="checkbox" data-hhide="${esc(id)}" ${S.histHides[id] ? 'checked' : ''} aria-label="${_t("إخفاء سجلي عنه")}"><span></span></span></label>`;
-    $('pm-body').innerHTML = `<button class="btn" data-act="nick" data-id="${esc(id)}">${_t("اسم مستعار")}</button>${sw}<button class="btn danger" data-act="unlink" data-id="${esc(id)}">${_t("إزالة الاتصال")}</button>`;
+    const mine = S.mine[id] === true;
+    const ex = UI28 && !S.limited ? (repAllowed(id) ? `<button class="btn" data-act="pm-go" data-id="p-report">${_t("التقرير")}</button><button class="btn" data-act="pm-go" data-id="p-drive">${_t("القيادة")}</button>` : '') + `<button class="btn" data-act="pm-go" data-id="p-places">${_t("الأماكن")}</button>` : '';
+    $('pm-body').innerHTML = ex + (mine ? `<button class="btn" data-act="nick" data-id="${esc(id)}">${_t("اسم مستعار")}</button>${sw}<button class="btn danger" data-act="unlink" data-id="${esc(id)}">${_t("إزالة الاتصال")}</button>` : '');
     $('modal-pmore').hidden = false;
   },
   'p-report': () => { const id = S.person; if (id) openReport('day', null, id === S.uid ? null : id); },
@@ -3146,8 +3378,47 @@ const ACTIONS = {
     toast(tf("حُذف {0} يوم من السجل", n));
   }
 };
+function applyUI28() {
+  document.body.classList.add('ui28');
+  const pc = $('prof-card'), top = document.createElement('div'); top.className = 'prof-top';
+  const pa = document.querySelector('#photo-card .acts');
+  top.append($('me-av'), pa, $('photo-file')); pc.prepend(top);
+  const ap = document.createElement('details'); ap.className = 'sub';
+  const sm = document.createElement('summary'); sm.textContent = _t("مظهري"); ap.append(sm, $('me-colors-l'), $('me-colors'), $('me-bike-row'));
+  pc.insertBefore(ap, $('btn-save-profile'));
+  $('rpt-set28').append($('rpt-on').closest('.sw-row'), $('rpt-time').closest('label'), document.querySelector('[data-act="rpt-save"]'));
+  $('set-body').append($('lang-sel').closest('.card'), $('native-card'), $('simple-card'), $('ver-line').closest('.card'));
+  $('acc-set').hidden = false;
+  const row = $('p-otw').parentNode; row.prepend($('p-otw'), $('p-wa'), $('p-more-btn'));
+  $('p-otw').textContent = _t("أبلغه بقدومي"); $('p-wa').textContent = _t("واتساب");
+  try { if (localStorage.getItem('mk_simple') === '1') applySimple(true); } catch {}
+}
+function applySimple(on) {
+  document.body.classList.toggle('simple', !!on); $('simple-on').checked = !!on;
+  try { if (on) localStorage.setItem('mk_simple', '1'); else localStorage.removeItem('mk_simple'); } catch {}
+}
+function setDis(el, why) { el.classList.toggle('dis', !!why); el.dataset.why = why || ''; el.setAttribute('aria-disabled', why ? 'true' : 'false'); }
+function openSettings(el) { setTab('me'); const d = $('acc-set'); d.open = true; setTimeout(() => (el || d).scrollIntoView({ behavior: 'smooth', block: 'start' }), 200); }
+if (UI28) applyUI28();
+$('simple-on').onchange = e => { applySimple(e.target.checked); if (e.target.checked) { setTab('map'); toast(_t("الوضع المبسّط مفعّل. للخروج اضغط زر الترس على الخريطة.")); } };
+$('ui28-on').onchange = e => { try { if (e.target.checked) { localStorage.setItem('mk_ui', 'old'); localStorage.removeItem('mk_simple'); } else localStorage.removeItem('mk_ui'); } catch {} toast(_t("جارٍ إعادة تحميل الصفحة...")); setTimeout(() => location.reload(), 600); };
+Object.assign(ACTIONS, H_ACTIONS);
+Object.assign(ACTIONS, {
+  'health-go': () => { renderNative(); openSettings($('native-card')); },
+  'simple-exit': () => { $('modal-simple').hidden = false; },
+  'simple-stay': () => { $('modal-simple').hidden = true; },
+  'simple-off': () => { $('modal-simple').hidden = true; applySimple(false); openSettings(); },
+  'wn-ok': () => { $('modal-wn').hidden = true; try { localStorage.setItem('mk_wn28', '1'); } catch {} },
+  'pm-go': a => { $('modal-pmore').hidden = true; ACTIONS[a]?.(); }
+});
+function wn28() {
+  if (!UI28 || S.wn28Done) return; S.wn28Done = true;
+  try { if (localStorage.getItem('mk_wn28') === '1') return; } catch { return; }
+  setTimeout(() => { $('modal-wn').hidden = false; }, 900);
+}
 document.addEventListener('click', async ev => {
   const b = ev.target.closest('[data-act]'); if (!b) return;
+  if (b.classList.contains('dis')) { if (b.dataset.why) toast(b.dataset.why); return; }
   try { await ACTIONS[b.dataset.act]?.(b.dataset.id, b); } catch (e) { console.error(e); toast(tf("تعذر تنفيذ الأمر ({0})", e.code || e.message)); }
 });
 
@@ -3679,6 +3950,7 @@ async function loadDayGaps(uid, day) {
   if (S.histFor !== uid || $('h-day').value !== day) return;
   const gaps = Object.values(obj || {}).filter(g => g && typeof g.from === 'number' && typeof g.to === 'number').sort((a, b) => a.from - b.from);
   if (!gaps.length) return;
+  S.hgapRec = gaps; drawChart();
   $('h-list').insertAdjacentHTML('beforeend', `<div class="nm" style="padding:10px 0 4px">${_t("انقطاعات التسجيل")}</div>${gaps.map(gapRow).join('')}`);
 }
 
@@ -4087,7 +4359,7 @@ function renderPrivacy() {
 
 /* ---------- التبويبات ---------- */
 function setTab(t) {
-  S.tab = t;
+  S.tab = t; document.body.classList.toggle('tab-other', t !== 'map');
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const mapMode = t === 'map';
   $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
@@ -4099,6 +4371,7 @@ function setTab(t) {
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b) setTab(b.dataset.tab); };
 function renderAll() {
   if (!S.started) return;
+  wn28();
   renderPrivacy();
   migratePause();
   renderMap(); renderSheet(); updateBadge();
@@ -4235,7 +4508,7 @@ function notifGo(id) {
     if (visibleIds().includes(d.u)) { setTab('map'); openPerson(d.u); } else toast(_t("هذا الشخص غير ظاهر على خريطتك الآن"));
   } else if (e.k === 'report' && d.day) { const w = d.u || (Number(e.nid) === 4600 ? digestWho() : null); openReport('day', d.day, w || undefined); }
   else if (e.k === 'sos_in' && d.from) { setTab('map'); S.pendingSos = d.from; handleSosIncoming(S.sosIn || {}); }
-  else if (e.k === 'self_loc' || e.k === 'self_net' || e.k === 'self_gap') { setTab('me'); const h = $('acc-health'); if (h) { h.open = true; renderNative(); setTimeout(() => h.scrollIntoView({ block: 'start' }), 100); } setTimeout(() => maybeFix(true), 400); }
+  else if (e.k === 'self_loc' || e.k === 'self_net' || e.k === 'self_gap') { if (UI28) { renderNative(); openSettings($('native-card')); } else { setTab('me'); const h = $('acc-health'); if (h) { h.open = true; renderNative(); setTimeout(() => h.scrollIntoView({ block: 'start' }), 100); } } setTimeout(() => maybeFix(true), 400); }
   else if (e.k === 'phone') setTab('me');
   else if (e.k === 'admin') { setTab('map'); showAdminMsg(); }
   else setTab('map');
@@ -4251,7 +4524,7 @@ $('btn-notif').onclick = openNotifCenter;
 /* حفظ الصفحة ومكتباتها على الهاتف: تُفتح فوراً حتى بلا إنترنت وتُحدَّث في الخلفية. ?nosw يلغيه للتجربة */
 if ('serviceWorker' in navigator) {
   if (/[?&]nosw/.test(location.search)) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
-  else window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  else { const reg = () => navigator.serviceWorker.register('sw.js').catch(() => {}); if (document.readyState === 'complete') reg(); else window.addEventListener('load', reg); }
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) updateNotifBadge(); else saveSnap(); });
 setInterval(() => { if (!document.hidden) updateNotifBadge(); }, 20000);
@@ -4299,6 +4572,27 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && is
     try { localStorage.setItem('mk_lang', keep ? LANG : 'ar'); } catch {}
     if (!keep) location.reload();
   }, 2500);
+})();
+
+/* ---------- الفتح بلا إنترنت ---------- */
+async function offlineStatus() {
+  try { if (isNative && typeof window.AndroidBridge.offlineInfo === 'function') { const o = JSON.parse(window.AndroidBridge.offlineInfo() || '{}'); if (o.ok) return true; } } catch {}
+  if (!('caches' in window)) return false;
+  const need = [location.origin + location.pathname.replace(/[^/]*$/, '') + 'index.html', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
+    'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js', 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js', 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js'];
+  try { for (const u of need) if (!(await caches.match(u))) return false; return true; } catch { return false; }
+}
+/* فتح فوري قبل اكتمال تسجيل الدخول: آخر مستخدم وآخر حالة محفوظة تُعرض حالاً (حتى بلا إنترنت)، ثم يكمل الدخول في الخلفية */
+(() => {
+  if (S.uid) return;
+  let uid = null;
+  try {
+    uid = localStorage.getItem('mk_last_uid');
+    if (!uid) { const ks = Object.keys(localStorage).filter(k => k.startsWith('mk_snap_')); if (ks.length === 1) uid = ks[0].slice(8); }
+  } catch {}
+  const sn = uid ? loadSnap(uid) : null; if (!sn) return;
+  S.uid = uid; S.early = true; S.fromSnap = sn; S.me = { ...sn.me };
+  try { route(); } catch (e) { console.error(e); }
 })();
 </script>
 </body>
