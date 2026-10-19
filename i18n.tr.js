@@ -1006,5 +1006,19 @@ window.I18N.tr = {
 "أعلى سرعة": "En yüksek hız",
 "جارٍ المزامنة لتحديث مواقع الأصدقاء…": "Arkadaşların konumları güncelleniyor…",
 "الفتح بلا إنترنت: جاهز": "İnternetsiz açılış: hazır",
-"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "İnternetsiz açılış: henüz hazır değil. Uygulamayı bir kez internetle aç, sonra kapatıp yeniden aç."
+"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "İnternetsiz açılış: henüz hazır değil. Uygulamayı bir kez internetle aç, sonra kapatıp yeniden aç.",
+"نفدت بطاريته غالباً (آخر شحن {0}%، قبل {1})": "Pili muhtemelen bitti (son şarj %{0}, {1} önce)",
+"نفدت بطاريته غالباً، فلا يرى مواقعكم": "Pili muhtemelen bitti, bu yüzden konumlarınızı göremiyor",
+"آخر شحن وصل منه {0}% قبل {1}. يعود موقعه حين يشحن هاتفه ويشغّله.": "Son gelen şarj %{0}, {1} önce. Telefon şarj edilip açılınca konumu geri gelir.",
+"النشاط البدني (اختياري)": "Fiziksel etkinlik (isteğe bağlı)",
+"يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة.": "Telefon durduğunu, yürüdüğünü veya araçta olduğunu anlar; dururken pil tasarrufu için GPS'i kapatır ve yolculukların daha doğru sınıflanır. Yalnızca yolculuk türü yüklenir.",
+"تخطي": "Atla",
+"حُفظت الإعدادات دون إعدادات توفير البطارية. انشر القواعد الجديدة ثم احفظ مرة أخرى.": "Ayarlar pil tasarrufu ayarları olmadan kaydedildi. Yeni kuralları yayınla ve tekrar kaydet.",
+"توفير البطارية (التطبيق 2.9 فما فوق)": "Pil tasarrufu (uygulama 2.9 ve sonrası)",
+"إطفاء GPS عند الثبات": "Dururken GPS'i kapat",
+"دقائق الثبات قبل التوفير (2 إلى 30)": "Tasarruftan önce durma dakikası (2-30)",
+"نصف قطر دائرة المكان بالمتر (30 إلى 300)": "Yer çemberi yarıçapı, metre (30-300)",
+"إشارة «ما زلت هنا» كل كم دقيقة (1 إلى 5)": "“Hâlâ buradayım” sinyali kaç dakikada bir (1-5)",
+"رفع نقاط السجل كل كم ثانية (0 إلى 300، و0 يعني فوراً)": "Geçmiş noktalarını kaç saniyede bir yükle (0-300, 0 = hemen)",
+"تصل التغييرات إلى الهواتف خلال 6 ساعات، أو فوراً عند إعادة تشغيل التطبيق.": "Değişiklikler telefonlara 6 saat içinde veya uygulama yeniden başlayınca hemen ulaşır."
 };

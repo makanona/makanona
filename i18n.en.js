@@ -1006,5 +1006,19 @@ window.I18N.en = {
 "أعلى سرعة": "Top speed",
 "جارٍ المزامنة لتحديث مواقع الأصدقاء…": "Syncing to update friends' locations…",
 "الفتح بلا إنترنت: جاهز": "Opening without internet: ready",
-"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Opening without internet: not ready yet. Open the app once with internet, then close and reopen it."
+"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Opening without internet: not ready yet. Open the app once with internet, then close and reopen it.",
+"نفدت بطاريته غالباً (آخر شحن {0}%، قبل {1})": "Battery probably ran out (last charge {0}%, {1} ago)",
+"نفدت بطاريته غالباً، فلا يرى مواقعكم": "Battery probably ran out, so they can't see your locations",
+"آخر شحن وصل منه {0}% قبل {1}. يعود موقعه حين يشحن هاتفه ويشغّله.": "Last charge received was {0}%, {1} ago. Their location returns once the phone is charged and turned on.",
+"النشاط البدني (اختياري)": "Physical activity (optional)",
+"يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة.": "The phone knows whether you're still, walking or in a car, so it turns GPS off while you're still to save battery, and your trips are classified more accurately. Only the trip type is uploaded.",
+"تخطي": "Skip",
+"حُفظت الإعدادات دون إعدادات توفير البطارية. انشر القواعد الجديدة ثم احفظ مرة أخرى.": "Settings saved without battery-saving settings. Publish the new rules, then save again.",
+"توفير البطارية (التطبيق 2.9 فما فوق)": "Battery saving (app 2.9 and later)",
+"إطفاء GPS عند الثبات": "Turn GPS off when still",
+"دقائق الثبات قبل التوفير (2 إلى 30)": "Minutes still before saving (2 to 30)",
+"نصف قطر دائرة المكان بالمتر (30 إلى 300)": "Place circle radius in metres (30 to 300)",
+"إشارة «ما زلت هنا» كل كم دقيقة (1 إلى 5)": "“Still here” signal every how many minutes (1 to 5)",
+"رفع نقاط السجل كل كم ثانية (0 إلى 300، و0 يعني فوراً)": "Upload history points every how many seconds (0 to 300, 0 = immediately)",
+"تصل التغييرات إلى الهواتف خلال 6 ساعات، أو فوراً عند إعادة تشغيل التطبيق.": "Changes reach phones within 6 hours, or immediately when the app restarts."
 };

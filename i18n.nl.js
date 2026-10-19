@@ -1006,5 +1006,19 @@ window.I18N.nl = {
 "أعلى سرعة": "Topsnelheid",
 "جارٍ المزامنة لتحديث مواقع الأصدقاء…": "Synchroniseren om de locaties van vrienden bij te werken…",
 "الفتح بلا إنترنت: جاهز": "Openen zonder internet: klaar",
-"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Openen zonder internet: nog niet klaar. Open de app één keer met internet, sluit hem en open hem opnieuw."
+"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Openen zonder internet: nog niet klaar. Open de app één keer met internet, sluit hem en open hem opnieuw.",
+"نفدت بطاريته غالباً (آخر شحن {0}%، قبل {1})": "Batterij waarschijnlijk leeg (laatste lading {0}%, {1} geleden)",
+"نفدت بطاريته غالباً، فلا يرى مواقعكم": "Batterij waarschijnlijk leeg, dus hij ziet jullie locaties niet",
+"آخر شحن وصل منه {0}% قبل {1}. يعود موقعه حين يشحن هاتفه ويشغّله.": "Laatst ontvangen lading {0}%, {1} geleden. Zijn locatie komt terug zodra de telefoon is opgeladen en aangezet.",
+"النشاط البدني (اختياري)": "Fysieke activiteit (optioneel)",
+"يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة.": "De telefoon weet of je stilstaat, loopt of in een auto zit, zet gps uit als je stilstaat om batterij te sparen, en je ritten worden nauwkeuriger ingedeeld. Alleen het type rit wordt geüpload.",
+"تخطي": "Overslaan",
+"حُفظت الإعدادات دون إعدادات توفير البطارية. انشر القواعد الجديدة ثم احفظ مرة أخرى.": "Instellingen opgeslagen zonder batterijbesparing. Publiceer de nieuwe regels en sla opnieuw op.",
+"توفير البطارية (التطبيق 2.9 فما فوق)": "Batterijbesparing (app 2.9 en nieuwer)",
+"إطفاء GPS عند الثبات": "Gps uit bij stilstand",
+"دقائق الثبات قبل التوفير (2 إلى 30)": "Minuten stilstand vóór besparen (2 tot 30)",
+"نصف قطر دائرة المكان بالمتر (30 إلى 300)": "Straal van de plaatscirkel in meter (30 tot 300)",
+"إشارة «ما زلت هنا» كل كم دقيقة (1 إلى 5)": "Signaal ‘nog hier’ elke hoeveel minuten (1 tot 5)",
+"رفع نقاط السجل كل كم ثانية (0 إلى 300، و0 يعني فوراً)": "Geschiedenispunten elke hoeveel seconden uploaden (0 tot 300, 0 = direct)",
+"تصل التغييرات إلى الهواتف خلال 6 ساعات، أو فوراً عند إعادة تشغيل التطبيق.": "Wijzigingen bereiken telefoons binnen 6 uur, of direct bij herstart van de app."
 };

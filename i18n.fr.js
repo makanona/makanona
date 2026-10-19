@@ -1006,5 +1006,19 @@ window.I18N.fr = {
 "أعلى سرعة": "Vitesse max",
 "جارٍ المزامنة لتحديث مواقع الأصدقاء…": "Synchronisation des positions des amis…",
 "الفتح بلا إنترنت: جاهز": "Ouverture sans internet : prête",
-"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Ouverture sans internet : pas encore prête. Ouvre l'app une fois avec internet, puis ferme-la et rouvre-la."
+"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Ouverture sans internet : pas encore prête. Ouvre l'app une fois avec internet, puis ferme-la et rouvre-la.",
+"نفدت بطاريته غالباً (آخر شحن {0}%، قبل {1})": "Batterie probablement vide (dernière charge {0} %, il y a {1})",
+"نفدت بطاريته غالباً، فلا يرى مواقعكم": "Batterie probablement vide, il ne voit donc pas vos positions",
+"آخر شحن وصل منه {0}% قبل {1}. يعود موقعه حين يشحن هاتفه ويشغّله.": "Dernière charge reçue {0} %, il y a {1}. Sa position reviendra une fois le téléphone chargé et allumé.",
+"النشاط البدني (اختياري)": "Activité physique (facultatif)",
+"يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة.": "Le téléphone sait si tu es immobile, à pied ou en voiture : il coupe le GPS à l'arrêt pour économiser la batterie, et tes trajets sont mieux classés. Seul le type de trajet est envoyé.",
+"تخطي": "Passer",
+"حُفظت الإعدادات دون إعدادات توفير البطارية. انشر القواعد الجديدة ثم احفظ مرة أخرى.": "Réglages enregistrés sans les réglages d'économie de batterie. Publie les nouvelles règles puis enregistre à nouveau.",
+"توفير البطارية (التطبيق 2.9 فما فوق)": "Économie de batterie (app 2.9 et plus)",
+"إطفاء GPS عند الثبات": "Couper le GPS à l'arrêt",
+"دقائق الثبات قبل التوفير (2 إلى 30)": "Minutes d'arrêt avant économie (2 à 30)",
+"نصف قطر دائرة المكان بالمتر (30 إلى 300)": "Rayon du cercle du lieu en mètres (30 à 300)",
+"إشارة «ما زلت هنا» كل كم دقيقة (1 إلى 5)": "Signal « toujours là » toutes les combien de minutes (1 à 5)",
+"رفع نقاط السجل كل كم ثانية (0 إلى 300، و0 يعني فوراً)": "Envoyer les points d'historique toutes les combien de secondes (0 à 300, 0 = immédiatement)",
+"تصل التغييرات إلى الهواتف خلال 6 ساعات، أو فوراً عند إعادة تشغيل التطبيق.": "Les changements arrivent sur les téléphones sous 6 heures, ou immédiatement au redémarrage de l'app."
 };

@@ -1006,5 +1006,19 @@ window.I18N.de = {
 "أعلى سرعة": "Höchstgeschw.",
 "جارٍ المزامنة لتحديث مواقع الأصدقاء…": "Synchronisiere, um die Standorte der Freunde zu aktualisieren…",
 "الفتح بلا إنترنت: جاهز": "Öffnen ohne Internet: bereit",
-"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Öffnen ohne Internet: noch nicht bereit. Öffne die App einmal mit Internet, schließe sie und öffne sie wieder."
+"الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه.": "Öffnen ohne Internet: noch nicht bereit. Öffne die App einmal mit Internet, schließe sie und öffne sie wieder.",
+"نفدت بطاريته غالباً (آخر شحن {0}%، قبل {1})": "Akku vermutlich leer (zuletzt {0} %, vor {1})",
+"نفدت بطاريته غالباً، فلا يرى مواقعكم": "Akku vermutlich leer, daher sieht er eure Standorte nicht",
+"آخر شحن وصل منه {0}% قبل {1}. يعود موقعه حين يشحن هاتفه ويشغّله.": "Zuletzt empfangen: {0} %, vor {1}. Sein Standort kommt zurück, sobald das Handy geladen und eingeschaltet ist.",
+"النشاط البدني (اختياري)": "Körperliche Aktivität (optional)",
+"يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة.": "Das Handy erkennt, ob du stillstehst, gehst oder fährst, schaltet GPS im Stillstand ab, um Akku zu sparen, und deine Fahrten werden genauer erkannt. Hochgeladen wird nur die Art der Fahrt.",
+"تخطي": "Überspringen",
+"حُفظت الإعدادات دون إعدادات توفير البطارية. انشر القواعد الجديدة ثم احفظ مرة أخرى.": "Einstellungen ohne Akkuspar-Einstellungen gespeichert. Veröffentliche die neuen Regeln und speichere erneut.",
+"توفير البطارية (التطبيق 2.9 فما فوق)": "Akku sparen (App 2.9 und neuer)",
+"إطفاء GPS عند الثبات": "GPS im Stillstand ausschalten",
+"دقائق الثبات قبل التوفير (2 إلى 30)": "Minuten Stillstand vor dem Sparen (2 bis 30)",
+"نصف قطر دائرة المكان بالمتر (30 إلى 300)": "Radius des Ortskreises in Metern (30 bis 300)",
+"إشارة «ما زلت هنا» كل كم دقيقة (1 إلى 5)": "Signal „noch hier“ alle wie viele Minuten (1 bis 5)",
+"رفع نقاط السجل كل كم ثانية (0 إلى 300، و0 يعني فوراً)": "Verlaufspunkte alle wie viele Sekunden hochladen (0 bis 300, 0 = sofort)",
+"تصل التغييرات إلى الهواتف خلال 6 ساعات، أو فوراً عند إعادة تشغيل التطبيق.": "Änderungen erreichen die Handys innerhalb von 6 Stunden oder sofort beim Neustart der App."
 };

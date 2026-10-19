@@ -429,7 +429,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=29"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=30"><\/script>');
 })();
 </script>
 <script>
@@ -811,6 +811,13 @@ window.APP_CONFIG = {
         <label>إيميل التواصل<input id="st-cemail" type="email" dir="ltr"></label>
         <label>رقم واتساب بصيغة دولية بدون +<input id="st-cwa" inputmode="numeric" dir="ltr" placeholder="9639xxxxxxxx"></label>
         <p class="hint">يظهران في شاشة الدخول لمن يحتاج مساعدة.</p>
+        <b style="margin-top:6px">توفير البطارية (التطبيق 2.9 فما فوق)</b>
+        <div class="sw-row"><span>إطفاء GPS عند الثبات</span><label class="switch"><input type="checkbox" id="en-on" aria-label="إطفاء GPS عند الثبات"><span></span></label></div>
+        <label>دقائق الثبات قبل التوفير (2 إلى 30)<input id="en-still" inputmode="numeric" dir="ltr" placeholder="4"></label>
+        <label>نصف قطر دائرة المكان بالمتر (30 إلى 300)<input id="en-rad" inputmode="numeric" dir="ltr" placeholder="75"></label>
+        <label>إشارة «ما زلت هنا» كل كم دقيقة (1 إلى 5)<input id="en-hb" inputmode="numeric" dir="ltr" placeholder="2"></label>
+        <label>رفع نقاط السجل كل كم ثانية (0 إلى 300، و0 يعني فوراً)<input id="en-batch" inputmode="numeric" dir="ltr" placeholder="90"></label>
+        <p class="hint">تصل التغييرات إلى الهواتف خلال 6 ساعات، أو فوراً عند إعادة تشغيل التطبيق.</p>
         <b style="margin-top:6px">تحديث التطبيق</b>
         <label>رقم الإصدار الأحدث (versionCode)<input id="st-ver" inputmode="numeric" dir="ltr" placeholder="2"></label>
         <label>اسم الإصدار (يظهر للمستخدمين، مثل 2.0)<input id="st-vname" maxlength="20" dir="ltr" placeholder="2.0"></label>
@@ -1103,7 +1110,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '29';
+const UI_VERSION = '30';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1492,7 +1499,7 @@ function startMain() {
   }
   if (S.isAdmin) {
     S.unsubs.dir = onValue(ref(db, 'directory'), s => { S.dir = s.val() || {}; syncWatch(); syncLocs(); renderAll(); }, e => console.error('dir', e));
-    S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; if (!S.live) { S.live = true; renderConnBar(); setTimeout(saveSnap, 4000); } renderMap(); renderSheet(); }, e => console.error('locs', e));
+    S.unsubs.locs = onValue(ref(db, 'locations'), s => { S.locs = s.val() || {}; if (!S.live) { S.live = true; renderConnBar(); setTimeout(saveSnap, 4000); setTimeout(watchAll, 1500); } renderMap(); renderSheet(); }, e => console.error('locs', e));
     S.unsubs.guardians = onValue(ref(db, 'guardians'), s => { S.guardians = s.val() || {}; renderAdmin(); }, e => console.error('guardians', e));
     S.unsubs.devDiag = onValue(ref(db, 'devDiag'), s => { S.devDiag = s.val() || {}; renderAdmin(); }, e => console.error('devDiag', e));
     S.unsubs.plans = onValue(ref(db, 'plan'), s => { S.plans = s.val() || {}; renderAdmin(); }, e => console.error('plans', e));
@@ -1597,7 +1604,7 @@ function syncLocs() {
       if (u !== S.uid && recipWhy(u)) return;                            // متجمّد: لا نعرض تحديثاته حتى يعود موقعي
       S.locs[u] = s.val(); S.hidden[u] = false;
       if (u === S.uid) { S.myLocLoaded = true; recipEval(); }
-      if (!S.live) { S.live = true; renderConnBar(); setTimeout(saveSnap, 4000); }
+      if (!S.live) { S.live = true; renderConnBar(); setTimeout(saveSnap, 4000); setTimeout(watchAll, 1500); }
       renderMap(); renderSheet();
     }, () => {
       delete S.locUn[u]; delete S.locs[u];
@@ -2069,21 +2076,22 @@ function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat,
 
 /* علامة «مطفأ» تبقى حتى أول موقع بعدها: إن لم يصل من هاتفه شيء منذ 30 دقيقة فالأدق أن التطبيق متوقف */
 const appStale = l => !!l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - 30 * 60e3;
+const ONLINE_MS = 330000;                                                  // 2.9 يرسل «ما زلت هنا» كل دقيقتين عند الثبات
+/* انقطع وآخر بطارية وصلت منخفضة جداً وغير موصول بالشاحن: نفدت البطارية غالباً */
+const deadBat = l => !!l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 5 && !l.chg && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - ONLINE_MS;
 function describe(id) {
   const l = S.locs[id];
   let txt, cls = '';
   if (id !== S.uid && recipWhy(id)) return { txt: frzText(id) || recipMsg(recipWhy(id)), cls: 'off' };
   if (id !== S.uid && !S.isAdmin && S.hidden[id]) return { txt: _t("لا يشارك موقعه الآن"), cls: 'off' };
   if (!l || typeof l.ts !== 'number') txt = _t("لا توجد بيانات بعد");
+  else if (id !== S.uid && deadBat(l)) { cls = 'off'; txt = tf("نفدت بطاريته غالباً (آخر شحن {0}%، قبل {1})", l.bat, ago(Math.max(Number(l.ts) || 0, Number(l.hb) || 0))); }
   else if ((l.noperm === true || l.off === true) && appStale(l)) { cls = 'off'; txt = tf("التطبيق متوقف في هاتفه منذ {0}", ago(Math.max(Number(l.ts) || 0, Number(l.hb) || 0))); }
   else if (l.noperm === true) { cls = 'off'; txt = tf("ألغى إذن الموقع للتطبيق، وآخر موقع قبل {0}", ago(l.ts)); }
   else if (l.off === true) { cls = 'off'; txt = tf("الموقع مطفأ في هاتفه، وآخر موقع قبل {0}", ago(l.ts)); }
-  else if (Date.now() - l.ts >= 180000 && typeof l.hb === 'number' && Date.now() - l.hb < 600000) { cls = 'off'; txt = tf("هاتفه متصل لكن لا يصل موقعه (آخر موقع قبل {0})", ago(l.ts)); }
-  else if (Date.now() - l.ts < 180000) { cls = 'on'; txt = _t("متصل الآن"); }
-  else {
-    cls = 'off'; txt = tf("آخر ظهور قبل {0}", ago(l.ts));
-    if (typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 5 && !l.chg) txt += ` ${tf("(آخر بطارية {0}%، ربما نفدت)", l.bat)}`;
-  }
+  else if (Date.now() - l.ts >= ONLINE_MS && typeof l.hb === 'number' && Date.now() - l.hb < 600000) { cls = 'off'; txt = tf("هاتفه متصل لكن لا يصل موقعه (آخر موقع قبل {0})", ago(l.ts)); }
+  else if (Date.now() - l.ts < ONLINE_MS) { cls = 'on'; txt = _t("متصل الآن"); }
+  else { cls = 'off'; txt = tf("آخر ظهور قبل {0}", ago(l.ts)); }
   return { txt, cls };
 }
 function renderSheet() {
@@ -2146,8 +2154,12 @@ function renderPerson() {
   $('p-wifi').hidden = !(!fz && l && l.wifi === false && typeof l.ts === 'number' && Date.now() - l.ts < 600000);   // التطبيق 2.7: الواي فاي مطفأ فتقل الدقة داخل المباني
   const offBad = !fz && !!(l && (l.off === true || l.noperm === true));
   const longOff = !fz && !offBad && id !== S.uid && !!(l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - RECIP_STALE);
-  $('p-off').hidden = !(offBad || longOff);
-  if (offBad && appStale(l)) {
+  const dead = !fz && id !== S.uid && deadBat(l);
+  $('p-off').hidden = !(offBad || longOff || dead);
+  if (dead) {
+    $('p-off-t').textContent = _t("نفدت بطاريته غالباً، فلا يرى مواقعكم");
+    $('p-off-s').textContent = tf("آخر شحن وصل منه {0}% قبل {1}. يعود موقعه حين يشحن هاتفه ويشغّله.", l.bat, ago(Math.max(Number(l.ts) || 0, Number(l.hb) || 0)));
+  } else if (offBad && appStale(l)) {
     $('p-off-t').textContent = _t("التطبيق متوقف في هاتفه، فلا يرى مواقعكم");
     $('p-off-s').textContent = _t("غالباً أغلقه نظام الهاتف لتوفير البطارية. اطلب منه فتح مكاننا ومراجعة «صحة التطبيق» في حسابي، وجعل البطارية «غير مقيّد».");
   } else if (offBad) {
@@ -2242,7 +2254,10 @@ function analyzeDay(pts, bikeOn = false) {
     const seq = speeds.slice();
     speeds.sort((x, y) => x - y);
     const p90 = speeds.length >= 3 ? speeds[Math.floor((speeds.length - 1) * .9)] : avg;
-    const mode = tripMode(seq, p90, bikeOn);
+    let mode = tripMode(seq, p90, bikeOn);
+    const mdc = { v: 0, b: 0, w: 0 }; let mdn = 0;                     // التطبيق 2.9: نوع الحركة من حساس الهاتف (أدق من السرعة)
+    for (let i = s; i <= e; i++) { const m = pts[i].md; if (m && mdc[m] != null) { mdc[m]++; mdn++; } }
+    if (mdn >= 3 && mdn >= (e - s + 1) * 0.5) { const top = Object.keys(mdc).sort((a, b) => mdc[b] - mdc[a])[0]; mode = top === 'v' ? 'car' : top === 'b' ? 'bike' : 'walk'; }
     return { type: 'trip', s, e, t0, t1, dist: d, dur, avg, p90, mode };
   };
   let start = 0;
@@ -2796,12 +2811,13 @@ $('prox-on').onchange = async e => {
 function renderNative() {
   if (!isNative) return;
   const s = nat(); if (!s) return;
-  const recent = s.sharing && s.lastSend && Date.now() - s.lastSend < 180000;
+  const recent = s.sharing && s.lastSend && Date.now() - s.lastSend < ONLINE_MS;
   const items = [
     [_t("الموقع"), !!s.fine, false], [_t("الموقع طوال الوقت"), !!s.bg, false], [_t("خدمة الموقع في الهاتف مفعّلة"), s.locOn !== false, false],
     [_t("الإشعارات"), !!s.notif, false], [_t("استثناء توفير البطارية"), !!s.battery, false], [_t("الإنترنت متاح"), s.net !== false, false],
     [_t("الإرسال حديث (آخر 3 دقائق)"), !!recent, !s.sharing], [_t("جهات الاتصال (اختياري)"), !!s.contacts, true]
   ];
+  if (s.actAsk === true) items.push([_t("النشاط البدني (اختياري)"), s.act !== false, true]);
   const line = ([t, ok, opt]) => `<div class="row" style="padding:6px 0"><div class="grow">${t}</div><span class="badge ${ok ? 'ok' : opt ? 'warn' : 'bad'}">${ok ? _t("سليم") : opt ? _t("غير مفعّل") : _t("يحتاج إصلاحاً")}</span></div>`;
   const dg = diagNow(), known = ['loc_perm', 'bg_perm', 'loc_off', 'battery_opt', 'not_sharing'];
   const extra = dg && !dg.legacy ? [...(dg.issues || []).map(c => [c, 1]), ...(dg.warns || []).map(c => [c, 0])].filter(([c]) => !known.includes(c) && ISSUES[c]) : [];
@@ -2950,6 +2966,7 @@ function fillSettings() {
   $('st-subject').value = s.subject || DEFAULT_SUBJECT; $('st-body').value = s.body || DEFAULT_BODY;
   $('st-userinv').checked = s.userInvites !== false;
   $('st-cemail').value = s.contactEmail || ''; $('st-cwa').value = s.contactWhatsapp || '';
+  { const en = s.engine || {}; $('en-on').checked = en.on !== false; $('en-still').value = en.stillMin ?? ''; $('en-rad').value = en.radius ?? ''; $('en-hb').value = en.hbMin ?? ''; $('en-batch').value = en.batchSec ?? ''; }
   $('st-ver').value = s.version || ''; $('st-vname').value = s.vname || ''; $('st-notes').value = s.notes || ''; $('st-notes-n').textContent = ($('st-notes').value.length) + ' / 1500'; $('st-force').checked = !!s.force;
 }
 
@@ -3335,12 +3352,15 @@ const ACTIONS = {
     settings.appUrl = appUrl;
     const cEmail = $('st-cemail').value.trim(), cWa = $('st-cwa').value.replace(/\D/g, '');
     settings.contactEmail = cEmail; settings.contactWhatsapp = cWa; settings.userInvites = $('st-userinv').checked;
-    const ups = { 'settings/app': settings, publicConfig: { scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa, userInvites: settings.userInvites, ...(/^https:[/][/]/.test(url) && url.length <= 300 ? { apkUrl: url } : {}), ...(appUrl ? { appUrl } : {}) } };
+    const num = (id, lo, hi, def) => { const v = Number(toLatin($(id).value)); return $(id).value.trim() === '' || !isFinite(v) ? def : Math.min(hi, Math.max(lo, v)); };
+    settings.engine = { on: $('en-on').checked, stillMin: num('en-still', 2, 30, 4), radius: num('en-rad', 30, 300, 75), hbMin: num('en-hb', 1, 5, 2), batchSec: num('en-batch', 0, 300, 90) };
+    const ups = { 'settings/app': settings, publicConfig: { engine: settings.engine, scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa, userInvites: settings.userInvites, ...(/^https:[/][/]/.test(url) && url.length <= 300 ? { apkUrl: url } : {}), ...(appUrl ? { appUrl } : {}) } };
     PUB.userInvites = settings.userInvites;
     if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname }; else ups['appUpdate'] = null;
     try { await update(ref(db), ups); }
     catch {
       // القواعد الجديدة لم تُنشر بعد: نحفظ دون اسم الإصدار حتى لا يضيع باقي الإعدادات
+      if (ups.publicConfig && ups.publicConfig.engine) { delete ups.publicConfig.engine; try { await update(ref(db), ups); return toast(_t("حُفظت الإعدادات دون إعدادات توفير البطارية. انشر القواعد الجديدة ثم احفظ مرة أخرى.")); } catch {} }
       if (ups.appUpdate) { delete ups.appUpdate.name; try { await update(ref(db), ups); return toast(_t("حُفظت الإعدادات دون اسم الإصدار. انشر القواعد الجديدة ليعمل.")); } catch {} }
       return toast(_t("تعذر حفظ الإعدادات"));
     }
@@ -4388,6 +4408,7 @@ const STEPS = [
   { id: 'notif', title: _t("الإشعارات (اختياري)"), text: _t("يعرض أندرويد إشعاراً صغيراً أثناء الإرسال، وتنبيهاتك تصلك عبره. يظهر الإشعار صامتاً ومصغّراً، ويمكنك إخفاءه لاحقاً من حسابي. يمكنك تخطي هذه الخطوة فيعمل التطبيق، لكن لن تصلك التنبيهات."), btn: _t("السماح بالإشعارات"), act: () => AndroidBridge.requestNotifications(), done: s => s.notif, skipLabel: _t("لاحقاً"), onSkip: () => localStorage.setItem('skip_notif', '1'), skipped: () => flag('skip_notif') },
   { id: 'battery', title: _t("عدم تقييد البطارية"), text: _t("اسمح للتطبيق بالعمل في الخلفية دون أن يوقفه توفير الطاقة. هذا يمنع انقطاع الموقع."), btn: _t("السماح"), act: () => AndroidBridge.ignoreBattery(), done: s => s.battery, skipLabel: _t("لاحقاً"), onSkip: () => localStorage.setItem('skip_battery', '1'), skipped: () => flag('skip_battery') },
   { id: 'contacts', title: _t("جهات الاتصال"), text: _t("ليجد التطبيق أهلك وأصدقاءك المشتركين من أرقام هاتفك. تبقى أسماء جهاتك على هاتفك، وتُرسل بصمات مشفّرة لأرقامك للمطابقة فقط."), btn: _t("السماح"), act: () => AndroidBridge.requestContacts(), done: s => s.contacts, skipLabel: _t("لاحقاً"), onSkip: () => localStorage.setItem('skip_contacts', '1'), skipped: () => flag('skip_contacts') },
+  { id: 'act', only: s => s.actAsk === true, title: _t("النشاط البدني (اختياري)"), text: _t("يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة."), btn: _t("السماح"), act: () => AndroidBridge.requestActivity(), done: s => s.act !== false, skipLabel: _t("تخطي"), onSkip: () => localStorage.setItem('skip_act', '1'), skipped: () => flag('skip_act') },
   { id: 'auto', only: s => s.oem, title: _t("التشغيل التلقائي"), text: _t("هاتفك من نوع يوقف التطبيقات في الخلفية. افتح الإعداد وفعّل «التشغيل التلقائي» أو «السماح بالعمل في الخلفية» لهذا التطبيق."), btn: _t("فتح الإعداد"), act: () => AndroidBridge.openAutoStart(), done: () => flag('auto_done'), skipLabel: _t("تم، فعّلته"), onSkip: () => localStorage.setItem('auto_done', '1'), skipped: () => false }
 ];
 
@@ -4526,7 +4547,27 @@ if ('serviceWorker' in navigator) {
   if (/[?&]nosw/.test(location.search)) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
   else { const reg = () => navigator.serviceWorker.register('sw.js').catch(() => {}); if (document.readyState === 'complete') reg(); else window.addEventListener('load', reg); }
 }
-document.addEventListener('visibilitychange', () => { if (!document.hidden) updateNotifBadge(); else saveSnap(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { updateNotifBadge(); watchAll(); } else { saveSnap(); watchStop(); } });
+/* «يشاهدك الآن» (التطبيق 2.9): فتح بطاقة صديق يطلب من هاتفه إرسال موقعه بسرعة ما دامت مفتوحة،
+   وفتح التطبيق يطلب تحديثاً واحداً من كل الأصدقاء. لا شيء يُكتب سوى وقت الطلب. */
+const WATCH = { id: null, at: 0, allAt: 0 };
+const watchOk = u => !!u && u !== S.uid && connected(u) && !recipWhy(u) && !S.hidden[u];
+function watchSet(u, on) { set(ref(db, 'watch/' + u + '/' + S.uid), on ? { '.sv': 'timestamp' } : null).catch(() => {}); }
+function watchStop() { if (WATCH.id && S.uid) watchSet(WATCH.id, false); WATCH.id = null; }
+function watchTick() {
+  if (!S.started || S.limited || document.hidden) return;
+  const id = S.person && !$('psheet').hidden && S.tab === 'map' ? S.person : null;
+  if (WATCH.id && WATCH.id !== id) watchStop();
+  if (watchOk(id) && (WATCH.id !== id || Date.now() - WATCH.at > 18000)) { WATCH.id = id; WATCH.at = Date.now(); watchSet(id, true); }
+}
+function watchAll() {
+  if (!S.started || S.limited || document.hidden || !S.uid || Date.now() - WATCH.allAt < 120000) return;
+  const ids = Object.keys(S.mine || {}).filter(watchOk).slice(0, 25);
+  if (!ids.length) return;
+  WATCH.allAt = Date.now();
+  ids.forEach(u => watchSet(u, true));
+}
+setInterval(watchTick, 4000);
 setInterval(() => { if (!document.hidden) updateNotifBadge(); }, 20000);
 function wizNext(s) { for (const st of STEPS) { if (st.only && !st.only(s)) continue; if (st.done(s)) continue; if (st.skipped && st.skipped()) continue; return st; } return null; }
 let wizTimer = null;
