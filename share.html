@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>مكاننا · Makanona</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--ink:#10272F;--ink2:#5d747d;--bg:#E6ECEE;--ok:#2F8F6B;--bad:#C4483B}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+#map{position:fixed;inset:0}
+#card{position:fixed;inset-inline:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:500;background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 4px 18px #0003;display:flex;flex-direction:column;gap:6px;max-width:520px;margin:0 auto}
+#nm{font-size:18px;font-weight:800}
+.st{font-size:13px;color:var(--ink2)}
+.on{color:var(--ok);font-weight:700}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;background:#10272F;color:#fff;cursor:pointer;text-decoration:none;text-align:center}
+#msg{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;z-index:600;background:var(--bg)}
+#msg b{display:block;font-size:20px;margin-bottom:8px}
+.pin{width:46px;height:46px;border-radius:50%;background:#3A6EA5;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;border:3px solid #fff;box-shadow:0 2px 8px #0005}
+.spd{position:absolute;top:-24px;left:50%;transform:translateX(-50%);background:#fff;color:var(--ink);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 1px 5px #0004}
+.brand{font-size:12px;color:var(--ink2);text-align:center}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="card" hidden>
+  <div id="nm"></div>
+  <div class="st" id="st"></div>
+  <div class="st" id="exp"></div>
+  <a class="btn" id="gm" target="_blank" rel="noopener"></a>
+  <div class="brand" id="brand"></div>
+</div>
+<div id="msg"><div><b id="msg-t"></b><span class="st" id="msg-s"></span><div class="st" id="msg-c" dir="ltr" style="margin-top:6px;font-size:11px"></div><button class="btn" id="msg-r" hidden style="margin-top:12px"></button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* صفحة رابط المشاركة: بلا مكتبة Firebase (طلبات عادية فقط) فلا تعلق على الشبكات الضعيفة.
+   دخول مجهول عبر واجهة Google، ثم قراءة موقع صاحب الرابط وحده كل 10 ثوانٍ حتى تنتهي المدة. */
+const KEY = "AIzaSyD_8AtkuLyDRovVGhIiWiiBErpKVQXBrsc";
+const DB = "https://makanona-default-rtdb.europe-west1.firebasedatabase.app";
+const T = {
+  ar: { loading: "جارٍ فتح الموقع...", expired: "انتهت صلاحية هذا الرابط", expiredS: "أوقف صاحبه المشاركة أو انتهت مدتها.", bad: "الرابط غير صحيح", err: "تعذر فتح الموقع", net: "لا اتصال بالإنترنت أو الخادم لا يرد. حاول بعد قليل.", anon: "صفحة الرابط غير مفعّلة بعد", anonS: "على صاحب التطبيق تفعيل الدخول المجهول (Anonymous) في Firebase.", rules: "الخادم رفض العرض", rulesS: "قواعد قاعدة البيانات لم تُحدَّث بعد.", now: "متصل الآن", ago: "آخر تحديث قبل {0}", until: "تنتهي المشاركة {0}", gm: "افتح في خرائط Google", brand: "مشاركة مؤقتة من تطبيق مكاننا", min: "{0} دقيقة", hr: "{0} ساعة", sec: "لحظات", kmh: "{0} كم/س", wait: "لم يصل موقعه بعد", retry: "إعادة المحاولة" },
+  en: { loading: "Opening location...", expired: "This link has expired", expiredS: "The owner stopped sharing or the time ran out.", bad: "Invalid link", err: "Couldn't open the location", net: "No internet or the server isn't responding. Try again shortly.", anon: "This link page isn't enabled yet", anonS: "The app owner must enable Anonymous sign-in in Firebase.", rules: "The server refused", rulesS: "The database rules haven't been updated yet.", now: "Online now", ago: "Updated {0} ago", until: "Sharing ends {0}", gm: "Open in Google Maps", brand: "Temporary share from the Makanona app", min: "{0} min", hr: "{0} h", sec: "moments", kmh: "{0} km/h", wait: "No location yet", retry: "Try again" },
+  de: { loading: "Standort wird geöffnet...", expired: "Dieser Link ist abgelaufen", expiredS: "Das Teilen wurde beendet oder die Zeit ist um.", bad: "Ungültiger Link", err: "Standort konnte nicht geöffnet werden", net: "Kein Internet oder der Server antwortet nicht. Versuche es gleich erneut.", anon: "Diese Linkseite ist noch nicht aktiviert", anonS: "Der App-Betreiber muss die anonyme Anmeldung in Firebase aktivieren.", rules: "Der Server hat abgelehnt", rulesS: "Die Datenbankregeln wurden noch nicht aktualisiert.", now: "Jetzt online", ago: "Vor {0} aktualisiert", until: "Teilen endet {0}", gm: "In Google Maps öffnen", brand: "Vorübergehend geteilt mit der Makanona-App", min: "{0} Min.", hr: "{0} Std.", sec: "Momenten", kmh: "{0} km/h", wait: "Noch kein Standort", retry: "Erneut versuchen" },
+  tr: { loading: "Konum açılıyor...", expired: "Bu bağlantının süresi doldu", expiredS: "Sahibi paylaşımı durdurdu veya süre bitti.", bad: "Geçersiz bağlantı", err: "Konum açılamadı", net: "İnternet yok veya sunucu yanıt vermiyor. Biraz sonra tekrar dene.", anon: "Bağlantı sayfası henüz etkin değil", anonS: "Uygulama sahibi Firebase'de anonim girişi etkinleştirmeli.", rules: "Sunucu reddetti", rulesS: "Veritabanı kuralları henüz güncellenmedi.", now: "Şu an çevrimiçi", ago: "{0} önce güncellendi", until: "Paylaşım {0} biter", gm: "Google Haritalar'da aç", brand: "Makanona uygulamasından geçici paylaşım", min: "{0} dk", hr: "{0} sa", sec: "az", kmh: "{0} km/s", wait: "Henüz konum yok", retry: "Tekrar dene" },
+  ru: { loading: "Открываем местоположение...", expired: "Срок действия ссылки истёк", expiredS: "Владелец остановил передачу или время вышло.", bad: "Неверная ссылка", err: "Не удалось открыть местоположение", net: "Нет интернета или сервер не отвечает. Попробуйте позже.", anon: "Страница ссылки ещё не включена", anonS: "Владелец приложения должен включить анонимный вход в Firebase.", rules: "Сервер отказал", rulesS: "Правила базы данных ещё не обновлены.", now: "Сейчас в сети", ago: "Обновлено {0} назад", until: "Передача закончится {0}", gm: "Открыть в Google Картах", brand: "Временная передача из приложения Makanona", min: "{0} мин", hr: "{0} ч", sec: "несколько секунд", kmh: "{0} км/ч", wait: "Местоположения пока нет", retry: "Повторить" },
+  nl: { loading: "Locatie openen...", expired: "Deze link is verlopen", expiredS: "Het delen is gestopt of de tijd is om.", bad: "Ongeldige link", err: "Locatie kon niet worden geopend", net: "Geen internet of de server reageert niet. Probeer het zo opnieuw.", anon: "Deze linkpagina is nog niet ingeschakeld", anonS: "De eigenaar van de app moet anoniem inloggen in Firebase inschakelen.", rules: "De server weigerde", rulesS: "De databaseregels zijn nog niet bijgewerkt.", now: "Nu online", ago: "{0} geleden bijgewerkt", until: "Delen stopt {0}", gm: "Openen in Google Maps", brand: "Tijdelijk gedeeld via de Makanona-app", min: "{0} min", hr: "{0} u", sec: "enkele ogenblikken", kmh: "{0} km/u", wait: "Nog geen locatie", retry: "Opnieuw" },
+  fr: { loading: "Ouverture de la position...", expired: "Ce lien a expiré", expiredS: "Le partage a été arrêté ou le délai est écoulé.", bad: "Lien invalide", err: "Impossible d'ouvrir la position", net: "Pas d'internet ou le serveur ne répond pas. Réessayez bientôt.", anon: "Cette page de lien n'est pas encore activée", anonS: "Le propriétaire de l'app doit activer la connexion anonyme dans Firebase.", rules: "Le serveur a refusé", rulesS: "Les règles de la base n'ont pas encore été mises à jour.", now: "En ligne", ago: "Mis à jour il y a {0}", until: "Le partage se termine {0}", gm: "Ouvrir dans Google Maps", brand: "Partage temporaire depuis l'application Makanona", min: "{0} min", hr: "{0} h", sec: "quelques instants", kmh: "{0} km/h", wait: "Pas encore de position", retry: "Réessayer" }
+};
+const pick = (navigator.languages || [navigator.language || 'ar']).map(x => String(x).slice(0, 2).toLowerCase()).find(x => T[x]) || 'en';
+const L_ = T[pick];
+document.documentElement.lang = pick; document.documentElement.dir = pick === 'ar' ? 'rtl' : 'ltr';
+const tx = (k, v) => String(L_[k]).replace('{0}', v);
+const $ = id => document.getElementById(id);
+let stopped = false;
+const msg = (t, s = '', code = '', retry = false) => {
+  $('msg-t').textContent = t; $('msg-s').textContent = s;
+  $('msg-c').textContent = code ? '(' + code + ')' : ''; $('msg-r').hidden = !retry; $('msg-r').textContent = L_.retry;
+  $('msg').hidden = false; $('card').hidden = true;
+};
+const agoTxt = ts => { const s = Math.max(0, (Date.now() - ts) / 1000); return s < 60 ? L_.sec : s < 3600 ? tx('min', Math.round(s / 60)) : tx('hr', Math.round(s / 3600)); };
+const when = ts => new Date(ts).toLocaleString(pick, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+class Fail extends Error { constructor(kind, code) { super(code); this.kind = kind; this.code = code; } }
+async function req(url, opt = {}) {
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 15000);
+  let r;
+  try { r = await fetch(url, { ...opt, signal: ac.signal, cache: 'no-store' }); }
+  catch (e) { throw new Fail('net', ac.signal.aborted ? 'timeout' : 'network'); }
+  finally { clearTimeout(tm); }
+  let body = null; try { body = await r.json(); } catch {}
+  if (!r.ok) {
+    const m = (body && (body.error && body.error.message || body.error)) || String(r.status);
+    throw new Fail(r.status === 401 || r.status === 403 ? 'denied' : 'http', String(m));
+  }
+  return body;
+}
+/* جلسة مجهولة تُعاد استعمالها في هذا المتصفح بدل إنشاء حساب جديد في كل فتح */
+let sess = null;
+async function signIn() {
+  try { sess = JSON.parse(localStorage.getItem('mk_anon') || 'null'); } catch { sess = null; }
+  if (sess && sess.rt) {
+    try {
+      const r = await req('https://securetoken.googleapis.com/v1/token?key=' + KEY, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(sess.rt) });
+      sess = { uid: r.user_id, id: r.id_token, rt: r.refresh_token, exp: Date.now() + (Number(r.expires_in) || 3600) * 1000 };
+      try { localStorage.setItem('mk_anon', JSON.stringify({ uid: sess.uid, rt: sess.rt })); } catch {}
+      return;
+    } catch (e) { if (e.kind === 'net') throw e; }
+  }
+  let r;
+  try { r = await req('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"returnSecureToken":true}' }); }
+  catch (e) { if (e.kind !== 'net' && /ADMIN_ONLY|OPERATION_NOT_ALLOWED|CONFIGURATION/i.test(e.code)) throw new Fail('anon', e.code); throw e; }
+  sess = { uid: r.localId, id: r.idToken, rt: r.refreshToken, exp: Date.now() + (Number(r.expiresIn) || 3600) * 1000 };
+  try { localStorage.setItem('mk_anon', JSON.stringify({ uid: sess.uid, rt: sess.rt })); } catch {}
+}
+const fresh = async () => { if (!sess || Date.now() > sess.exp - 300000) await signIn(); return sess.id; };
+
+const tok = ((location.hash + '&' + location.search).match(/[#?&]t=([A-Za-z0-9]{20,40})/) || [])[1];
+$('msg-r').onclick = () => location.reload();
+if (!tok) msg(L_.bad);
+else { msg(L_.loading); start().catch(fail); }
+
+function fail(e) {
+  console.error(e);
+  if (stopped) return;
+  if (e && e.kind === 'anon') return msg(L_.anon, L_.anonS, e.code);
+  if (e && e.kind === 'expired') return msg(L_.expired, L_.expiredS);
+  if (e && e.kind === 'denied') return msg(L_.rules, L_.rulesS, e.code, true);
+  if (e && e.kind === 'net') return msg(L_.err, L_.net, e.code, true);
+  msg(L_.err, L_.net, e && e.code || 'x', true);
+}
+
+async function start() {
+  // 1) الرابط نفسه: موجود ولم تنتهِ مدته (القواعد تسمح بقراءته دون دخول ما دام صالحاً)
+  let sh;
+  try { sh = await req(DB + '/shares/' + tok + '.json'); }
+  catch (e) { if (e.kind === 'denied') throw new Fail('expired', 'gone'); throw e; }
+  if (!sh || !(sh.exp > Date.now())) throw new Fail('expired', 'gone');
+  // 2) دخول مجهول، وتسجيل الرمز ليسمح الخادم بقراءة موقعه وحده
+  await signIn();
+  await req(DB + '/shareView/' + sess.uid + '.json?auth=' + await fresh(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tok) });
+  const name = sh.name || 'Makanona';
+  $('nm').textContent = name; $('gm').textContent = L_.gm; $('brand').textContent = L_.brand;
+  $('exp').textContent = tx('until', when(sh.exp));
+  const map = L.map('map', { zoomControl: false }).setView([35, 38], 6);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+  let mk = null, last = null, first = true, n = 0;
+  const end = () => { stopped = true; msg(L_.expired, L_.expiredS); };
+  const draw = () => {
+    if (stopped) return;
+    if (Date.now() > sh.exp) return end();
+    $('msg').hidden = true; $('card').hidden = false;
+    if (!last || typeof last.lat !== 'number') { $('st').textContent = L_.wait; return; }
+    const on = Date.now() - last.ts < 180000, kmh = typeof last.spd === 'number' ? Math.round(last.spd * 3.6) : 0;
+    const ini = (name.trim()[0] || '?').replace(/[<>&"']/g, '');
+    const html = `<div style="position:relative"><div class="pin">${ini}</div>${on && kmh >= 5 ? `<span class="spd">${tx('kmh', kmh)}</span>` : ''}</div>`;
+    const icon = L.divIcon({ className: '', html, iconSize: [46, 46], iconAnchor: [23, 23] });
+    if (!mk) mk = L.marker([last.lat, last.lng], { icon }).addTo(map); else { mk.setLatLng([last.lat, last.lng]); mk.setIcon(icon); }
+    if (first) { map.setView([last.lat, last.lng], 16); first = false; }
+    $('st').innerHTML = on ? `<span class="on">${L_.now}</span>` : tx('ago', agoTxt(last.ts));
+    $('gm').href = `https://www.google.com/maps/search/?api=1&query=${last.lat.toFixed(6)},${last.lng.toFixed(6)}`;
+  };
+  const poll = async () => {
+    if (stopped) return;
+    try {
+      if (n++ % 3 === 0) {                                     // كل 30 ثانية: هل أوقف صاحبه الرابط؟
+        let s2 = null; try { s2 = await req(DB + '/shares/' + tok + '.json'); } catch (e) { if (e.kind === 'denied') return end(); throw e; }
+        if (!s2 || !(s2.exp > Date.now())) return end();
+        sh.exp = s2.exp; $('exp').textContent = tx('until', when(sh.exp));
+      }
+      last = await req(DB + '/locations/' + sh.uid + '.json?auth=' + await fresh());
+      draw();
+    } catch (e) {
+      if (e.kind === 'denied') { try { await req(DB + '/shares/' + tok + '.json'); } catch (e2) { if (e2.kind === 'denied') return end(); } }
+      if (!last) return fail(e);                               // الأخطاء العابرة بعد ظهور الموقع لا تُخفيه
+    } finally { if (!stopped) setTimeout(poll, 10000); }
+  };
+  await poll();
+}
+</script>
+</body>
+</html>
