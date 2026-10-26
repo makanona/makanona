@@ -429,7 +429,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=33"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=34"><\/script>');
 })();
 </script>
 <script>
@@ -1122,7 +1122,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '33';
+const UI_VERSION = '34';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1717,7 +1717,7 @@ function myLocBad() {                                                    // off 
 }
 function recipWhy(u) {                                                   // لماذا لا أرى تحديثات u
   if (!u || u === S.uid || S.isAdmin || S.limited) return null;
-  if ((S.kids && S.kids[u]) || (S.sosIn && S.sosIn[u] && S.sosIn[u].ts > Date.now() - 864e5) || tripFrom(u)) return null;
+  if ((S.kids && S.kids[u]) || (S.sosIn && S.sosIn[u]) || tripFrom(u)) return null;
   if (S.hideAll || (S.hides && S.hides[u])) return 'hide';
   return S.recipBad || null;
 }
@@ -2203,6 +2203,8 @@ function focusOn(id) { const l = S.locs[id]; if (l && S.map) S.map.flyTo([l.lat,
 const appStale = l => !!l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - 30 * 60e3;
 const ONLINE_MS = 330000;                                                  // 2.9 يرسل «ما زلت هنا» كل دقيقتين عند الثبات
 /* انقطع وآخر بطارية وصلت منخفضة جداً وغير موصول بالشاحن: نفدت البطارية غالباً */
+const DIRS = ["الشمال", "الشمال الشرقي", "الشرق", "الجنوب الشرقي", "الجنوب", "الجنوب الغربي", "الغرب", "الشمال الغربي"];
+const dirName = b => _t(DIRS[Math.round(((Number(b) || 0) % 360 + 360) % 360 / 45) % 8]);
 const lastSeen = l => Math.max(Number(l.ts) || 0, Number(l.hb) || 0);
 const hbOn = l => !!l && Date.now() - lastSeen(l) < ONLINE_MS;                // التطبيق متصل الآن (موقع أو إشارة حياة حديثة)
 const deadBat = l => !!l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 5 && !l.chg && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - ONLINE_MS;
@@ -2219,6 +2221,7 @@ function describe(id) {
   else if (l.apx === true && Date.now() - l.ts < ONLINE_MS) { cls = 'on'; txt = _t("متصل الآن · موقع تقريبي"); }
   else if (Date.now() - l.ts >= ONLINE_MS && typeof l.hb === 'number' && hbOn(l)) { cls = 'off'; txt = tf("هاتفه متصل لكن لا يصل موقعه (آخر موقع قبل {0})", ago(l.ts)); }
   else if (Date.now() - l.ts < ONLINE_MS) { cls = 'on'; txt = _t("متصل الآن"); }
+  else if (typeof l.spd === 'number' && l.spd * 3.6 >= 10 && Date.now() - l.ts < 6 * 3600e3) { cls = 'off'; txt = tf("آخر موقع قبل {0} · كان يتحرك {1} كم/س باتجاه {2}", ago(l.ts), Math.round(l.spd * 3.6), dirName(l.brg)); }   // انقطع أثناء الحركة: نعرض آخر سرعة واتجاه
   else { cls = 'off'; txt = tf("آخر ظهور قبل {0}", ago(l.ts)); }
   return { txt, cls };
 }

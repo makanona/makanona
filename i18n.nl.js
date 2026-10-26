@@ -1058,5 +1058,14 @@ window.I18N.nl = {
 "بلا كلمة سر. يبقى عليك رقم الهاتف وسنة الميلاد مرة واحدة.": "Geen wachtwoord. Je vult alleen één keer je telefoonnummer en geboortejaar in.",
 "معرّف Google للدخول (Web client ID)": "Google-inlog-ID (Web client ID)",
 "من Firebase ← Authentication ← Sign-in method ← Google ← Web SDK configuration. يلزم لزر Google داخل التطبيق.": "Uit Firebase → Authentication → Sign-in method → Google → Web SDK configuration. Nodig voor de Google-knop in de app.",
-"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "Ter bevestiging wordt gevraagd hetzelfde Google-account te kiezen."
+"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "Ter bevestiging wordt gevraagd hetzelfde Google-account te kiezen.",
+"آخر موقع قبل {0} · كان يتحرك {1} كم/س باتجاه {2}": "Laatste locatie {0} geleden · reed {1} km/u richting {2}",
+"الشمال": "noord",
+"الشمال الشرقي": "noordoost",
+"الشرق": "oost",
+"الجنوب الشرقي": "zuidoost",
+"الجنوب": "zuid",
+"الجنوب الغربي": "zuidwest",
+"الغرب": "west",
+"الشمال الغربي": "noordwest"
 };

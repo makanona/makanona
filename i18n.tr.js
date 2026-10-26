@@ -1058,5 +1058,14 @@ window.I18N.tr = {
 "بلا كلمة سر. يبقى عليك رقم الهاتف وسنة الميلاد مرة واحدة.": "Şifre yok. Yalnızca bir kez telefon numaranı ve doğum yılını girersin.",
 "معرّف Google للدخول (Web client ID)": "Google giriş kimliği (Web client ID)",
 "من Firebase ← Authentication ← Sign-in method ← Google ← Web SDK configuration. يلزم لزر Google داخل التطبيق.": "Firebase → Authentication → Sign-in method → Google → Web SDK configuration bölümünden. Uygulamadaki Google düğmesi için gerekli.",
-"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "Onaylamak için aynı Google hesabını seçmen istenecek."
+"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "Onaylamak için aynı Google hesabını seçmen istenecek.",
+"آخر موقع قبل {0} · كان يتحرك {1} كم/س باتجاه {2}": "Son konum {0} önce · {2} yönüne {1} km/s ile gidiyordu",
+"الشمال": "kuzey",
+"الشمال الشرقي": "kuzeydoğu",
+"الشرق": "doğu",
+"الجنوب الشرقي": "güneydoğu",
+"الجنوب": "güney",
+"الجنوب الغربي": "güneybatı",
+"الغرب": "batı",
+"الشمال الغربي": "kuzeybatı"
 };

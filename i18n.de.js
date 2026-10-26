@@ -1058,5 +1058,14 @@ window.I18N.de = {
 "بلا كلمة سر. يبقى عليك رقم الهاتف وسنة الميلاد مرة واحدة.": "Kein Passwort. Du gibst nur einmal Telefonnummer und Geburtsjahr ein.",
 "معرّف Google للدخول (Web client ID)": "Google-Anmelde-ID (Web client ID)",
 "من Firebase ← Authentication ← Sign-in method ← Google ← Web SDK configuration. يلزم لزر Google داخل التطبيق.": "Aus Firebase → Authentication → Sign-in method → Google → Web SDK configuration. Nötig für die Google-Schaltfläche in der App.",
-"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "Zur Bestätigung wirst du gebeten, dasselbe Google-Konto zu wählen."
+"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "Zur Bestätigung wirst du gebeten, dasselbe Google-Konto zu wählen.",
+"آخر موقع قبل {0} · كان يتحرك {1} كم/س باتجاه {2}": "Letzter Standort vor {0} · fuhr {1} km/h Richtung {2}",
+"الشمال": "Norden",
+"الشمال الشرقي": "Nordosten",
+"الشرق": "Osten",
+"الجنوب الشرقي": "Südosten",
+"الجنوب": "Süden",
+"الجنوب الغربي": "Südwesten",
+"الغرب": "Westen",
+"الشمال الغربي": "Nordwesten"
 };

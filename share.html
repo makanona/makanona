@@ -149,7 +149,10 @@ async function start() {
         if (!s2 || !(s2.exp > Date.now())) return end();
         sh.exp = s2.exp; $('exp').textContent = tx('until', when(sh.exp));
       }
-      last = await req(DB + '/locations/' + sh.uid + '.json?auth=' + await fresh());
+      // الرابط يقرأ الموقع والوقت والسرعة فقط (لا البطارية ولا حالة الهاتف): أربع قراءات صغيرة على نفس الاتصال
+      const t0 = await fresh(), base = DB + '/locations/' + sh.uid + '/';
+      const [la, ln, ts, spd] = await Promise.all(['lat', 'lng', 'ts', 'spd'].map(k => req(base + k + '.json?auth=' + t0)));
+      last = { lat: la, lng: ln, ts, spd };
       draw();
     } catch (e) {
       if (e.kind === 'denied') { try { await req(DB + '/shares/' + tok + '.json'); } catch (e2) { if (e2.kind === 'denied') return end(); } }

@@ -1058,5 +1058,14 @@ window.I18N.en = {
 "بلا كلمة سر. يبقى عليك رقم الهاتف وسنة الميلاد مرة واحدة.": "No password. You'll only add your phone number and birth year once.",
 "معرّف Google للدخول (Web client ID)": "Google sign-in ID (Web client ID)",
 "من Firebase ← Authentication ← Sign-in method ← Google ← Web SDK configuration. يلزم لزر Google داخل التطبيق.": "From Firebase → Authentication → Sign-in method → Google → Web SDK configuration. Needed for the Google button inside the app.",
-"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "To confirm, you'll be asked to choose the same Google account."
+"للتأكيد سيُطلب منك اختيار حساب Google نفسه.": "To confirm, you'll be asked to choose the same Google account.",
+"آخر موقع قبل {0} · كان يتحرك {1} كم/س باتجاه {2}": "Last location {0} ago · was moving {1} km/h heading {2}",
+"الشمال": "north",
+"الشمال الشرقي": "north-east",
+"الشرق": "east",
+"الجنوب الشرقي": "south-east",
+"الجنوب": "south",
+"الجنوب الغربي": "south-west",
+"الغرب": "west",
+"الشمال الغربي": "north-west"
 };
