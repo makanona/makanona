@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1089912633653",
+    "firebase_url": "https://makanona-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "makanona",
+    "storage_bucket": "makanona.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089912633653:android:246722844f0279d5d9347c",
+        "android_client_info": {
+          "package_name": "com.makanona.appmakanona"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1089912633653-82ckhcbrif9p7nv624ntklvcl3vms7n5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnaDOo_vasCTzLmuG7CFm7urFN5H6BPxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1089912633653-82ckhcbrif9p7nv624ntklvcl3vms7n5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
