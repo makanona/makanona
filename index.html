@@ -51,6 +51,7 @@ textarea{min-height:110px;resize:vertical}
 #v-main{position:fixed;inset:0}
 #map{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;background:#cfdadd}
 .g-base{position:absolute;inset:0;z-index:1;pointer-events:none;background:#e8e6e0}
+.gx-tip{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:6px;background:#fff;color:#10272F;border-radius:8px;padding:2px 8px;font:600 12px/1.5 inherit;white-space:nowrap;box-shadow:0 1px 5px #0004;pointer-events:none}
 #top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:500;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
 .chip{pointer-events:auto;background:var(--ink);color:#fff;padding:7px 15px;border-radius:999px;font-weight:600;font-size:14px;border:0;box-shadow:0 2px 10px #0003}
 button.chip{cursor:pointer;background:#fff;color:var(--ink)}
@@ -430,7 +431,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=36"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=37"><\/script>');
 })();
 </script>
 <script>
@@ -1125,7 +1126,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '36';
+const UI_VERSION = '37';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1792,7 +1793,8 @@ const STYLES = {
 };
 /* ---------- خريطة Google (طبقة اختيارية، تعود تلقائياً للعادية عند أي فشل) ---------- */
 const GKEY = 'AIzaSyC8cO1SJcNJuyDfXaTTLh2EEdtcFfr39Ss';   // مقيّد بعنوان makanona.github.io وبخدمتي Maps JavaScript وGeocoding فقط
-const GOOGLE_DEFAULT = false;       // true = تصبح Google الافتراضية لمن لم يختر طبقة بنفسه
+const GOOGLE_DEFAULT = false;       // (الطبقة المسطحة المؤقتة، مخفية من القائمة)
+const GX_DEFAULT = false;           // true = تصبح Google الحية الافتراضية لمن لم يختر محركاً بنفسه       // true = تصبح Google الافتراضية لمن لم يختر طبقة بنفسه
 const G_MAP_DAY_CAP = 12;           // أقصى تحميلات خريطة Google لكل هاتف في اليوم (السقف العام 300 في لوحة Google)
 const G_GEO_DAY_CAP = 25;           // أقصى طلبات عناوين Google لكل هاتف في اليوم
 function gQ(kind, bump) {
@@ -1808,9 +1810,9 @@ function loadGoogle() {
   _gP = new Promise((res, rej) => {
     const t = setTimeout(() => { _gP = null; rej(new Error('timeout')); }, 12000);
     window.__gmReady = () => { clearTimeout(t); res(); };
-    window.gm_authFailure = () => gFail('auth', true);
+    window.gm_authFailure = () => (S.engine === 'gx' ? gxFail('auth', true) : gFail('auth', true));
     const sc = document.createElement('script');
-    sc.src = `https://maps.googleapis.com/maps/api/js?key=${GKEY}&language=${LANG}&v=quarterly&callback=__gmReady`;
+    sc.src = `https://maps.googleapis.com/maps/api/js?key=${GKEY}&language=${LANG}&v=quarterly&libraries=marker&callback=__gmReady`;
     sc.async = true;
     sc.onerror = () => { clearTimeout(t); _gP = null; rej(new Error('load')); };
     document.head.appendChild(sc);
@@ -1847,10 +1849,27 @@ const GLayer = L.Layer.extend({
 });
 function gAllowed() {
   let bad = ''; try { bad = localStorage.getItem('mk_gbad') || ''; } catch {}
-  return !S.gBad && bad !== dayKey(Date.now()) && (!!S.gLayer || gQ('m') < G_MAP_DAY_CAP);
+  let off = ''; try { off = sessionStorage.getItem('mk_goff') || ''; } catch {}
+  return !S.gBad && !off && bad !== dayKey(Date.now()) && (!!S.gLayer || !!S.map && S.engine === 'gx' || gQ('m') < G_MAP_DAY_CAP);
 }
 function renderStyleMenu() {
-  $('style-menu').innerHTML = Object.entries(STYLES).sort((a, b) => (b[0] === 'g') - (a[0] === 'g')).map(([key, v]) => `<button data-act="style" data-id="${key}" class="${key === S.styleKey ? 'on' : ''}">${esc(v.name)}</button>`).join('');
+  const ord = ['gx', 'gxs', 'osm', 'sat', 'hybrid', 'g'];
+  const keys = Object.keys(STYLES).filter(key => key !== 'g' || S.styleKey === 'g').sort((a, b) => ord.indexOf(a) - ord.indexOf(b));
+  $('style-menu').innerHTML = keys.map(key => `<button data-act="style" data-id="${key}" class="${key === S.styleKey ? 'on' : ''}">${esc(STYLES[key].name)}</button>`).join('');
+}
+const gxReady = () => !!(window.google && google.maps && google.maps.marker && google.maps.marker.AdvancedMarkerElement);
+function gxWanted() { let e = ''; try { e = localStorage.getItem('mapEngine') || ''; } catch {} return e ? e === 'gx' : GX_DEFAULT; }
+function gxFail(why, day) {
+  S.gBad = why;
+  try { sessionStorage.setItem('mk_goff', '1'); } catch {}
+  if (day) { try { localStorage.setItem('mk_gbad', dayKey(Date.now())); } catch {} }
+  let again = true; try { again = sessionStorage.getItem('mk_gxrl') === '1'; sessionStorage.setItem('mk_gxrl', '1'); } catch {}
+  if (!again) location.reload();                    // مرة واحدة: تعود الصفحة بالخريطة العادية
+}
+function watchGx() {
+  const el = S.map.el, gm = S.map.gm; let idle = false;
+  google.maps.event.addListenerOnce(gm, 'idle', () => { idle = true; setTimeout(() => { if (el.querySelector('.gm-err-container')) gxFail('err'); }, 1800); });
+  setTimeout(() => { if (!idle) gxFail('tiles'); }, 15000);
 }
 function gFail(why, day) {
   S.gBad = why;
@@ -1878,9 +1897,23 @@ async function gTry(tok) {
   clearTimeout(S.gT); S.gT = setTimeout(() => { if (!lay._ok && tok === S.styTok) gFail('tiles'); }, 12000);
 }
 const OSM_LAYERS = [['https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: OSM, crossOrigin: 'anonymous' }]];
-STYLES.g = { name: _t("Google (أسماء أوضح)"), layers: OSM_LAYERS };   // layers هنا للتقارير والاحتياط فقط
+STYLES.g = { name: _t("Google (أسماء أوضح)"), layers: OSM_LAYERS };
+STYLES.gx = { name: _t("Google (حية)"), layers: OSM_LAYERS };
+STYLES.gxs = { name: _t("Google قمر صناعي"), layers: OSM_LAYERS };   // layers هنا للتقارير والاحتياط فقط
 function setStyle(k, save) {
   if (!STYLES[k]) k = 'osm';
+  const isG = k === 'gx' || k === 'gxs';
+  if (save && isG !== (S.engine === 'gx')) {          // تبديل المحرك يحتاج إعادة تحميل الصفحة مرة واحدة
+    try { localStorage.setItem('mapStyle2', k); localStorage.setItem('mapEngine', isG ? 'gx' : 'leaflet'); sessionStorage.removeItem('mk_goff'); sessionStorage.removeItem('mk_gxrl'); } catch {}
+    location.reload(); return;
+  }
+  if (S.engine === 'gx') {
+    if (!isG) k = 'gx';
+    S.map.setType(k === 'gxs' ? 'hybrid' : 'roadmap');
+    if (save) { try { localStorage.setItem('mapStyle2', k); } catch {} }
+    S.styleKey = k; renderStyleMenu(); return;
+  }
+  if (isG) k = 'osm';
   const tok = S.styTok = (S.styTok || 0) + 1;
   clearTimeout(S.gT);
   if (S.gLayer && S.map.hasLayer(S.gLayer)) S.map.removeLayer(S.gLayer);
@@ -1891,6 +1924,164 @@ function setStyle(k, save) {
   renderStyleMenu();
   if (k === 'g') gTry(tok);
 }
+/* ---------- LG: واجهة شبيهة بـ Leaflet فوق Google Maps الحقيقية (المحرك الحي) ---------- */
+const GMAP_ID = '70891d8ae51fa2b19ef0b8c8';      // Map ID متجه (Vector) من لوحة Google
+const LG = (() => {
+  const ll = a => Array.isArray(a) ? { lat: +a[0], lng: +a[1] } : { lat: +a.lat, lng: +(a.lng !== undefined ? a.lng : a.lon) };
+  const rgba = (c, a) => { const m = /^#([0-9a-f]{6})$/i.exec(c || ''); if (!m) return c || 'transparent'; const n = parseInt(m[1], 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+  class Ev { on(e, f) { (this._ev || (this._ev = {}))[e] = (this._ev[e] || []).concat(f); return this; } fire(e, x) { ((this._ev || {})[e] || []).forEach(f => { try { f(x); } catch (er) { console.error(er); } }); } }
+  class Ov extends Ev {
+    addTo(t) { if (t instanceof Group) t._add(this); else { this._owner = t; t._ovs.add(this); this._attach(t.gm); } return this; }
+    bindPopup(h) { this._pop = h; return this; }
+    bindTooltip(txt, o) { if (o && o.permanent) { this._tip = String(txt); if (this._m) this._m.content = this._build(); } return this; }
+    openPopup() { const lg = this._gm && this._gm.__lg; if (lg && this._pop) lg._popup(this._pop, this._p, this._r || 0); return this; }
+    remove() { if (this._owner) this._owner.removeLayer(this); }
+  }
+  class Group extends Ev {
+    constructor() { super(); this._kids = []; this._gm = null; }
+    addTo(map) { this._owner = map; map._ovs.add(this); this._attach(map.gm); return this; }
+    _attach(gm) { this._gm = gm; this._kids.forEach(k => k._attach(gm)); }
+    _detach() { this._kids.forEach(k => k._detach()); this._gm = null; }
+    _add(k) { this._kids.push(k); k._grp = this; if (this._gm) k._attach(this._gm); }
+    clearLayers() { this._kids.forEach(k => k._detach()); this._kids = []; return this; }
+  }
+  class Marker extends Ov {
+    constructor(p, o = {}) { super(); this._p = ll(p); this._icon = o.icon || {}; this._z = o.zIndexOffset || 0; }
+    _build() {
+      const i = this._icon, w = (i.iconSize || [0, 0])[0], h = (i.iconSize || [0, 0])[1], an = i.iconAnchor || [w / 2, h / 2];
+      const d = document.createElement('div');
+      d.style.cssText = `position:relative;width:${w}px;height:${h}px;transform:translate(${w / 2 - an[0]}px,${h - an[1]}px)`;
+      d.innerHTML = i.html || '';
+      if (this._tip) { const t = document.createElement('span'); t.className = 'gx-tip'; t.textContent = this._tip; d.appendChild(t); }
+      this._lastHtml = i.html;
+      return d;
+    }
+    _attach(gm) {
+      this._gm = gm;
+      if (!this._m) {
+        this._m = new google.maps.marker.AdvancedMarkerElement({ position: this._p, content: this._build(), zIndex: 100 + this._z, gmpClickable: true });
+        this._m.addListener('click', () => { this.fire('click', { latlng: this._p }); if (this._pop) this.openPopup(); });
+      }
+      this._m.map = gm;
+    }
+    _detach() { if (this._m) this._m.map = null; this._gm = null; }
+    setLatLng(p) { this._p = ll(p); if (this._m) this._m.position = this._p; return this; }
+    getLatLng() { return this._p; }
+    setIcon(i) { this._icon = i || {}; if (this._m && this._icon.html !== this._lastHtml) this._m.content = this._build(); return this; }
+    setZIndexOffset(z) { this._z = z; if (this._m) this._m.zIndex = 100 + z; return this; }
+  }
+  class CircleMarker extends Marker {
+    constructor(p, o = {}) {
+      const r = o.radius || 10, w = o.stroke === false ? 0 : (o.weight !== undefined ? o.weight : 3);
+      const html = `<div style="width:${2 * r}px;height:${2 * r}px;box-sizing:border-box;border-radius:50%;border:${w}px solid ${o.color || '#3388ff'};background:${rgba(o.fillColor || o.color || '#3388ff', o.fillOpacity !== undefined ? o.fillOpacity : .2)}"></div>`;
+      super(p, { icon: { html, iconSize: [2 * r, 2 * r], iconAnchor: [r, r] }, zIndexOffset: o.zIndexOffset });
+      this._r = r;
+    }
+  }
+  const dashIcon = (o, op) => { const d = String(o.dashArray).split(/[ ,]+/).map(Number), a = d[0] || 6, g = d[1] || a; return { icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: op, strokeWeight: o.weight || 3, scale: a / 2 }, offset: '0', repeat: (a + g) + 'px' }], strokeOpacity: 0 }; };
+  class Polyline extends Ov {
+    constructor(pts, o = {}) { super(); this._pts = pts.map(ll); this._o = o; }
+    _attach(gm) {
+      this._gm = gm;
+      if (!this._pl) {
+        const o = this._o, op = o.opacity !== undefined ? o.opacity : 1;
+        const opt = { path: this._pts, strokeColor: o.color || '#3388ff', strokeWeight: o.weight || 3, strokeOpacity: op, clickable: o.interactive !== false, geodesic: false };
+        if (o.dashArray) Object.assign(opt, dashIcon(o, op));
+        this._pl = new google.maps.Polyline(opt);
+        this._pl.addListener('click', e => this.fire('click', { latlng: { lat: e.latLng.lat(), lng: e.latLng.lng() } }));
+      }
+      this._pl.setMap(gm);
+    }
+    _detach() { if (this._pl) this._pl.setMap(null); this._gm = null; }
+  }
+  class Circle extends Ov {
+    constructor(c, o = {}) { super(); this._p = ll(c); this._o = o; }
+    _attach(gm) {
+      this._gm = gm;
+      if (!this._c) {
+        const o = this._o, col = o.color || '#3388ff', rad = o.radius || 10;
+        this._c = new google.maps.Circle({ center: this._p, radius: rad, strokeColor: col, strokeWeight: o.dashArray ? 0 : (o.weight !== undefined ? o.weight : 3), strokeOpacity: 1, fillColor: o.fillColor || col, fillOpacity: o.fillOpacity !== undefined ? o.fillOpacity : .2, clickable: false });
+        if (o.dashArray) {
+          const ring = [], dLat = rad / 111320, dLng = rad / (111320 * Math.max(.05, Math.cos(this._p.lat * Math.PI / 180)));
+          for (let k = 0; k <= 72; k++) { const a = k / 72 * 2 * Math.PI; ring.push({ lat: this._p.lat + dLat * Math.sin(a), lng: this._p.lng + dLng * Math.cos(a) }); }
+          this._d = new google.maps.Polyline(Object.assign({ path: ring, strokeColor: col, strokeWeight: o.weight || 3, clickable: false }, dashIcon(o, 1)));
+        }
+      }
+      this._c.setMap(gm); if (this._d) this._d.setMap(gm);
+    }
+    _detach() { if (this._c) this._c.setMap(null); if (this._d) this._d.setMap(null); this._gm = null; }
+  }
+  class Popup {
+    setLatLng(p) { this._p = ll(p); return this; }
+    setContent(h) { this._h = h; return this; }
+    openOn(m) { m._popup(this._h, this._p, 0); return this; }
+  }
+  class GMap extends Ev {
+    constructor(el) {
+      super(); this.el = el; this._ovs = new Set();
+      const gm = this.gm = new google.maps.Map(el, { mapId: GMAP_ID, center: { lat: 35, lng: 38 }, zoom: 6, minZoom: 2, maxZoom: 21, disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false, keyboardShortcuts: false });
+      gm.__lg = this;
+      let zt = 0;
+      gm.addListener('zoom_changed', () => { clearTimeout(zt); zt = setTimeout(() => this.fire('zoomend'), 120); });
+      gm.addListener('click', e => { if (e.latLng) this.fire('click', { latlng: { lat: e.latLng.lat(), lng: e.latLng.lng() } }); });
+      const ov = this._pj = new google.maps.OverlayView(); ov.onAdd = () => {}; ov.draw = () => {}; ov.onRemove = () => {}; ov.setMap(gm);
+    }
+    setView(c, z) { const p = ll(c); try { this.gm.moveCamera({ center: p, zoom: z }); } catch { this.gm.setZoom(z); this.gm.setCenter(p); } return this; }
+    setType(t) { this.gm.setMapTypeId(t); }
+    getZoom() { return this.gm.getZoom(); }
+    getCenter() { const c = this.gm.getCenter(); return c ? { lat: c.lat(), lng: c.lng() } : { lat: 35, lng: 38 }; }
+    invalidateSize() { try { google.maps.event.trigger(this.gm, 'resize'); } catch {} }
+    latLngToContainerPoint(p) { const pr = this._pj.getProjection(); if (!pr) return null; const q = ll(p), pt = pr.fromLatLngToContainerPixel(new google.maps.LatLng(q.lat, q.lng)); return pt ? { x: pt.x, y: pt.y } : null; }
+    hasLayer(o) { return !!o && o._gm === this.gm; }
+    removeLayer(o) { if (o) { o._detach(); this._ovs.delete(o); } return this; }
+    closePopup() { if (this._iw) this._iw.close(); }
+    _popup(html, pos, dy) {
+      if (!this._iw) this._iw = new google.maps.InfoWindow();
+      this._iw.setContent(`<div dir="auto" style="min-width:90px;font-size:14px;line-height:1.5">${html}</div>`);
+      this._iw.setPosition(pos); this._iw.setOptions({ pixelOffset: new google.maps.Size(0, -dy) }); this._iw.open({ map: this.gm });
+    }
+    _pad(o) {
+      let t = 0, l = 0, b = 0, r = 0;
+      if (o.padding) { l = r = o.padding[0]; t = b = o.padding[1]; }
+      if (o.paddingTopLeft) { l = o.paddingTopLeft[0]; t = o.paddingTopLeft[1]; }
+      if (o.paddingBottomRight) { r = o.paddingBottomRight[0]; b = o.paddingBottomRight[1]; }
+      return { t, l, b, r };
+    }
+    fitBounds(bd, o = {}) {
+      let sw, ne;
+      if (bd && bd.getSouthWest) { sw = bd.getSouthWest(); ne = bd.getNorthEast(); }
+      else { const a = (bd || []).map(ll); sw = { lat: Math.min(...a.map(x => x.lat)), lng: Math.min(...a.map(x => x.lng)) }; ne = { lat: Math.max(...a.map(x => x.lat)), lng: Math.max(...a.map(x => x.lng)) }; }
+      const p = this._pad(o), mz = o.maxZoom || 21;
+      if (Math.abs(sw.lat - ne.lat) < 1e-7 && Math.abs(sw.lng - ne.lng) < 1e-7) {
+        this.setView({ lat: sw.lat, lng: sw.lng }, Math.min(mz, 17));
+        const dx = (p.l - p.r) / 2, dy = (p.t - p.b) / 2;
+        if (dx || dy) google.maps.event.addListenerOnce(this.gm, 'idle', () => this.gm.panBy(-dx, -dy));
+        return this;
+      }
+      this.gm.fitBounds({ south: sw.lat, west: sw.lng, north: ne.lat, east: ne.lng }, { top: p.t, right: p.r, bottom: p.b, left: p.l });
+      google.maps.event.addListenerOnce(this.gm, 'idle', () => { if (this.gm.getZoom() > mz) this.gm.setZoom(mz); });
+      return this;
+    }
+    flyTo(c, z) { const p = ll(c); this.gm.panTo(p); if (z !== undefined) this.gm.setZoom(Math.min(z, 21)); return this; }
+    panInside(p, o = {}) {
+      const pt = this.latLngToContainerPoint(p); if (!pt) return this;
+      const W = this.el.clientWidth, H = this.el.clientHeight, tl = o.paddingTopLeft || [0, 0], br = o.paddingBottomRight || [0, 0];
+      let dx = 0, dy = 0;
+      if (pt.x < tl[0]) dx = pt.x - tl[0]; else if (pt.x > W - br[0]) dx = pt.x - (W - br[0]);
+      if (pt.y < tl[1]) dy = pt.y - tl[1]; else if (pt.y > H - br[1]) dy = pt.y - (H - br[1]);
+      if (dx || dy) this.gm.panBy(dx, dy);
+      return this;
+    }
+  }
+  return {
+    map: el => new GMap(el), layerGroup: () => new Group(), divIcon: o => o,
+    marker: (p, o) => new Marker(p, o), circleMarker: (p, o) => new CircleMarker(p, o),
+    circle: (p, o) => new Circle(p, o), polyline: (p, o) => new Polyline(p, o), popup: () => new Popup()
+  };
+})();
+let LX = L;                        // L للمحرك العادي، LG للمحرك الحي (يُحدَّد في initMap)
+
+if (gxWanted()) loadGoogle().catch(() => {});      // نبدأ تحميل Google مبكراً ليكون جاهزاً عند فتح الخريطة
 function syncMarks() {
   if (!S.map || !S.hmk) return;
   const on = S.map.getZoom() >= 10;
@@ -1898,16 +2089,28 @@ function syncMarks() {
 }
 function initMap() {
   if (S.map) { setTimeout(() => S.map.invalidateSize(), 50); return; }
-  S.map = L.map('map', { zoomControl: false, maxZoom: 19 }).setView([35.0, 38.0], 6);
-  S.hl = L.layerGroup().addTo(S.map);
-  S.hsel = L.layerGroup().addTo(S.map);
-  S.hmk = L.layerGroup();
-  S.accg = L.layerGroup().addTo(S.map);
-  S.plg = L.layerGroup().addTo(S.map);
+  const wantGx = gxWanted();
+  S.engine = (wantGx && gxReady() && gAllowed()) ? 'gx' : 'leaflet';
+  if (S.engine === 'gx') {
+    LX = LG; gQ('m', true);
+    S.map = LG.map($('map')).setView([35.0, 38.0], 6);
+    watchGx();
+  } else {
+    LX = L;
+    S.map = L.map('map', { zoomControl: false, maxZoom: 19 }).setView([35.0, 38.0], 6);
+    let explicit = ''; try { explicit = localStorage.getItem('mapEngine') || ''; } catch {}
+    if (wantGx && explicit === 'gx') setTimeout(() => toast(_t("خريطة Google غير متاحة الآن، عُرضت الخريطة العادية")), 1200);
+  }
+  S.hl = LX.layerGroup().addTo(S.map);
+  S.hsel = LX.layerGroup().addTo(S.map);
+  S.hmk = LX.layerGroup();
+  S.accg = LX.layerGroup().addTo(S.map);
+  S.plg = LX.layerGroup().addTo(S.map);
   S.map.on('zoomend', () => { syncMarks(); if (S.person) renderMap(); });   // التراكب يتغير مع التكبير
   S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng, '', S.pickFriend); else mapTap(); });
-  let k = GOOGLE_DEFAULT ? 'g' : 'osm';
+  let k = wantGx ? 'gx' : GOOGLE_DEFAULT ? 'g' : 'osm';
   try { const s2 = localStorage.getItem('mapStyle2'), s1 = localStorage.getItem('mapStyle'); k = s2 || ((s1 === 'sat' || s1 === 'hybrid') ? s1 : k); } catch {}
+  if (S.engine === 'gx') { if (k !== 'gx' && k !== 'gxs') k = 'gx'; } else if (k === 'gx' || k === 'gxs') k = 'osm';
   setStyle(k, false);
   setTimeout(() => S.map.invalidateSize(), 100);
 }
@@ -2067,7 +2270,7 @@ function pinIcon(id, l, extra = '') {
   const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : m && !bad ? `<span class="mk-lbl spd">${ICON[m.mode]}${tf("{0} كم/س", m.kmh)}</span>` : bad ? `<span class="mk-lbl off">${dead ? _t("متوقف") : l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : l.apx === true && !stale ? `<span class="mk-lbl old">≈ ${_t("تقريبي")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
   const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
   const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
-  return L.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
+  return LX.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
 }
 /* ---------- رسائل المشرف ----------
    adminMsg/<العضو>/<رقم> = {t, at, all?, ack?}. يكتبها المشرف، ويضغط العضو «تم» فيُسجَّل ack (الاستلام). */
@@ -2286,7 +2489,7 @@ function renderMap() {
     keep.add(id);
     const sel = !!selPt && id === S.person, dim = !!selPt && !sel && pxDist(pinPt(l), selPt) < 80;
     const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '');
-    if (!S.markers[id]) { S.markers[id] = L.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id].on('click', () => pinTap(id)); }
+    if (!S.markers[id]) { S.markers[id] = LX.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id].on('click', () => pinTap(id)); }
     else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(icon); }
     try { S.markers[id].setZIndexOffset(sel ? 5000 : dim ? -500 : 0); } catch {}
   }
@@ -2296,9 +2499,9 @@ function renderMap() {
     const aid = S.person || S.uid, al = S.locs[aid];
     for (const id of keep) {                                             // موقع تقريبي (إذن الموقع الدقيق غير مفعّل): دائرة كبيرة متقطعة بدل الدقة
       const x = S.locs[id];
-      if (x && x.apx === true && typeof x.lat === 'number' && Date.now() - x.ts < 30 * 60e3) L.circle([x.lat, x.lng], { radius: Math.min(5000, Math.max(300, Number(x.acc) || 1500)), color: '#E8A33D', weight: 1.5, dashArray: '5 5', fillColor: '#E8A33D', fillOpacity: .08, interactive: false }).addTo(S.accg);
+      if (x && x.apx === true && typeof x.lat === 'number' && Date.now() - x.ts < 30 * 60e3) LX.circle([x.lat, x.lng], { radius: Math.min(5000, Math.max(300, Number(x.acc) || 1500)), color: '#E8A33D', weight: 1.5, dashArray: '5 5', fillColor: '#E8A33D', fillOpacity: .08, interactive: false }).addTo(S.accg);
     }
-    if (al && al.apx !== true && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && keep.has(aid)) L.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
+    if (al && al.apx !== true && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && keep.has(aid)) LX.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
   }
   if (!S.fitted && keep.size) { fitAll(); S.fitted = true; }
 }
@@ -2622,8 +2825,8 @@ function scrub(v) {
   S.hv = v;
   const t = Math.min(hEnd(), Math.max(pts[0].ts, v2t(v))), d = distAt(t), p = posAt(t), total = hTotal();
   const d0 = S.dir[S.huid] || {};
-  const icon = L.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d0)}">${avText(d0)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
-  if (!S.hmark) S.hmark = L.marker([p.lat, p.lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([p.lat, p.lng]);
+  const icon = LX.divIcon({ className: '', html: `<div class="pin" style="${avStyle(d0)}">${avText(d0)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
+  if (!S.hmark) S.hmark = LX.marker([p.lat, p.lng], { icon, zIndexOffset: 1000 }).addTo(S.hl); else S.hmark.setLatLng([p.lat, p.lng]);
   if (S.histFor && S.map.panInside) { const i = histInsets(); S.map.panInside([p.lat, p.lng], { paddingTopLeft: [40, i.top + 24], paddingBottomRight: [40, i.bottom + 24], animate: false }); }
   const seg = S.hsegs.find(s => t >= s.t0 && t <= s.t1 && (s.x1 > s.x0 || s.nd || S.hAxis === 'time'));
   const st = S.hAxis === 'time' ? S.hstops.find(s => t >= s.t0 && t <= s.t1) : S.hstops.find(s => Math.abs(s.x - d) < 40);
@@ -2774,7 +2977,7 @@ function addMarks(an) {
     const hrs = it.dur / 3600e3, step = (hrs < 2 ? 5 : hrs <= 6 ? 10 : 20) * 60e3;
     for (let t = it.t0 + step; t < it.t1 - step / 3; t += step) {
       const p = posAt(t);
-      L.circleMarker([p.lat, p.lng], { radius: 6, color: '#fff', weight: 2, fillColor: '#10272F', fillOpacity: 1 }).bindPopup('<b>' + esc(fmtFull(t)) + '</b>').addTo(S.hmk);
+      LX.circleMarker([p.lat, p.lng], { radius: 6, color: '#fff', weight: 2, fillColor: '#10272F', fillOpacity: 1 }).bindPopup('<b>' + esc(fmtFull(t)) + '</b>').addTo(S.hmk);
     }
   }
 }
@@ -2793,7 +2996,7 @@ function onRouteClick(e) {
   }
   const a = pts[best.i - 1], b = pts[best.i], a1 = a.ets || a.ts, gap = b.ts - a1, dd = haversine(a, b);
   const sg = (S.hsegs || []).find(sx => sx.i === best.i && !sx.nd), t = a1 + best.f * gap, kmh = sg ? sg.v : 0;
-  L.popup().setLatLng(e.latlng).setContent('<b>' + esc(fmtFull(t)) + '</b>' + (kmh >= 3 ? `<br>${tf("السرعة التقريبية {0} كم/س", Math.round(kmh))}` : '')).openOn(S.map);
+  LX.popup().setLatLng(e.latlng).setContent('<b>' + esc(fmtFull(t)) + '</b>' + (kmh >= 3 ? `<br>${tf("السرعة التقريبية {0} كم/س", Math.round(kmh))}` : '')).openOn(S.map);
 }
 function openHistory(id, day) {
   if (!id || S.limited) return;
@@ -2853,20 +3056,20 @@ async function loadHistory() {
   const flush = () => {
     if (cur.length < 2) return;
     const line = chaikin(cur, cur.length > 400 ? 2 : 3);
-    L.polyline(line, { color: '#000', weight: 24, opacity: 0, interactive: true, bubblingMouseEvents: false }).on('click', onRouteClick).addTo(S.hl);   // منطقة لمس أوسع
-    L.polyline(line, { color, weight: 5, opacity: .9, smoothFactor: 0.5, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hl);
+    LX.polyline(line, { color: '#000', weight: 24, opacity: 0, interactive: true, bubblingMouseEvents: false }).on('click', onRouteClick).addTo(S.hl);   // منطقة لمس أوسع
+    LX.polyline(line, { color, weight: 5, opacity: .9, smoothFactor: 0.5, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hl);
   };
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], gap = b.ts - (a.ets || a.ts), d = haversine(a, b);
-    if (gap > 15 * 60e3 && d > 1000) { flush(); L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color, weight: 3, opacity: .6, dashArray: '6 8', interactive: false }).addTo(S.hl); cur = [[b.lat, b.lng]]; }
+    if (gap > 15 * 60e3 && d > 1000) { flush(); LX.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color, weight: 3, opacity: .6, dashArray: '6 8', interactive: false }).addTo(S.hl); cur = [[b.lat, b.lng]]; }
     else cur.push([b.lat, b.lng]);
   }
   flush();
   const an = S.han = analyzeDay(pts, bikeOf(uid));
   const first = pts[0], last = pts[pts.length - 1], end = last.ets || last.ts;
   const trips = an.items.filter(i => i.type === 'trip'), stops = an.items.filter(i => i.type === 'stop');
-  stops.forEach(s => L.circleMarker([s.lat, s.lng], { radius: 9, color: '#fff', weight: 2, fillColor: '#E8A33D', fillOpacity: 1 }).bindPopup(`<b>${esc(fmtFull(s.t0))}</b><br>${tf("وصل {0}، غادر {1}", esc(fmtTime(s.t0)), esc(fmtTime(s.t1)))}`).addTo(S.hl));
-  const dot = (p, fill, tip, when) => L.circleMarker([p.lat, p.lng], { radius: 9, color: '#fff', weight: 3, fillColor: fill, fillOpacity: 1 }).bindTooltip(tip, { permanent: true, direction: 'top', offset: [0, -8] }).bindPopup('<b>' + esc(fmtFull(when)) + '</b>').addTo(S.hl);
+  stops.forEach(s => LX.circleMarker([s.lat, s.lng], { radius: 9, color: '#fff', weight: 2, fillColor: '#E8A33D', fillOpacity: 1 }).bindPopup(`<b>${esc(fmtFull(s.t0))}</b><br>${tf("وصل {0}، غادر {1}", esc(fmtTime(s.t0)), esc(fmtTime(s.t1)))}`).addTo(S.hl));
+  const dot = (p, fill, tip, when) => LX.circleMarker([p.lat, p.lng], { radius: 9, color: '#fff', weight: 3, fillColor: fill, fillOpacity: 1 }).bindTooltip(tip, { permanent: true, direction: 'top', offset: [0, -8] }).bindPopup('<b>' + esc(fmtFull(when)) + '</b>').addTo(S.hl);
   dot(first, '#2F8F6B', tf("بداية {0}", fmtTime(first.ts)), first.ts); dot(last, '#C4483B', tf("آخر نقطة {0}", fmtTime(end)), end);
   addMarks(an);
   syncMarks();
@@ -3325,7 +3528,7 @@ const ACTIONS = {
     const it = S.han && S.han.items[+id]; if (!it) return;
     S.hsel.clearLayers();
     const seg = S.hpts.slice(it.s, it.e + 1).map(p => [p.lat, p.lng]);
-    L.polyline(chaikin(seg, 2), { color: '#E8A33D', weight: 9, opacity: .95, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hsel);
+    LX.polyline(chaikin(seg, 2), { color: '#E8A33D', weight: 9, opacity: .95, lineJoin: 'round', lineCap: 'round', interactive: false }).addTo(S.hsel);
     setHState('min'); setTimeout(() => fitPad(L.latLngBounds(seg)), 150);
     if (S.hcum && !$('h-scrub').hidden) { playStop(); const v = t2v(it.t0); $('h-slider').value = Math.round(v); scrub(v); }
   },
@@ -3524,9 +3727,9 @@ const ACTIONS = {
   'sos-cancel': () => cancelSos(),
   'sos-view': id => {
     const e = S.sosIn[id]; if (!e || typeof e.lat !== 'number') return;
-    if (!S.sosg) S.sosg = L.layerGroup().addTo(S.map);
+    if (!S.sosg) S.sosg = LX.layerGroup().addTo(S.map);
     S.sosg.clearLayers();
-    L.circleMarker([e.lat, e.lng], { radius: 13, color: '#fff', weight: 3, fillColor: '#C4483B', fillOpacity: 1 }).bindPopup('<b>SOS: ' + esc(e.name || '') + '</b><br>' + esc(fmtFull(e.ts))).addTo(S.sosg).openPopup();
+    LX.circleMarker([e.lat, e.lng], { radius: 13, color: '#fff', weight: 3, fillColor: '#C4483B', fillOpacity: 1 }).bindPopup('<b>SOS: ' + esc(e.name || '') + '</b><br>' + esc(fmtFull(e.ts))).addTo(S.sosg).openPopup();
     S.map.flyTo([e.lat, e.lng], 16, { duration: .8 });
   },
   'sos-dismiss': id => { if (isNative) { try { window.AndroidBridge.sosSeen(id); } catch {} } set(ref(db, `sig/${S.uid}/s/${id}`), null).catch(() => {}); return remove(ref(db, `sosInbox/${S.uid}/${id}`)); },
@@ -3854,7 +4057,7 @@ function drawPlaces() {
   if (!S.plg) return; S.plg.clearLayers();
   for (const p of Object.values(S.places || {})) {
     if (typeof p.lat !== 'number') continue;
-    L.circle([p.lat, p.lng], { radius: p.r, color: '#2F8F6B', weight: 1.5, dashArray: '4 4', fillOpacity: .07, interactive: false }).bindTooltip(esc(p.name)).addTo(S.plg);
+    LX.circle([p.lat, p.lng], { radius: p.r, color: '#2F8F6B', weight: 1.5, dashArray: '4 4', fillOpacity: .07, interactive: false }).bindTooltip(esc(p.name)).addTo(S.plg);
   }
 }
 let placeAt = null, placeFriend = null, guardFor = null;

@@ -65,6 +65,8 @@ window.I18N.tr = {
 "قمر صناعي": "Uydu",
 "هجين (قمر صناعي وأسماء)": "Karma (uydu ve adlar)",
 "Google (أسماء أوضح)": "Google (daha net isimler)",
+"Google (حية)": "Google (canlı)",
+"Google قمر صناعي": "Google uydu",
 "خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Haritalar şu anda kullanılamıyor, standart harita gösteriliyor.",
 "كم/س": "km/sa",
 "{0} م": "{0} m",

@@ -65,6 +65,8 @@ window.I18N.nl = {
 "قمر صناعي": "Satelliet",
 "هجين (قمر صناعي وأسماء)": "Hybride (satelliet en namen)",
 "Google (أسماء أوضح)": "Google (duidelijkere namen)",
+"Google (حية)": "Google (live)",
+"Google قمر صناعي": "Google satelliet",
 "خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Maps is nu niet beschikbaar, de standaardkaart wordt getoond.",
 "كم/س": "km/u",
 "{0} م": "{0} m",

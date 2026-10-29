@@ -65,6 +65,8 @@ window.I18N.fr = {
 "قمر صناعي": "Satellite",
 "هجين (قمر صناعي وأسماء)": "Hybride (satellite et noms)",
 "Google (أسماء أوضح)": "Google (noms plus clairs)",
+"Google (حية)": "Google (en direct)",
+"Google قمر صناعي": "Google satellite",
 "خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Maps n'est pas disponible pour le moment, la carte standard est affichée.",
 "كم/س": "km/h",
 "{0} م": "{0} m",
