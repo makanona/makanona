@@ -431,7 +431,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=37"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=38"><\/script>');
 })();
 </script>
 <script>
@@ -1126,7 +1126,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '37';
+const UI_VERSION = '38';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1795,7 +1795,7 @@ const STYLES = {
 const GKEY = 'AIzaSyC8cO1SJcNJuyDfXaTTLh2EEdtcFfr39Ss';   // مقيّد بعنوان makanona.github.io وبخدمتي Maps JavaScript وGeocoding فقط
 const GOOGLE_DEFAULT = false;       // (الطبقة المسطحة المؤقتة، مخفية من القائمة)
 const GX_DEFAULT = false;           // true = تصبح Google الحية الافتراضية لمن لم يختر محركاً بنفسه       // true = تصبح Google الافتراضية لمن لم يختر طبقة بنفسه
-const G_MAP_DAY_CAP = 12;           // أقصى تحميلات خريطة Google لكل هاتف في اليوم (السقف العام 300 في لوحة Google)
+const G_MAP_DAY_CAP = 20;           // أقصى تحميلات خريطة Google لكل هاتف في اليوم (السقف العام 300 في لوحة Google)
 const G_GEO_DAY_CAP = 25;           // أقصى طلبات عناوين Google لكل هاتف في اليوم
 function gQ(kind, bump) {
   let q = {}; try { q = JSON.parse(localStorage.getItem('mk_gq') || '{}'); } catch {}
@@ -2087,8 +2087,29 @@ function syncMarks() {
   const on = S.map.getZoom() >= 10;
   if (on && !S.map.hasLayer(S.hmk)) S.hmk.addTo(S.map); else if (!on && S.map.hasLayer(S.hmk)) S.map.removeLayer(S.hmk);
 }
+function gWhy() {
+  if (S.gBad) return 'bad-' + S.gBad;
+  try { if (sessionStorage.getItem('mk_goff')) return 'off'; } catch {}
+  try { if (localStorage.getItem('mk_gbad') === dayKey(Date.now())) return 'day'; } catch {}
+  if (gQ('m') >= G_MAP_DAY_CAP) return 'cap';
+  return gxReady() ? 'ok' : 'ready';
+}
 function initMap() {
   if (S.map) { setTimeout(() => S.map.invalidateSize(), 50); return; }
+  if (S.gWait) return;
+  if (gxWanted() && !gxReady() && gAllowed()) {      // Google ما زالت تُحمَّل: ننتظرها حتى 5 ثوانٍ قبل إنشاء الخريطة
+    S.gWait = true;
+    Promise.race([loadGoogle(), sleep(5000).then(() => { throw new Error('wait'); })]).catch(() => {}).then(() => {
+      S.gWait = false;
+      if (S.map) return;
+      buildMap();
+      try { syncMarks(); renderMap(); drawPlaces(); } catch (e) { console.error(e); }
+    });
+    return;
+  }
+  buildMap();
+}
+function buildMap() {
   const wantGx = gxWanted();
   S.engine = (wantGx && gxReady() && gAllowed()) ? 'gx' : 'leaflet';
   if (S.engine === 'gx') {
@@ -2099,7 +2120,7 @@ function initMap() {
     LX = L;
     S.map = L.map('map', { zoomControl: false, maxZoom: 19 }).setView([35.0, 38.0], 6);
     let explicit = ''; try { explicit = localStorage.getItem('mapEngine') || ''; } catch {}
-    if (wantGx && explicit === 'gx') setTimeout(() => toast(_t("خريطة Google غير متاحة الآن، عُرضت الخريطة العادية")), 1200);
+    if (wantGx && explicit === 'gx') setTimeout(() => toast(_t("خريطة Google غير متاحة الآن، عُرضت الخريطة العادية") + ' (' + gWhy() + ')'), 1200);
   }
   S.hl = LX.layerGroup().addTo(S.map);
   S.hsel = LX.layerGroup().addTo(S.map);
