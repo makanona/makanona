@@ -64,6 +64,8 @@ window.I18N.tr = {
 "عادية (أسماء عربية)": "Standart",
 "قمر صناعي": "Uydu",
 "هجين (قمر صناعي وأسماء)": "Karma (uydu ve adlar)",
+"Google (أسماء أوضح)": "Google (daha net isimler)",
+"خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Haritalar şu anda kullanılamıyor, standart harita gösteriliyor.",
 "كم/س": "km/sa",
 "{0} م": "{0} m",
 "{0} كم": "{0} km",
@@ -1067,5 +1069,15 @@ window.I18N.tr = {
 "الجنوب": "güney",
 "الجنوب الغربي": "güneybatı",
 "الغرب": "batı",
-"الشمال الغربي": "kuzeybatı"
+"الشمال الغربي": "kuzeybatı",
+"يغلقه الهاتف": "telefon kapatıyor",
+"الإعدادات سليمة لكن لم يصل منه شيء منذ {0}: نظام الهاتف يغلق التطبيق. اطلب منه فتح مكاننا وإعداد «التشغيل التلقائي» (ولهواتف Infinix: Phone Master).": "Ayarlar düzgün ama {0} boyunca hiçbir şey gelmedi: telefonun sistemi uygulamayı kapatıyor. Makanona'yı açıp «Otomatik başlatma»yı ayarlamasını iste (Infinix'te: Phone Master).",
+"خدمة مكاننا مغلقة في هاتفه، والموقع يصل عبر خدمات Google كل بضع دقائق.": "Telefonunda Makanona hizmeti kapalı; konum birkaç dakikada bir Google hizmetleri üzerinden geliyor.",
+"مرحباً، وضع توفير الطاقة مفعّل في هاتفك وقد يوقف مكاننا. أطفئه من الإعدادات ← البطارية من فضلك.": "Merhaba, telefonunda güç tasarrufu açık ve Makanona'yı durdurabilir. Lütfen Ayarlar → Pil'den kapat.",
+"Phone Master (هواتف Infinix وTecno)": "Phone Master (Infinix ve Tecno telefonlar)",
+"هاتفك يغلق التطبيقات عبر «Phone Master». افتحه ثم: فعّل التشغيل التلقائي لمكاننا، وأضفه إلى القائمة البيضاء، وتأكد أنه غير مجمّد (App Freeze).": "Telefonun uygulamaları «Phone Master» ile kapatıyor. Aç ve: Makanona için Otomatik başlatmayı aç, beyaz listeye ekle ve dondurulmadığından emin ol (App Freeze).",
+"فتح Phone Master": "Phone Master'ı aç",
+"الدليل المصوّر خطوة بخطوة": "Adım adım resimli rehber",
+"توفير الطاقة مفعّل في هاتفه": "Telefonunda güç tasarrufu açık",
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Konumunu geciktirebilir veya durdurabilir. Ayarlar → Pil'den kapatmasını iste."
 };

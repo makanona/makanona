@@ -64,6 +64,8 @@ window.I18N.en = {
 "عادية (أسماء عربية)": "Standard",
 "قمر صناعي": "Satellite",
 "هجين (قمر صناعي وأسماء)": "Hybrid (satellite and names)",
+"Google (أسماء أوضح)": "Google (clearer names)",
+"خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Maps isn't available right now, showing the standard map.",
 "كم/س": "km/h",
 "{0} م": "{0} m",
 "{0} كم": "{0} km",
@@ -1067,5 +1069,15 @@ window.I18N.en = {
 "الجنوب": "south",
 "الجنوب الغربي": "south-west",
 "الغرب": "west",
-"الشمال الغربي": "north-west"
+"الشمال الغربي": "north-west",
+"يغلقه الهاتف": "phone closes it",
+"الإعدادات سليمة لكن لم يصل منه شيء منذ {0}: نظام الهاتف يغلق التطبيق. اطلب منه فتح مكاننا وإعداد «التشغيل التلقائي» (ولهواتف Infinix: Phone Master).": "Settings look fine but nothing has arrived for {0}: the phone's system is closing the app. Ask them to open Makanona and set up \"Auto-start\" (on Infinix: Phone Master).",
+"خدمة مكاننا مغلقة في هاتفه، والموقع يصل عبر خدمات Google كل بضع دقائق.": "Makanona's service is closed on their phone; the location arrives through Google services every few minutes.",
+"مرحباً، وضع توفير الطاقة مفعّل في هاتفك وقد يوقف مكاننا. أطفئه من الإعدادات ← البطارية من فضلك.": "Hi, battery saver is on on your phone and may stop Makanona. Please turn it off in Settings → Battery.",
+"Phone Master (هواتف Infinix وTecno)": "Phone Master (Infinix and Tecno phones)",
+"هاتفك يغلق التطبيقات عبر «Phone Master». افتحه ثم: فعّل التشغيل التلقائي لمكاننا، وأضفه إلى القائمة البيضاء، وتأكد أنه غير مجمّد (App Freeze).": "Your phone closes apps through \"Phone Master\". Open it, then: turn on Auto-start for Makanona, add it to the whitelist, and make sure it isn't frozen (App Freeze).",
+"فتح Phone Master": "Open Phone Master",
+"الدليل المصوّر خطوة بخطوة": "Step-by-step picture guide",
+"توفير الطاقة مفعّل في هاتفه": "Battery saver is on on their phone",
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "It may delay or stop their location. Ask them to turn it off in Settings → Battery."
 };

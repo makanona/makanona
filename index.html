@@ -50,6 +50,7 @@ textarea{min-height:110px;resize:vertical}
 /* main */
 #v-main{position:fixed;inset:0}
 #map{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;background:#cfdadd}
+.g-base{position:absolute;inset:0;z-index:1;pointer-events:none;background:#e8e6e0}
 #top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:500;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
 .chip{pointer-events:auto;background:var(--ink);color:#fff;padding:7px 15px;border-radius:999px;font-weight:600;font-size:14px;border:0;box-shadow:0 2px 10px #0003}
 button.chip{cursor:pointer;background:#fff;color:var(--ink)}
@@ -429,7 +430,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=34"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=36"><\/script>');
 })();
 </script>
 <script>
@@ -533,6 +534,7 @@ window.APP_CONFIG = {
     <div class="dots" id="wiz-dots"></div>
     <h2 id="wiz-title"></h2>
     <p id="wiz-text" class="lead"></p>
+    <button class="link" id="wiz-link" hidden></button>
     <button id="wiz-go" class="btn acc block"></button>
     <button id="wiz-skip" class="link"></button>
   </div>
@@ -628,6 +630,7 @@ window.APP_CONFIG = {
     <div id="p-gap" class="hint" hidden style="margin:0 0 8px"></div>
     <div id="p-home" class="trip-card" hidden style="margin-bottom:8px"><b id="p-home-t"></b><span class="hint" id="p-home-s"></span><div class="acts"><button class="btn sm primary" data-act="home-yes">نعم، نبّهني</button><button class="btn sm" data-act="home-edit">تعديل المكان</button><button class="btn sm" data-act="home-no">لا تعرض مجدداً</button></div></div>
     <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b id="p-off-t">الموقع مطفأ في هاتفه</b><span class="hint" id="p-off-s">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
+    <div id="p-psm" class="trip-card" hidden style="background:#FFF4DE;margin-bottom:8px"><b>توفير الطاقة مفعّل في هاتفه</b><span class="hint">قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.</span><button class="btn sm" data-act="p-psm-wa" style="margin-top:6px">راسله</button></div>
     <div id="p-trip"></div>
   </div>
 
@@ -1122,7 +1125,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '34';
+const UI_VERSION = '36';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1787,13 +1790,106 @@ const STYLES = {
     ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: ESRI, crossOrigin: 'anonymous' }],
     ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, crossOrigin: 'anonymous' }]] }
 };
-function setStyle(k) {
+/* ---------- خريطة Google (طبقة اختيارية، تعود تلقائياً للعادية عند أي فشل) ---------- */
+const GKEY = 'AIzaSyC8cO1SJcNJuyDfXaTTLh2EEdtcFfr39Ss';   // مقيّد بعنوان makanona.github.io وبخدمتي Maps JavaScript وGeocoding فقط
+const GOOGLE_DEFAULT = false;       // true = تصبح Google الافتراضية لمن لم يختر طبقة بنفسه
+const G_MAP_DAY_CAP = 12;           // أقصى تحميلات خريطة Google لكل هاتف في اليوم (السقف العام 300 في لوحة Google)
+const G_GEO_DAY_CAP = 25;           // أقصى طلبات عناوين Google لكل هاتف في اليوم
+function gQ(kind, bump) {
+  let q = {}; try { q = JSON.parse(localStorage.getItem('mk_gq') || '{}'); } catch {}
+  if (q.d !== dayKey(Date.now())) q = { d: dayKey(Date.now()), m: 0, g: 0 };
+  if (bump) { q[kind] = (q[kind] || 0) + 1; try { localStorage.setItem('mk_gq', JSON.stringify(q)); } catch {} }
+  return q[kind] || 0;
+}
+let _gP = null;
+function loadGoogle() {
+  if (window.google && google.maps && google.maps.Map) return Promise.resolve();
+  if (_gP) return _gP;
+  _gP = new Promise((res, rej) => {
+    const t = setTimeout(() => { _gP = null; rej(new Error('timeout')); }, 12000);
+    window.__gmReady = () => { clearTimeout(t); res(); };
+    window.gm_authFailure = () => gFail('auth', true);
+    const sc = document.createElement('script');
+    sc.src = `https://maps.googleapis.com/maps/api/js?key=${GKEY}&language=${LANG}&v=quarterly&callback=__gmReady`;
+    sc.async = true;
+    sc.onerror = () => { clearTimeout(t); _gP = null; rej(new Error('load')); };
+    document.head.appendChild(sc);
+  });
+  return _gP;
+}
+/* طبقة تُبقي خريطة Google تحت Leaflet وتزامن مركزها وتقريبها (لا تُنشأ إلا مرة واحدة لكل فتح للصفحة) */
+const GLayer = L.Layer.extend({
+  onAdd(map) {
+    const box = map.getContainer();
+    if (!this._el) {
+      this._el = document.createElement('div'); this._el.className = 'g-base';
+      box.insertBefore(this._el, box.firstChild);
+      const c = map.getCenter();
+      this._gm = new google.maps.Map(this._el, { center: { lat: c.lat, lng: c.lng }, zoom: Math.min(map.getZoom(), 21), disableDefaultUI: true, gestureHandling: 'none', keyboardShortcuts: false, clickableIcons: false, backgroundColor: '#e8e6e0' });
+      google.maps.event.addListenerOnce(this._gm, 'tilesloaded', () => { this._ok = true; this.fire('gok'); });
+    } else {
+      this._el.style.display = '';
+      if (!this._el.parentNode) box.insertBefore(this._el, box.firstChild);
+      try { google.maps.event.trigger(this._gm, 'resize'); } catch {}
+    }
+    this._sync();
+  },
+  onRemove() { if (this._el) this._el.style.display = 'none'; },
+  getEvents() { return { move: this._sync, zoomend: this._sync, resize: this._rs, zoomanim: this._anim }; },
+  _cam(c, z) {
+    const gm = this._gm; if (!gm) return;
+    z = Math.max(0, Math.min(Math.round(z), 21));
+    try { if (gm.moveCamera) gm.moveCamera({ center: { lat: c.lat, lng: c.lng }, zoom: z }); else { gm.setZoom(z); gm.setCenter({ lat: c.lat, lng: c.lng }); } } catch {}
+  },
+  _sync() { if (this._map) this._cam(this._map.getCenter(), this._map.getZoom()); },
+  _anim(e) { this._cam(e.center, e.zoom); },
+  _rs() { try { google.maps.event.trigger(this._gm, 'resize'); } catch {} this._sync(); }
+});
+function gAllowed() {
+  let bad = ''; try { bad = localStorage.getItem('mk_gbad') || ''; } catch {}
+  return !S.gBad && bad !== dayKey(Date.now()) && (!!S.gLayer || gQ('m') < G_MAP_DAY_CAP);
+}
+function renderStyleMenu() {
+  $('style-menu').innerHTML = Object.entries(STYLES).sort((a, b) => (b[0] === 'g') - (a[0] === 'g')).map(([key, v]) => `<button data-act="style" data-id="${key}" class="${key === S.styleKey ? 'on' : ''}">${esc(v.name)}</button>`).join('');
+}
+function gFail(why, day) {
+  S.gBad = why;
+  if (day) { try { localStorage.setItem('mk_gbad', dayKey(Date.now())); } catch {} }
+  clearTimeout(S.gT);
+  if (!S.map) return;
+  if (S.gLayer && S.map.hasLayer(S.gLayer)) S.map.removeLayer(S.gLayer);
+  if (S.styleKey === 'g') {
+    S.base = S.base.filter(l => l !== S.gLayer);
+    if (!S.base.length) for (const [url, opt] of STYLES.osm.layers) S.base.push(L.tileLayer(url, opt).addTo(S.map));
+    S.styleKey = 'osm'; renderStyleMenu();
+    if (S.gLoud && !S.gToasted) { S.gToasted = 1; toast(_t("خريطة Google غير متاحة الآن، عُرضت الخريطة العادية")); }
+  }
+}
+async function gTry(tok) {
+  if (!gAllowed()) { gFail(S.gBad || 'cap'); return; }
+  try { await loadGoogle(); } catch { gFail('load'); return; }
+  if (tok !== S.styTok || S.gBad) return;
+  let lay = S.gLayer;
+  if (!lay) { gQ('m', true); lay = S.gLayer = new GLayer(); }
+  const swap = () => { if (tok !== S.styTok || S.gBad) return; S.base.forEach(l => { if (l !== lay) S.map.removeLayer(l); }); S.base = [lay]; clearTimeout(S.gT); };
+  lay.addTo(S.map);
+  if (lay._ok) { swap(); return; }
+  lay.once('gok', swap);
+  clearTimeout(S.gT); S.gT = setTimeout(() => { if (!lay._ok && tok === S.styTok) gFail('tiles'); }, 12000);
+}
+const OSM_LAYERS = [['https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: OSM, crossOrigin: 'anonymous' }]];
+STYLES.g = { name: _t("Google (أسماء أوضح)"), layers: OSM_LAYERS };   // layers هنا للتقارير والاحتياط فقط
+function setStyle(k, save) {
   if (!STYLES[k]) k = 'osm';
+  const tok = S.styTok = (S.styTok || 0) + 1;
+  clearTimeout(S.gT);
+  if (S.gLayer && S.map.hasLayer(S.gLayer)) S.map.removeLayer(S.gLayer);
   S.base.forEach(l => S.map.removeLayer(l)); S.base = [];
-  for (const [url, opt] of STYLES[k].layers) { const l = L.tileLayer(url, opt).addTo(S.map); S.base.push(l); }
-  try { localStorage.setItem('mapStyle', k); } catch {}
-  S.styleKey = k;
-  $('style-menu').innerHTML = Object.entries(STYLES).map(([key, v]) => `<button data-act="style" data-id="${key}" class="${key === k ? 'on' : ''}">${esc(v.name)}</button>`).join('');
+  for (const [url, opt] of STYLES[k].layers) { const l = L.tileLayer(url, opt).addTo(S.map); S.base.push(l); }   // مع Google: تظهر العادية فوراً ثم تُستبدل حين تجهز
+  if (save) { try { localStorage.setItem('mapStyle2', k); } catch {} }
+  S.styleKey = k; S.gLoud = !!save;
+  renderStyleMenu();
+  if (k === 'g') gTry(tok);
 }
 function syncMarks() {
   if (!S.map || !S.hmk) return;
@@ -1802,7 +1898,7 @@ function syncMarks() {
 }
 function initMap() {
   if (S.map) { setTimeout(() => S.map.invalidateSize(), 50); return; }
-  S.map = L.map('map', { zoomControl: false }).setView([35.0, 38.0], 6);
+  S.map = L.map('map', { zoomControl: false, maxZoom: 19 }).setView([35.0, 38.0], 6);
   S.hl = L.layerGroup().addTo(S.map);
   S.hsel = L.layerGroup().addTo(S.map);
   S.hmk = L.layerGroup();
@@ -1810,8 +1906,9 @@ function initMap() {
   S.plg = L.layerGroup().addTo(S.map);
   S.map.on('zoomend', () => { syncMarks(); if (S.person) renderMap(); });   // التراكب يتغير مع التكبير
   S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng, '', S.pickFriend); else mapTap(); });
-  let k = 'osm'; try { k = localStorage.getItem('mapStyle') || 'osm'; } catch {}
-  setStyle(k);
+  let k = GOOGLE_DEFAULT ? 'g' : 'osm';
+  try { const s2 = localStorage.getItem('mapStyle2'), s1 = localStorage.getItem('mapStyle'); k = s2 || ((s1 === 'sat' || s1 === 'hybrid') ? s1 : k); } catch {}
+  setStyle(k, false);
   setTimeout(() => S.map.invalidateSize(), 100);
 }
 $('btn-style').onclick = () => { $('style-menu').hidden = !$('style-menu').hidden; };
@@ -1896,6 +1993,29 @@ function fmtAddr(d) {
   if (parts.length) return parts.slice(0, 3).join(`${_t("،")} `);
   return d.name || String(d.display_name || '').split(',').slice(0, 2).join(_t("،"));
 }
+function fmtGAddr(results) {
+  const ok = x => !(x.types || []).includes('plus_code');
+  const r = results.find(x => ok(x) && (x.types || []).some(t => ['street_address', 'route', 'premise', 'neighborhood', 'sublocality'].includes(t))) || results.find(ok);
+  if (!r) return '';
+  const g = t => { const c = (r.address_components || []).find(c => c.types.includes(t)); return c ? c.long_name : ''; };
+  const parts = [];
+  for (const x of [g('route'), g('sublocality_level_1') || g('sublocality') || g('neighborhood'), g('locality') || g('administrative_area_level_2') || g('administrative_area_level_1')]) if (x && !parts.includes(x)) parts.push(x);
+  if (parts.length) return parts.slice(0, 3).join(`${_t("،")} `);
+  return String(r.formatted_address || '').split(',').slice(0, 2).join(_t("،"));
+}
+async function gGeocode(la, ln) {
+  if (S.gGeoBad && Date.now() - S.gGeoBad < 3600000) return '';
+  if (gQ('g') >= G_GEO_DAY_CAP) return '';
+  try { await loadGoogle(); } catch { return ''; }
+  try {
+    gQ('g', true);
+    const r = await new google.maps.Geocoder().geocode({ location: { lat: la, lng: ln }, language: LANG });
+    return fmtGAddr((r && r.results) || []);
+  } catch (e) {
+    if (/OVER_QUERY_LIMIT|REQUEST_DENIED|OVER_DAILY_LIMIT/.test(String((e && (e.code || e.message)) || e))) S.gGeoBad = Date.now();
+    return '';
+  }
+}
 function geocode(la, ln) {
   const k = addrKey(la, ln);
   if (ADDR.cache[k]) return Promise.resolve(ADDR.cache[k]);
@@ -1907,8 +2027,8 @@ async function pumpAddr() {
   while (ADDR.q.length) {
     const j = ADDR.q.shift();
     if (ADDR.cache[j.k]) { j.res(ADDR.cache[j.k]); continue; }
-    let txt = '';
-    try {
+    let txt = await gGeocode(j.la, j.ln); const viaG = !!txt;      // Google أولاً، وNominatim احتياطي
+    if (!txt) try {
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 8000);
       const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=${LANG}&lat=${j.la}&lon=${j.ln}`, { signal: ctl.signal });
       clearTimeout(to);
@@ -1920,7 +2040,7 @@ async function pumpAddr() {
       try { localStorage.setItem('addrCache', JSON.stringify(ADDR.cache)); } catch {}
     } else ADDR.fail[j.k] = Date.now();
     j.res(txt);
-    await sleep(1100);          // سياسة الخدمة: طلب واحد في الثانية كحد أقصى
+    if (!viaG) await sleep(1100);          // سياسة Nominatim: طلب واحد في الثانية كحد أقصى
   }
   ADDR.busy = false;
 }
@@ -2206,6 +2326,7 @@ const ONLINE_MS = 330000;                                                  // 2.
 const DIRS = ["الشمال", "الشمال الشرقي", "الشرق", "الجنوب الشرقي", "الجنوب", "الجنوب الغربي", "الغرب", "الشمال الغربي"];
 const dirName = b => _t(DIRS[Math.round(((Number(b) || 0) % 360 + 360) % 360 / 45) % 8]);
 const lastSeen = l => Math.max(Number(l.ts) || 0, Number(l.hb) || 0);
+const batAt = l => typeof l.psm === 'boolean' ? lastSeen(l) : (Number(l.ts) || 0);   // 3.1+ يرسل البطارية مع إشارة الحياة؛ الأقدم مع الموقع فقط
 const hbOn = l => !!l && Date.now() - lastSeen(l) < ONLINE_MS;                // التطبيق متصل الآن (موقع أو إشارة حياة حديثة)
 const deadBat = l => !!l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 5 && !l.chg && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - ONLINE_MS;
 function describe(id) {
@@ -2236,7 +2357,7 @@ function renderSheet() {
     const lowBat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 && l.bat <= 15 && !l.chg;
     const stale = !fz && l && typeof l.ts === 'number' && Date.now() - l.ts > 30 * 60e3;
     const warn = (off || lowBat || stale) ? `<span class="warn-ic" title="${off ? (l.noperm === true ? _t("ألغى إذن الموقع للتطبيق") : _t("الموقع مطفأ في هاتفه")) : lowBat ? _t("بطارية ضعيفة") : _t("انقطع تحديث موقعه")}">!</span>` : '';
-    const batAge = l ? Date.now() - lastSeen(l) : 0, batNow = !!l && hbOn(l);
+    const batAge = l ? Date.now() - batAt(l) : 0, batNow = !!l && Date.now() - batAt(l) < ONLINE_MS;
     const bat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 && batAge < 6 * 3600e3 ? tf("بطارية {0}%{1}", l.bat, l.chg && batNow ? ' ⚡' : '') : '';   // بطارية قديمة لا تُعرض كأنها الآن
     const ad = addrOf(id);
     rows.push(`<div class="row tap" data-act="focus" data-id="${esc(id)}"><div class="av" style="${avStyle(d)}">${avText(d)}</div><div class="grow"><div class="nm">${esc(name)}${warn}${fz ? '' : mvHtml(l, id)}</div><div class="st ${ds.cls}">${esc(ds.txt)}</div>${ad ? `<div class="st">${esc(ad)}</div>` : ''}</div><div class="meta">${bat}</div></div>`);
@@ -2281,8 +2402,9 @@ function renderPerson() {
   $('p-st').textContent = ds.txt; $('p-st').className = 'st ' + ds.cls;
   $('p-addr').textContent = addrOf(id);
   const fz = id !== S.uid && !!recipWhy(id);                            // موقعه متجمّد عندي: لا بطارية ولا مسافة قديمة
-  const batNow = !!l && hbOn(l);
-  const bat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (batNow ? (l.chg ? ' ⚡ ' + _t("على الشاحن") : '') + (l.psm === true ? ' · ' + _t("توفير الطاقة مفعّل") : '') : ' · ' + tf("قبل {0}", ago(lastSeen(l)))) : '';
+  const batNow = !!l && Date.now() - batAt(l) < ONLINE_MS;
+  const bat = !fz && l && typeof l.bat === 'number' && l.bat >= 0 ? l.bat + '%' + (batNow ? (l.chg ? ' ⚡ ' + _t("على الشاحن") : '') + (l.psm === true ? ' · ' + _t("توفير الطاقة مفعّل") : '') : ' · ' + tf("قبل {0}", ago(batAt(l)))) : '';
+  $('p-psm').hidden = !(!fz && id !== S.uid && l && l.psm === true && batNow);
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
   $('p-wifi').hidden = !(!fz && l && l.wifi === false && typeof l.ts === 'number' && Date.now() - l.ts < 600000);   // التطبيق 2.7: الواي فاي مطفأ فتقل الدقة داخل المباني
   const offBad = !fz && !!(l && (l.off === true || l.noperm === true));
@@ -2995,7 +3117,12 @@ function renderAdmin() {
     const iss = d.issues || [], wr = d.warns || [];
     const chips = iss.map(c => `<span class="badge bad">${esc(issueTitle(c))}</span>`).join(' ') + ' ' + wr.map(c => `<span class="badge warn">${esc(issueTitle(c))}</span>`).join(' ');
     const meta = [d.rom, d.wv ? 'WebView ' + d.wv : '', d.provider === 'fused' ? 'Google' : d.provider === 'gps' ? 'GPS' : '', d.bucket ? 'bucket ' + d.bucket : '', d.sysKills24 ? tf("إغلاقات من النظام اليوم: {0}", d.sysKills24) : ''].filter(Boolean).join(' · ');
-    return `<details class="hint"><summary style="cursor:pointer">${_t("تشخيص الجهاز")} ${iss.length ? `<span class="badge bad">${iss.length}</span>` : `<span class="badge ok">${_t("سليم")}</span>`} · ${tf("قبل {0}", esc(ago(d._at || d.at)))}</summary>${chips.trim() ? `<div style="margin:4px 0">${chips}</div>` : ''}<div dir="ltr" style="text-align:right">${esc(meta)}</div></details>`;
+    const l = (S.locs || {})[u], silent = l ? Date.now() - lastSeen(l) : 0;
+    const killed = !iss.length && !!l && l.off !== true && l.noperm !== true && silent > 2 * 3600e3;   // «سليم» لكن لا يصل منه شيء: مدير طاقة الشركة يغلقه
+    const bgOnly = !!l && l.src === 'bg' && silent < 30 * 60e3;
+    const badge = iss.length ? `<span class="badge bad">${iss.length}</span>` : killed ? `<span class="badge warn">${_t("يغلقه الهاتف")}</span>` : `<span class="badge ok">${_t("سليم")}</span>`;
+    const note = killed ? `<div class="hint" style="color:var(--bad)">${esc(tf("الإعدادات سليمة لكن لم يصل منه شيء منذ {0}: نظام الهاتف يغلق التطبيق. اطلب منه فتح مكاننا وإعداد «التشغيل التلقائي» (ولهواتف Infinix: Phone Master).", ago(lastSeen(l))))}</div>` : bgOnly ? `<div class="hint">${_t("خدمة مكاننا مغلقة في هاتفه، والموقع يصل عبر خدمات Google كل بضع دقائق.")}</div>` : '';
+    return `<details class="hint"><summary style="cursor:pointer">${_t("تشخيص الجهاز")} ${badge} · ${tf("قبل {0}", esc(ago(d._at || d.at)))}</summary>${chips.trim() ? `<div style="margin:4px 0">${chips}</div>` : ''}<div dir="ltr" style="text-align:right">${esc(meta)}</div></details>${note}`;
   };
   const sickIds = ids.filter(u => { const d = dgOf(u); return d && (d.issues || []).length && S.users[u].status !== 'disabled'; });
   const sickCard = sickIds.length ? `<div class="card"><b>${tf("أجهزة فيها مشاكل قد توقف الإرسال: {0}", sickIds.length)}</b>${sickIds.map(u => `<div class="row" style="padding:4px 0"><div class="grow"><div class="nm">${esc(S.dir[u]?.name || S.users[u]?.name || u)}</div><div class="st">${esc((dgOf(u).issues || []).map(issueTitle).join(`${_t("،")} `))}</div>${admLine(u)}</div><button class="btn sm" data-act="amw-one" data-id="${esc(u)}">${_t("رسالة")}</button></div>`).join('')}</div>` : '';
@@ -3211,7 +3338,7 @@ const ACTIONS = {
     openExternal('https://wa.me/' + id + '?text=' + encodeURIComponent(tf("جرّب تطبيق {0} لمشاركة الموقع مع العائلة. حمّله من: {1}", CFG.appName, url)));
   },
   'hist-load': () => loadHistory(),
-  style: id => { setStyle(id); $('style-menu').hidden = true; },
+  style: id => { setStyle(id, true); $('style-menu').hidden = true; },
   color: id => { S.pickColor = id; renderMe(); },
   add: async id => {
     const me = S.dir[S.uid] || {};
@@ -3368,6 +3495,7 @@ const ACTIONS = {
   nick: id => openNick(id),
   'photo-pick': () => $('photo-file').click(),
   'photo-del': async () => { await update(ref(db), { ['directory/' + S.uid + '/photo']: null }); toast(_t("أُزيلت الصورة")); },
+  'p-psm-wa': () => { const ph = phoneOf(S.person); const msg = _t("مرحباً، وضع توفير الطاقة مفعّل في هاتفك وقد يوقف مكاننا. أطفئه من الإعدادات ← البطارية من فضلك."); if (ph) openExternal('https://wa.me/' + ph + '?text=' + encodeURIComponent(msg)); else toast(_t("رقمه ليس في جهات اتصالك")); },
   'p-wa': () => { const ph = phoneOf(S.person); if (ph) openExternal('https://wa.me/' + ph); },
   'p-nav': () => { const l = S.locs[S.person]; if (l && typeof l.lat === 'number') navTo(l.lat, l.lng); },
   'p-otw': () => { const id = S.person, l = S.locs[id]; if (l && typeof l.lat === 'number') openTrip({ u: id, lat: l.lat, lng: l.lng, name: dispName(id) }); },
@@ -4557,7 +4685,8 @@ const STEPS = [
   { id: 'battery', title: _t("عدم تقييد البطارية"), text: _t("اسمح للتطبيق بالعمل في الخلفية دون أن يوقفه توفير الطاقة. هذا يمنع انقطاع الموقع."), btn: _t("السماح"), act: () => AndroidBridge.ignoreBattery(), done: s => s.battery, skipLabel: _t("لاحقاً"), onSkip: () => localStorage.setItem('skip_battery', '1'), skipped: () => flag('skip_battery') },
   { id: 'contacts', title: _t("جهات الاتصال"), text: _t("ليجد التطبيق أهلك وأصدقاءك المشتركين من أرقام هاتفك. تبقى أسماء جهاتك على هاتفك، وتُرسل بصمات مشفّرة لأرقامك للمطابقة فقط."), btn: _t("السماح"), act: () => AndroidBridge.requestContacts(), done: s => s.contacts, skipLabel: _t("لاحقاً"), onSkip: () => localStorage.setItem('skip_contacts', '1'), skipped: () => flag('skip_contacts') },
   { id: 'act', only: s => s.actAsk === true, title: _t("النشاط البدني (اختياري)"), text: _t("يعرف الهاتف إن كنت ثابتاً أو تمشي أو في سيارة، فيطفئ GPS وأنت ثابت ليوفّر البطارية، ويصبح تصنيف رحلاتك أدق. لا يُرفع إلا نوع الرحلة."), btn: _t("السماح"), act: () => AndroidBridge.requestActivity(), done: s => s.act !== false, skipLabel: _t("تخطي"), onSkip: () => localStorage.setItem('skip_act', '1'), skipped: () => flag('skip_act') },
-  { id: 'auto', only: s => s.oem, title: _t("التشغيل التلقائي"), text: _t("هاتفك من نوع يوقف التطبيقات في الخلفية. افتح الإعداد وفعّل «التشغيل التلقائي» أو «السماح بالعمل في الخلفية» لهذا التطبيق."), btn: _t("فتح الإعداد"), act: () => AndroidBridge.openAutoStart(), done: () => flag('auto_done'), skipLabel: _t("تم، فعّلته"), onSkip: () => localStorage.setItem('auto_done', '1'), skipped: () => false }
+  { id: 'tr', only: s => isTranssion(s), title: _t("Phone Master (هواتف Infinix وTecno)"), text: _t("هاتفك يغلق التطبيقات عبر «Phone Master». افتحه ثم: فعّل التشغيل التلقائي لمكاننا، وأضفه إلى القائمة البيضاء، وتأكد أنه غير مجمّد (App Freeze)."), btn: _t("فتح Phone Master"), act: () => { try { AndroidBridge.openPhoneMaster(); } catch { try { AndroidBridge.openAutoStart(); } catch {} } }, link: { label: _t("الدليل المصوّر خطوة بخطوة"), url: () => location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '') + 'infinix-help.pdf' }, done: () => flag('tr_done'), skipLabel: _t("تم، فعّلته"), onSkip: () => localStorage.setItem('tr_done', '1'), skipped: () => false },
+  { id: 'auto', only: s => s.oem && !isTranssion(s), title: _t("التشغيل التلقائي"), text: _t("هاتفك من نوع يوقف التطبيقات في الخلفية. افتح الإعداد وفعّل «التشغيل التلقائي» أو «السماح بالعمل في الخلفية» لهذا التطبيق."), btn: _t("فتح الإعداد"), act: () => AndroidBridge.openAutoStart(), done: () => flag('auto_done'), skipLabel: _t("تم، فعّلته"), onSkip: () => localStorage.setItem('auto_done', '1'), skipped: () => false }
 ];
 
 /* ---------- تشخيص الجهاز وشاشة الإصلاح: تتكرر عند كل فتح حتى يُحل الخلل ---------- */
@@ -4714,6 +4843,7 @@ function watchTick() {
 }
 setInterval(watchTick, 4000);
 setInterval(() => { if (!document.hidden) updateNotifBadge(); }, 20000);
+const isTranssion = s => /infinix|tecno|itel|transsion/.test(String((s && s.brand) || '').toLowerCase());
 function wizNext(s) { for (const st of STEPS) { if (st.only && !st.only(s)) continue; if (st.done(s)) continue; if (st.skipped && st.skipped()) continue; return st; } return null; }
 let wizTimer = null;
 function ensureNative() {
@@ -4736,11 +4866,12 @@ function renderWizard() {
   const vis = STEPS.filter(x => !x.only || x.only(s));
   $('wiz-dots').innerHTML = vis.map(x => `<i class="${x.done(s) ? 'done' : x.id === st.id ? 'cur' : ''}"></i>`).join('');
   $('wiz-title').textContent = st.title; $('wiz-text').textContent = st.text;
+  const lk = $('wiz-link'); lk.hidden = !st.link; if (st.link) { lk.textContent = st.link.label; lk.onclick = () => openExternal(st.link.url()); }
   const go = $('wiz-go'); go.textContent = st.btn; go.onclick = () => st.act();
   const sk = $('wiz-skip'); sk.hidden = !st.skipLabel; sk.textContent = st.skipLabel || ''; sk.onclick = () => { st.onSkip?.(); renderWizard(); };
 }
 $('btn-notif-set').onclick = () => { try { window.AndroidBridge.openChannelSettings(); } catch {} };
-$('btn-wiz').onclick = () => { ['skip_fine', 'skip_bg', 'skip_notif', 'skip_battery', 'skip_contacts', 'auto_done'].forEach(k => localStorage.removeItem(k)); const s = nat(); if (s && wizNext(s)) openWizard(); else { toast(_t("كل الإعدادات مكتملة")); startShare(); } };
+$('btn-wiz').onclick = () => { ['skip_fine', 'skip_bg', 'skip_notif', 'skip_battery', 'skip_contacts', 'auto_done', 'tr_done'].forEach(k => localStorage.removeItem(k)); const s = nat(); if (s && wizNext(s)) openWizard(); else { toast(_t("كل الإعدادات مكتملة")); startShare(); } };
 document.addEventListener('visibilitychange', () => { if (!document.hidden && isNative && S.started) { renderUpdate(); ensureNative(); } });
 
 /* ---------- اللغة ---------- */

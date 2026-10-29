@@ -64,6 +64,8 @@ window.I18N.fr = {
 "عادية (أسماء عربية)": "Standard",
 "قمر صناعي": "Satellite",
 "هجين (قمر صناعي وأسماء)": "Hybride (satellite et noms)",
+"Google (أسماء أوضح)": "Google (noms plus clairs)",
+"خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Maps n'est pas disponible pour le moment, la carte standard est affichée.",
 "كم/س": "km/h",
 "{0} م": "{0} m",
 "{0} كم": "{0} km",
@@ -1067,5 +1069,15 @@ window.I18N.fr = {
 "الجنوب": "le sud",
 "الجنوب الغربي": "le sud-ouest",
 "الغرب": "l'ouest",
-"الشمال الغربي": "le nord-ouest"
+"الشمال الغربي": "le nord-ouest",
+"يغلقه الهاتف": "le téléphone la ferme",
+"الإعدادات سليمة لكن لم يصل منه شيء منذ {0}: نظام الهاتف يغلق التطبيق. اطلب منه فتح مكاننا وإعداد «التشغيل التلقائي» (ولهواتف Infinix: Phone Master).": "Les réglages semblent corrects mais rien n'arrive depuis {0} : le système du téléphone ferme l'appli. Demande-lui d'ouvrir Makanona et de régler « Démarrage auto » (sur Infinix : Phone Master).",
+"خدمة مكاننا مغلقة في هاتفه، والموقع يصل عبر خدمات Google كل بضع دقائق.": "Le service Makanona est fermé sur son téléphone ; la position arrive via les services Google toutes les quelques minutes.",
+"مرحباً، وضع توفير الطاقة مفعّل في هاتفك وقد يوقف مكاننا. أطفئه من الإعدادات ← البطارية من فضلك.": "Bonjour, l'économie d'énergie est activée sur ton téléphone et peut arrêter Makanona. Désactive-la dans Réglages → Batterie s'il te plaît.",
+"Phone Master (هواتف Infinix وTecno)": "Phone Master (téléphones Infinix et Tecno)",
+"هاتفك يغلق التطبيقات عبر «Phone Master». افتحه ثم: فعّل التشغيل التلقائي لمكاننا، وأضفه إلى القائمة البيضاء، وتأكد أنه غير مجمّد (App Freeze).": "Ton téléphone ferme les applis via « Phone Master ». Ouvre-le puis : active le démarrage auto pour Makanona, ajoute-la à la liste blanche et vérifie qu'elle n'est pas gelée (App Freeze).",
+"فتح Phone Master": "Ouvrir Phone Master",
+"الدليل المصوّر خطوة بخطوة": "Guide illustré étape par étape",
+"توفير الطاقة مفعّل في هاتفه": "L'économie d'énergie est activée sur son téléphone",
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Cela peut retarder ou arrêter sa position. Demande-lui de la désactiver dans Réglages → Batterie."
 };

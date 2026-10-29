@@ -64,6 +64,8 @@ window.I18N.de = {
 "عادية (أسماء عربية)": "Standard",
 "قمر صناعي": "Satellit",
 "هجين (قمر صناعي وأسماء)": "Hybrid (Satellit und Namen)",
+"Google (أسماء أوضح)": "Google (klarere Namen)",
+"خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Maps ist gerade nicht verfügbar, die Standardkarte wird angezeigt.",
 "كم/س": "km/h",
 "{0} م": "{0} m",
 "{0} كم": "{0} km",
@@ -1067,5 +1069,15 @@ window.I18N.de = {
 "الجنوب": "Süden",
 "الجنوب الغربي": "Südwesten",
 "الغرب": "Westen",
-"الشمال الغربي": "Nordwesten"
+"الشمال الغربي": "Nordwesten",
+"يغلقه الهاتف": "Handy beendet sie",
+"الإعدادات سليمة لكن لم يصل منه شيء منذ {0}: نظام الهاتف يغلق التطبيق. اطلب منه فتح مكاننا وإعداد «التشغيل التلقائي» (ولهواتف Infinix: Phone Master).": "Die Einstellungen sind in Ordnung, aber seit {0} kam nichts an: Das System des Handys beendet die App. Bitte die Person, Makanona zu öffnen und „Autostart“ einzurichten (bei Infinix: Phone Master).",
+"خدمة مكاننا مغلقة في هاتفه، والموقع يصل عبر خدمات Google كل بضع دقائق.": "Der Makanona-Dienst ist auf dem Handy beendet; der Standort kommt alle paar Minuten über die Google-Dienste.",
+"مرحباً، وضع توفير الطاقة مفعّل في هاتفك وقد يوقف مكاننا. أطفئه من الإعدادات ← البطارية من فضلك.": "Hallo, der Energiesparmodus ist auf deinem Handy an und kann Makanona stoppen. Bitte schalte ihn unter Einstellungen → Akku aus.",
+"Phone Master (هواتف Infinix وTecno)": "Phone Master (Infinix- und Tecno-Handys)",
+"هاتفك يغلق التطبيقات عبر «Phone Master». افتحه ثم: فعّل التشغيل التلقائي لمكاننا، وأضفه إلى القائمة البيضاء، وتأكد أنه غير مجمّد (App Freeze).": "Dein Handy beendet Apps über „Phone Master“. Öffne es und: aktiviere Autostart für Makanona, füge es zur Whitelist hinzu und stelle sicher, dass es nicht eingefroren ist (App Freeze).",
+"فتح Phone Master": "Phone Master öffnen",
+"الدليل المصوّر خطوة بخطوة": "Bebilderte Schritt-für-Schritt-Anleitung",
+"توفير الطاقة مفعّل في هاتفه": "Energiesparen ist auf dem Handy an",
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Das kann den Standort verzögern oder stoppen. Bitte die Person, es unter Einstellungen → Akku auszuschalten."
 };

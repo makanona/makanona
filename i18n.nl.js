@@ -64,6 +64,8 @@ window.I18N.nl = {
 "عادية (أسماء عربية)": "Standaard",
 "قمر صناعي": "Satelliet",
 "هجين (قمر صناعي وأسماء)": "Hybride (satelliet en namen)",
+"Google (أسماء أوضح)": "Google (duidelijkere namen)",
+"خريطة Google غير متاحة الآن، عُرضت الخريطة العادية": "Google Maps is nu niet beschikbaar, de standaardkaart wordt getoond.",
 "كم/س": "km/u",
 "{0} م": "{0} m",
 "{0} كم": "{0} km",
@@ -1067,5 +1069,15 @@ window.I18N.nl = {
 "الجنوب": "zuid",
 "الجنوب الغربي": "zuidwest",
 "الغرب": "west",
-"الشمال الغربي": "noordwest"
+"الشمال الغربي": "noordwest",
+"يغلقه الهاتف": "telefoon sluit het",
+"الإعدادات سليمة لكن لم يصل منه شيء منذ {0}: نظام الهاتف يغلق التطبيق. اطلب منه فتح مكاننا وإعداد «التشغيل التلقائي» (ولهواتف Infinix: Phone Master).": "Instellingen lijken goed, maar al {0} komt er niets binnen: het systeem van de telefoon sluit de app. Vraag om Makanona te openen en ‘Automatisch starten’ in te stellen (op Infinix: Phone Master).",
+"خدمة مكاننا مغلقة في هاتفه، والموقع يصل عبر خدمات Google كل بضع دقائق.": "De Makanona-dienst is op de telefoon gesloten; de locatie komt om de paar minuten via Google-diensten.",
+"مرحباً، وضع توفير الطاقة مفعّل في هاتفك وقد يوقف مكاننا. أطفئه من الإعدادات ← البطارية من فضلك.": "Hoi, batterijbesparing staat aan op je telefoon en kan Makanona stoppen. Zet het uit via Instellingen → Batterij.",
+"Phone Master (هواتف Infinix وTecno)": "Phone Master (Infinix- en Tecno-telefoons)",
+"هاتفك يغلق التطبيقات عبر «Phone Master». افتحه ثم: فعّل التشغيل التلقائي لمكاننا، وأضفه إلى القائمة البيضاء، وتأكد أنه غير مجمّد (App Freeze).": "Je telefoon sluit apps via ‘Phone Master’. Open het en: zet Automatisch starten aan voor Makanona, voeg het toe aan de whitelist en controleer dat het niet bevroren is (App Freeze).",
+"فتح Phone Master": "Phone Master openen",
+"الدليل المصوّر خطوة بخطوة": "Stap-voor-stap handleiding met plaatjes",
+"توفير الطاقة مفعّل في هاتفه": "Batterijbesparing staat aan op de telefoon",
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Dit kan de locatie vertragen of stoppen. Vraag om het uit te zetten via Instellingen → Batterij."
 };
