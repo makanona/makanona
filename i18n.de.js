@@ -1081,5 +1081,18 @@ window.I18N.de = {
 "فتح Phone Master": "Phone Master öffnen",
 "الدليل المصوّر خطوة بخطوة": "Bebilderte Schritt-für-Schritt-Anleitung",
 "توفير الطاقة مفعّل في هاتفه": "Energiesparen ist auf dem Handy an",
-"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Das kann den Standort verzögern oder stoppen. Bitte die Person, es unter Einstellungen → Akku auszuschalten."
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Das kann den Standort verzögern oder stoppen. Bitte die Person, es unter Einstellungen → Akku auszuschalten.",
+"من شاهد بطاقتي": "Wer meine Karte angesehen hat",
+"يظهر هنا من فتح بطاقتك من أصدقائك، ومتى، وكم بقيت مفتوحة. يُحفظ آخر 30 يوماً.": "Hier siehst du, welche Freunde deine Karte geöffnet haben, wann und wie lange. Die letzten 30 Tage werden gespeichert.",
+"لم يفتح أحد بطاقتك بعد": "Noch niemand hat deine Karte geöffnet",
+"{0} ث": "{0} s",
+"{0} د {1} ث": "{0} Min. {1} s",
+"{0} د": "{0} Min.",
+"{0} مرات": "{0} Mal",
+"سجل المشاهدين": "Betrachter-Protokoll",
+"إيقاف سجل المشاهدين لـ {0}؟ يتوقف تسجيل الجديد، ويبقى القديم حتى يُحذف بعد 30 يوماً.": "Betrachter-Protokoll für {0} ausschalten? Neue Aufrufe werden nicht mehr erfasst; alte bleiben bis zur Löschung nach 30 Tagen.",
+"تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Betrachter-Protokoll für {0} einschalten? Die Person sieht, wer ihre Karte wann und wie lange geöffnet hat.",
+"تفعيل": "Einschalten",
+"أُوقف سجل المشاهدين": "Betrachter-Protokoll ausgeschaltet",
+"فُعّل سجل المشاهدين": "Betrachter-Protokoll eingeschaltet"
 };

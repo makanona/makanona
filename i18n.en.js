@@ -1081,5 +1081,18 @@ window.I18N.en = {
 "فتح Phone Master": "Open Phone Master",
 "الدليل المصوّر خطوة بخطوة": "Step-by-step picture guide",
 "توفير الطاقة مفعّل في هاتفه": "Battery saver is on on their phone",
-"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "It may delay or stop their location. Ask them to turn it off in Settings → Battery."
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "It may delay or stop their location. Ask them to turn it off in Settings → Battery.",
+"من شاهد بطاقتي": "Who viewed my card",
+"يظهر هنا من فتح بطاقتك من أصدقائك، ومتى، وكم بقيت مفتوحة. يُحفظ آخر 30 يوماً.": "Shows which of your friends opened your card, when, and for how long. The last 30 days are kept.",
+"لم يفتح أحد بطاقتك بعد": "Nobody has opened your card yet",
+"{0} ث": "{0} s",
+"{0} د {1} ث": "{0} min {1} s",
+"{0} د": "{0} min",
+"{0} مرات": "{0} times",
+"سجل المشاهدين": "Viewers log",
+"إيقاف سجل المشاهدين لـ {0}؟ يتوقف تسجيل الجديد، ويبقى القديم حتى يُحذف بعد 30 يوماً.": "Turn off the viewers log for {0}? New views stop being recorded; old ones stay until deleted after 30 days.",
+"تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Turn on the viewers log for {0}? They will see who opened their card, when and for how long.",
+"تفعيل": "Turn on",
+"أُوقف سجل المشاهدين": "The viewers log was turned off",
+"فُعّل سجل المشاهدين": "The viewers log was turned on"
 };

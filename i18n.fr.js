@@ -1081,5 +1081,18 @@ window.I18N.fr = {
 "فتح Phone Master": "Ouvrir Phone Master",
 "الدليل المصوّر خطوة بخطوة": "Guide illustré étape par étape",
 "توفير الطاقة مفعّل في هاتفه": "L'économie d'énergie est activée sur son téléphone",
-"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Cela peut retarder ou arrêter sa position. Demande-lui de la désactiver dans Réglages → Batterie."
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Cela peut retarder ou arrêter sa position. Demande-lui de la désactiver dans Réglages → Batterie.",
+"من شاهد بطاقتي": "Qui a vu ma fiche",
+"يظهر هنا من فتح بطاقتك من أصدقائك، ومتى، وكم بقيت مفتوحة. يُحفظ آخر 30 يوماً.": "Affiche quels amis ont ouvert votre fiche, quand et pendant combien de temps. Les 30 derniers jours sont conservés.",
+"لم يفتح أحد بطاقتك بعد": "Personne n'a encore ouvert votre fiche",
+"{0} ث": "{0} s",
+"{0} د {1} ث": "{0} min {1} s",
+"{0} د": "{0} min",
+"{0} مرات": "{0} fois",
+"سجل المشاهدين": "Journal des visites",
+"إيقاف سجل المشاهدين لـ {0}؟ يتوقف تسجيل الجديد، ويبقى القديم حتى يُحذف بعد 30 يوماً.": "Désactiver le journal des visites pour {0} ? Les nouvelles visites ne sont plus enregistrées ; les anciennes restent jusqu'à suppression après 30 jours.",
+"تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Activer le journal des visites pour {0} ? La personne verra qui a ouvert sa fiche, quand et combien de temps.",
+"تفعيل": "Activer",
+"أُوقف سجل المشاهدين": "Journal des visites désactivé",
+"فُعّل سجل المشاهدين": "Journal des visites activé"
 };

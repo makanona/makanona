@@ -1081,5 +1081,18 @@ window.I18N.tr = {
 "فتح Phone Master": "Phone Master'ı aç",
 "الدليل المصوّر خطوة بخطوة": "Adım adım resimli rehber",
 "توفير الطاقة مفعّل في هاتفه": "Telefonunda güç tasarrufu açık",
-"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Konumunu geciktirebilir veya durdurabilir. Ayarlar → Pil'den kapatmasını iste."
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Konumunu geciktirebilir veya durdurabilir. Ayarlar → Pil'den kapatmasını iste.",
+"من شاهد بطاقتي": "Kartıma kim baktı",
+"يظهر هنا من فتح بطاقتك من أصدقائك، ومتى، وكم بقيت مفتوحة. يُحفظ آخر 30 يوماً.": "Arkadaşlarından hangilerinin kartını ne zaman ve ne kadar süre açtığını gösterir. Son 30 gün saklanır.",
+"لم يفتح أحد بطاقتك بعد": "Henüz kimse kartını açmadı",
+"{0} ث": "{0} sn",
+"{0} د {1} ث": "{0} dk {1} sn",
+"{0} د": "{0} dk",
+"{0} مرات": "{0} kez",
+"سجل المشاهدين": "Görüntüleyen kaydı",
+"إيقاف سجل المشاهدين لـ {0}؟ يتوقف تسجيل الجديد، ويبقى القديم حتى يُحذف بعد 30 يوماً.": "{0} için görüntüleyen kaydı kapatılsın mı? Yeni görüntülemeler kaydedilmez; eskiler 30 gün sonra silinene kadar kalır.",
+"تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "{0} için görüntüleyen kaydı açılsın mı? Kartını kimin, ne zaman ve ne kadar süre açtığını görecek.",
+"تفعيل": "Aç",
+"أُوقف سجل المشاهدين": "Görüntüleyen kaydı kapatıldı",
+"فُعّل سجل المشاهدين": "Görüntüleyen kaydı açıldı"
 };

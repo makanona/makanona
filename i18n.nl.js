@@ -1081,5 +1081,18 @@ window.I18N.nl = {
 "فتح Phone Master": "Phone Master openen",
 "الدليل المصوّر خطوة بخطوة": "Stap-voor-stap handleiding met plaatjes",
 "توفير الطاقة مفعّل في هاتفه": "Batterijbesparing staat aan op de telefoon",
-"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Dit kan de locatie vertragen of stoppen. Vraag om het uit te zetten via Instellingen → Batterij."
+"قد يؤخر وصول موقعه أو يوقفه. اطلب منه إطفاءه من الإعدادات ← البطارية.": "Dit kan de locatie vertragen of stoppen. Vraag om het uit te zetten via Instellingen → Batterij.",
+"من شاهد بطاقتي": "Wie mijn kaart bekeek",
+"يظهر هنا من فتح بطاقتك من أصدقائك، ومتى، وكم بقيت مفتوحة. يُحفظ آخر 30 يوماً.": "Toont welke vrienden je kaart openden, wanneer en hoe lang. De laatste 30 dagen worden bewaard.",
+"لم يفتح أحد بطاقتك بعد": "Nog niemand heeft je kaart geopend",
+"{0} ث": "{0} s",
+"{0} د {1} ث": "{0} min {1} s",
+"{0} د": "{0} min",
+"{0} مرات": "{0} keer",
+"سجل المشاهدين": "Bekijkerslog",
+"إيقاف سجل المشاهدين لـ {0}؟ يتوقف تسجيل الجديد، ويبقى القديم حتى يُحذف بعد 30 يوماً.": "Bekijkerslog uitzetten voor {0}? Nieuwe weergaven worden niet meer vastgelegd; oude blijven tot ze na 30 dagen worden verwijderd.",
+"تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Bekijkerslog aanzetten voor {0}? Die persoon ziet wie zijn kaart opende, wanneer en hoe lang.",
+"تفعيل": "Aanzetten",
+"أُوقف سجل المشاهدين": "Bekijkerslog uitgezet",
+"فُعّل سجل المشاهدين": "Bekijkerslog aangezet"
 };

@@ -431,7 +431,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=38"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=39"><\/script>');
 })();
 </script>
 <script>
@@ -720,6 +720,12 @@ window.APP_CONFIG = {
       <div class="sw-row"><span>تنبيهات تصلني على هاتفي عند توقف إرسال موقعي</span><label class="switch"><input type="checkbox" id="al-self-on" aria-label="تنبيهات عن هاتفي"><span></span></label></div>
       <div class="sw-row"><span>استقبال استغاثة SOS من أصدقائك</span><label class="switch"><input type="checkbox" id="al-sos-on" aria-label="استقبال SOS"><span></span></label></div>
       <button class="btn primary" data-act="al-save">حفظ التنبيهات</button>
+    </div>
+    </details>
+    <details class="acc" id="acc-vlog" hidden><summary><span>من شاهد بطاقتي</span></summary>
+<div class="card" id="vlog-card">
+      <p class="hint">يظهر هنا من فتح بطاقتك من أصدقائك، ومتى، وكم بقيت مفتوحة. يُحفظ آخر 30 يوماً.</p>
+      <div id="vlog-body"></div>
     </div>
     </details>
     <details class="acc" id="acc-places" ><summary><span>الأماكن</span><span class="badge warn" id="acc-places-b" hidden></span></summary>
@@ -1105,7 +1111,7 @@ setTimeout(function () { var l = document.getElementById('v-loading'), h = docum
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signInWithCredential, reauthenticateWithPopup } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt, push, orderByChild, startAt, limitToLast } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const CFG = window.APP_CONFIG;
 CFG.appName = t(CFG.appName);
@@ -1126,7 +1132,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '38';
+const UI_VERSION = '39';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1144,7 +1150,7 @@ const fmtTime = ts => new Date(ts).toLocaleTimeString(LOC, { hour: '2-digit', mi
 document.title = CFG.appName;
 $('brand').textContent = CFG.appName;
 
-const S = {
+const S = { perk: {}, perks: {}, vlog: {},
   uid: null, me: null, started: false, isAdmin: false, minor: false, tab: 'map', adm: 'members',
   dir: {}, mine: {}, their: {}, reqs: {}, locs: {}, hidden: {}, users: {}, invites: {}, settings: {},
   hState: 'min', hideAll: false, phoneReq: null, phoneReqs: {}, phoneInfoShown: false, _ph: null,
@@ -1577,6 +1583,7 @@ function startMain() {
     S.unsubs.guardians = onValue(ref(db, 'guardians'), s => { S.guardians = s.val() || {}; renderAdmin(); }, e => console.error('guardians', e));
     S.unsubs.devDiag = onValue(ref(db, 'devDiag'), s => { S.devDiag = s.val() || {}; renderAdmin(); }, e => console.error('devDiag', e));
     S.unsubs.plans = onValue(ref(db, 'plan'), s => { S.plans = s.val() || {}; renderAdmin(); }, e => console.error('plans', e));
+    S.unsubs.perks = onValue(ref(db, 'perks'), s => { S.perks = s.val() || {}; renderAdmin(); }, () => {});
     S.unsubs.admMsgs = onValue(ref(db, 'adminMsg'), s => { S.admMsgs = s.val() || {}; renderAdmin(); }, () => {});
     S.unsubs.appInfo = onValue(ref(db, 'appInfo'), s => { S.appInfo = s.val() || {}; renderAdmin(); }, e => console.error('appInfo', e));
     S.unsubs.phoneReqs = onValue(ref(db, 'phoneReq'), s => { S.phoneReqs = s.val() || {}; renderAdmin(); }, e => console.error('phoneReqs', e));
@@ -1606,6 +1613,7 @@ function startMain() {
     S.unsubs.places = onValue(ref(db, 'places/' + S.uid), s => { S.places = s.val() || {}; renderPlaces(); pushAlerts(); }, e => console.error('places', e));
     S.unsubs.hideAll = onValue(ref(db, 'hideAll/' + S.uid), s => { S.hideAll = s.val() === true; S.hideAllLoaded = true; recipEval(); if (S.tab === 'me') renderPeople(); renderSheet(); }, e => console.error('hideAll', e));
     S.unsubs.plan = onValue(ref(db, 'plan/' + S.uid), s => { S.plan = s.val(); renderPlan(); }, () => {});
+    S.unsubs.perk = onValue(ref(db, 'perks/' + S.uid), s => { S.perk = s.val() || {}; vlogSync(); }, () => {});
     S.unsubs.histHide = onValue(ref(db, 'histHide/' + S.uid), s => { S.histHides = s.val() || {}; renderPrivacy(); if (S.tab === 'me') renderPeople(); }, e => console.error('histHide', e));
     S.unsubs.histPriv = onValue(ref(db, 'histPrivate/' + S.uid), s => { S.histPriv = s.val() === true; renderPrivacy(); }, e => console.error('histPriv', e));
     S.unsubs.reportShare = onValue(ref(db, 'reportShare/' + S.uid), s => { S.reportShare = s.val() === true; renderPrivacy(); }, e => console.error('reportShare', e));
@@ -1634,7 +1642,7 @@ function stopMain() {
   S.linkUn = {}; S.dirUn = {}; S.dirErr = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.live = false; S.online = false; if ($('conn-bar')) $('conn-bar').hidden = true; S.hides = {}; S.histHides = {}; S.frz = {}; S.myTrip = null; S.tripIn = {}; S.tripsIn = {}; Object.values(S.tripUn || {}).forEach(f => f?.()); S.tripUn = {}; if ($('trip-bars')) $('trip-bars').innerHTML = ''; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
   S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
-  clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {}; S.plan = null; S.plans = {};
+  clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {}; S.plan = null; S.plans = {}; S.perk = {}; S.perks = {}; S.vlog = {}; vlogEnd(); VL.last = {}; VL.deny = {};
 }
 function cleanup(all) {
   stopMain(); S.fromSnap = null; S.gateBg = false;
@@ -3371,6 +3379,7 @@ function renderAdmin() {
     else if (x.status === 'disabled') b = `<button class="btn sm primary" data-act="enable" data-id="${esc(u)}">${_t("إعادة تفعيل")}</button>`;
     b += `<button class="btn sm" data-act="edit" data-id="${esc(u)}">${_t("الرقم والميلاد")}</button>`;
     b += `<button class="btn sm" data-act="plan-edit" data-id="${esc(u)}">${_t("السجل الطويل")}</button>`;
+    b += `<button class="btn sm" data-act="vl-edit" data-id="${esc(u)}">${_t("سجل المشاهدين")}: ${(S.perks || {})[u]?.viewlog === true ? _t("مفعّل") : _t("متوقف")}</button>`;
     if (x.birthYear && isMinor(x.birthYear)) b += `<button class="btn sm" data-act="guard-edit" data-id="${esc(u)}">${_t("أولياء الأمور")}</button>`;
     if (!self && x.status !== 'disabled') b += `<button class="btn sm" data-act="end-session" data-id="${esc(u)}">${_t("إنهاء جلسته")}</button>`;
     if (!self && x.status === 'approved') b += `<button class="btn sm" data-act="amw-one" data-id="${esc(u)}">${_t("رسالة")}</button>`;
@@ -3867,6 +3876,11 @@ const ACTIONS = {
       const j = await (await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'ping', idToken }) })).json();
       toast(j.ok ? tf("الاتصال سليم، المتبقي اليوم: {0} إيميل", j.quota) : tf("خطأ: {0}", j.error));
     } catch { toast(_t("تعذر الوصول إلى السكربت، تحقق من الرابط وصلاحية النشر")); }
+  },
+  'vl-edit': async id => {
+    const name = S.dir[id]?.name || S.users[id]?.name || '', on = (S.perks || {})[id]?.viewlog === true;
+    if (!(await ask(on ? tf("إيقاف سجل المشاهدين لـ {0}؟ يتوقف تسجيل الجديد، ويبقى القديم حتى يُحذف بعد 30 يوماً.", name) : tf("تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.", name), on ? _t("إيقاف") : _t("تفعيل")))) return;
+    try { await set(ref(db, 'perks/' + id + '/viewlog'), on ? null : true); toast(on ? _t("أُوقف سجل المشاهدين") : _t("فُعّل سجل المشاهدين")); } catch { toast(_t("تعذر الحفظ")); }
   },
   'plan-edit': async id => {
     const name = S.dir[id]?.name || S.users[id]?.name || '', p = S.plans[id], until = Number(p && p.until) || 0;
@@ -5058,12 +5072,67 @@ function watchSet(u, on) {
   set(ref(db, 'watch/' + u + '/' + S.uid), v).catch(() => {});
   set(ref(db, 'sig/' + u + '/w/' + S.uid), v).catch(() => {});        // قد يُرفض قبل نشر القواعد الجديدة، دون أثر
 }
-function watchStop() { if (WATCH.id && S.uid) watchSet(WATCH.id, false); WATCH.id = null; }
+/* سجل المشاهدين (ميزة يفعّلها المشرف): يُكتب سطر عند فتح بطاقة صديق ويُحدَّث كل ~18 ثانية بالمدة. إعادة الفتح خلال 10 دقائق تُدمج في السطر نفسه. */
+const VL = { id: null, key: null, s: 0, base: 0, n: 1, beat: 0, last: {}, deny: {} };
+const vlogDur = () => Math.min(86400, VL.base + Math.round((Date.now() - VL.s) / 1000));
+function vlogEnd() {
+  if (!VL.id || !VL.key || !S.uid) { VL.id = null; return; }
+  const id = VL.id, d = vlogDur();
+  update(ref(db, 'vlog/' + id + '/' + VL.key), { e: { '.sv': 'timestamp' }, d }).catch(() => {});
+  VL.last[id] = { key: VL.key, e: Date.now(), d, n: VL.n };
+  VL.id = null; VL.key = null;
+}
+function vlogTick(id) {
+  if (!id || !watchOk(id)) { if (VL.id) vlogEnd(); return; }
+  if (VL.id && VL.id !== id) vlogEnd();
+  const now = Date.now();
+  if (VL.id === id) {
+    if (now - VL.beat > 18000) { VL.beat = now; update(ref(db, 'vlog/' + id + '/' + VL.key), { e: { '.sv': 'timestamp' }, d: vlogDur() }).catch(() => { VL.deny[id] = Date.now(); VL.id = null; }); }
+    return;
+  }
+  if (VL.deny[id] && now - VL.deny[id] < 600000) return;
+  const L = VL.last[id], sv = { '.sv': 'timestamp' };
+  VL.s = now; VL.beat = now; VL.id = id;
+  if (L && now - L.e < 600000) {
+    VL.key = L.key; VL.base = L.d; VL.n = L.n + 1;
+    update(ref(db, 'vlog/' + id + '/' + L.key), { e: sv, d: L.d, n: VL.n }).catch(() => { VL.deny[id] = Date.now(); VL.id = null; });
+  } else {
+    VL.key = push(ref(db, 'vlog/' + id)).key; VL.base = 0; VL.n = 1;
+    set(ref(db, 'vlog/' + id + '/' + VL.key), { v: S.uid, t: sv, e: sv, d: 0, n: 1 }).catch(() => { VL.deny[id] = Date.now(); VL.id = null; });
+  }
+}
+const vlogFmt = d => d < 60 ? tf("{0} ث", Math.max(1, d)) : (d % 60 ? tf("{0} د {1} ث", Math.floor(d / 60), d % 60) : tf("{0} د", d / 60));
+function vlogSync() {
+  const on = !!S.uid && !S.limited && !!(S.perk && S.perk.viewlog === true);
+  if (on && !S.unsubs.vlog) {
+    const cut = Date.now() - 30 * 86400e3;
+    S.unsubs.vlog = onValue(query(ref(db, 'vlog/' + S.uid), orderByChild('t'), startAt(cut), limitToLast(300)), s => { S.vlog = s.val() || {}; renderVlog(); }, () => {});
+    get(query(ref(db, 'vlog/' + S.uid), orderByChild('t'), endAt(cut - 1))).then(sn => { sn.forEach(c => { remove(c.ref).catch(() => {}); }); }).catch(() => {});
+  } else if (!on && S.unsubs.vlog) { S.unsubs.vlog(); delete S.unsubs.vlog; S.vlog = {}; }
+  renderVlog();
+}
+function renderVlog() {
+  const acc = $('acc-vlog'); if (!acc) return;
+  const on = !!S.uid && !S.limited && !!(S.perk && S.perk.viewlog === true);
+  acc.hidden = !on; if (!on) return;
+  const rows = Object.values(S.vlog || {}).filter(r => r && typeof r.t === 'number').sort((a, b) => b.t - a.t);
+  if (!rows.length) { $('vlog-body').innerHTML = `<p class="hint">${_t("لم يفتح أحد بطاقتك بعد")}</p>`; return; }
+  let out = '', day = '';
+  for (const r of rows) {
+    const k = dayKey(r.t);
+    if (k !== day) { day = k; out += `<div class="hint" style="margin-top:8px"><b>${esc(dayLabel(k))}</b></div>`; }
+    const nm = dispName(r.v) !== '—' ? dispName(r.v) : (S.users?.[r.v]?.name || _t("صديق"));
+    out += `<div class="row"><div class="grow"><div class="nm">${esc(nm)}</div><div class="st">${esc(fmtTime(r.t))} · ${esc(vlogFmt(Number(r.d) || 0))}${r.n > 1 ? ' · ' + esc(tf("{0} مرات", r.n)) : ''}</div></div></div>`;
+  }
+  $('vlog-body').innerHTML = out;
+}
+function watchStop() { vlogEnd(); if (WATCH.id && S.uid) watchSet(WATCH.id, false); WATCH.id = null; }
 function watchTick() {
   if (!S.started || S.limited || document.hidden) return;
   const id = S.person && !$('psheet').hidden && S.tab === 'map' ? S.person : null;
   if (WATCH.id && WATCH.id !== id) watchStop();
   if (watchOk(id) && (WATCH.id !== id || Date.now() - WATCH.at > 18000)) { WATCH.id = id; WATCH.at = Date.now(); watchSet(id, true); }
+  vlogTick(id);
 }
 setInterval(watchTick, 4000);
 setInterval(() => { if (!document.hidden) updateNotifBadge(); }, 20000);
