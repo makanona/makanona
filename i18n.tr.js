@@ -1094,5 +1094,15 @@ window.I18N.tr = {
 "تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "{0} için görüntüleyen kaydı açılsın mı? Kartını kimin, ne zaman ve ne kadar süre açtığını görecek.",
 "تفعيل": "Aç",
 "أُوقف سجل المشاهدين": "Görüntüleyen kaydı kapatıldı",
-"فُعّل سجل المشاهدين": "Görüntüleyen kaydı açıldı"
+"فُعّل سجل المشاهدين": "Görüntüleyen kaydı açıldı",
+"مشترك": "Üye",
+"دعوات الأعضاء": "Üye davetleri",
+"مفعّلة. انضم بها {0} خلال 14 يوماً.": "Açık. Son 14 günde {0} kişi bunlarla katıldı.",
+"موقوفة: لا يُنشئ الأعضاء دعوات، ولا يُقبل أحد بدعوة عضو حتى تعيد تشغيلها.": "Durduruldu: siz yeniden açana kadar üyeler davet oluşturamaz ve kimse üye davetiyle katılamaz.",
+"إيقاف فوري": "Hemen durdur",
+"إعادة تشغيل": "Yeniden aç",
+"{0} بدعوة من {1} · {2}": "{0}, {1} tarafından davet edildi · {2}",
+"إيقاف دعوات الأعضاء فوراً؟ لن يُقبل أحد بدعوة عضو حتى تعيد تشغيلها، ودعوات المشرف تبقى تعمل.": "Üye davetleri hemen durdurulsun mu? Siz yeniden açana kadar kimse üye davetiyle katılamaz. Yönetici davetleri çalışmaya devam eder.",
+"أُوقفت دعوات الأعضاء": "Üye davetleri durduruldu",
+"أُعيد تشغيل دعوات الأعضاء": "Üye davetleri yeniden açıldı"
 };

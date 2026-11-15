@@ -1094,5 +1094,15 @@ window.I18N.en = {
 "تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Turn on the viewers log for {0}? They will see who opened their card, when and for how long.",
 "تفعيل": "Turn on",
 "أُوقف سجل المشاهدين": "The viewers log was turned off",
-"فُعّل سجل المشاهدين": "The viewers log was turned on"
+"فُعّل سجل المشاهدين": "The viewers log was turned on",
+"مشترك": "Member",
+"دعوات الأعضاء": "Member invites",
+"مفعّلة. انضم بها {0} خلال 14 يوماً.": "On. {0} joined with them in the last 14 days.",
+"موقوفة: لا يُنشئ الأعضاء دعوات، ولا يُقبل أحد بدعوة عضو حتى تعيد تشغيلها.": "Stopped: members can't create invites and nobody can join with a member invite until you turn them back on.",
+"إيقاف فوري": "Stop now",
+"إعادة تشغيل": "Turn back on",
+"{0} بدعوة من {1} · {2}": "{0} invited by {1} · {2}",
+"إيقاف دعوات الأعضاء فوراً؟ لن يُقبل أحد بدعوة عضو حتى تعيد تشغيلها، ودعوات المشرف تبقى تعمل.": "Stop member invites now? Nobody can join with a member invite until you turn them back on. Admin invites keep working.",
+"أُوقفت دعوات الأعضاء": "Member invites stopped",
+"أُعيد تشغيل دعوات الأعضاء": "Member invites turned back on"
 };

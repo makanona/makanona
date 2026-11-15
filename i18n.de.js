@@ -1094,5 +1094,15 @@ window.I18N.de = {
 "تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Betrachter-Protokoll für {0} einschalten? Die Person sieht, wer ihre Karte wann und wie lange geöffnet hat.",
 "تفعيل": "Einschalten",
 "أُوقف سجل المشاهدين": "Betrachter-Protokoll ausgeschaltet",
-"فُعّل سجل المشاهدين": "Betrachter-Protokoll eingeschaltet"
+"فُعّل سجل المشاهدين": "Betrachter-Protokoll eingeschaltet",
+"مشترك": "Mitglied",
+"دعوات الأعضاء": "Einladungen von Mitgliedern",
+"مفعّلة. انضم بها {0} خلال 14 يوماً.": "Aktiv. {0} sind in den letzten 14 Tagen damit beigetreten.",
+"موقوفة: لا يُنشئ الأعضاء دعوات، ولا يُقبل أحد بدعوة عضو حتى تعيد تشغيلها.": "Gestoppt: Mitglieder können keine Einladungen erstellen und niemand kann mit einer Mitglieder-Einladung beitreten, bis du sie wieder einschaltest.",
+"إيقاف فوري": "Sofort stoppen",
+"إعادة تشغيل": "Wieder einschalten",
+"{0} بدعوة من {1} · {2}": "{0} eingeladen von {1} · {2}",
+"إيقاف دعوات الأعضاء فوراً؟ لن يُقبل أحد بدعوة عضو حتى تعيد تشغيلها، ودعوات المشرف تبقى تعمل.": "Einladungen von Mitgliedern sofort stoppen? Niemand kann mit einer Mitglieder-Einladung beitreten, bis du sie wieder einschaltest. Admin-Einladungen funktionieren weiter.",
+"أُوقفت دعوات الأعضاء": "Einladungen von Mitgliedern gestoppt",
+"أُعيد تشغيل دعوات الأعضاء": "Einladungen von Mitgliedern wieder eingeschaltet"
 };

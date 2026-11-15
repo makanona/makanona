@@ -1094,5 +1094,15 @@ window.I18N.fr = {
 "تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Activer le journal des visites pour {0} ? La personne verra qui a ouvert sa fiche, quand et combien de temps.",
 "تفعيل": "Activer",
 "أُوقف سجل المشاهدين": "Journal des visites désactivé",
-"فُعّل سجل المشاهدين": "Journal des visites activé"
+"فُعّل سجل المشاهدين": "Journal des visites activé",
+"مشترك": "Membre",
+"دعوات الأعضاء": "Invitations des membres",
+"مفعّلة. انضم بها {0} خلال 14 يوماً.": "Activées. {0} ont rejoint avec elles ces 14 derniers jours.",
+"موقوفة: لا يُنشئ الأعضاء دعوات، ولا يُقبل أحد بدعوة عضو حتى تعيد تشغيلها.": "Arrêtées : les membres ne peuvent plus créer d'invitations et personne ne peut rejoindre avec une invitation de membre jusqu'à leur réactivation.",
+"إيقاف فوري": "Arrêter maintenant",
+"إعادة تشغيل": "Réactiver",
+"{0} بدعوة من {1} · {2}": "{0} invité par {1} · {2}",
+"إيقاف دعوات الأعضاء فوراً؟ لن يُقبل أحد بدعوة عضو حتى تعيد تشغيلها، ودعوات المشرف تبقى تعمل.": "Arrêter maintenant les invitations des membres ? Personne ne pourra rejoindre avec une invitation de membre jusqu'à leur réactivation. Les invitations de l'administrateur restent valables.",
+"أُوقفت دعوات الأعضاء": "Invitations des membres arrêtées",
+"أُعيد تشغيل دعوات الأعضاء": "Invitations des membres réactivées"
 };

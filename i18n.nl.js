@@ -1094,5 +1094,15 @@ window.I18N.nl = {
 "تفعيل سجل المشاهدين لـ {0}؟ سيرى من فتح بطاقته ومتى وكم بقي.": "Bekijkerslog aanzetten voor {0}? Die persoon ziet wie zijn kaart opende, wanneer en hoe lang.",
 "تفعيل": "Aanzetten",
 "أُوقف سجل المشاهدين": "Bekijkerslog uitgezet",
-"فُعّل سجل المشاهدين": "Bekijkerslog aangezet"
+"فُعّل سجل المشاهدين": "Bekijkerslog aangezet",
+"مشترك": "Lid",
+"دعوات الأعضاء": "Uitnodigingen van leden",
+"مفعّلة. انضم بها {0} خلال 14 يوماً.": "Aan. {0} zijn er de afgelopen 14 dagen mee lid geworden.",
+"موقوفة: لا يُنشئ الأعضاء دعوات، ولا يُقبل أحد بدعوة عضو حتى تعيد تشغيلها.": "Gestopt: leden kunnen geen uitnodigingen maken en niemand kan lid worden met een uitnodiging van een lid totdat je ze weer aanzet.",
+"إيقاف فوري": "Nu stoppen",
+"إعادة تشغيل": "Weer aanzetten",
+"{0} بدعوة من {1} · {2}": "{0} uitgenodigd door {1} · {2}",
+"إيقاف دعوات الأعضاء فوراً؟ لن يُقبل أحد بدعوة عضو حتى تعيد تشغيلها، ودعوات المشرف تبقى تعمل.": "Uitnodigingen van leden nu stoppen? Niemand kan lid worden met een uitnodiging van een lid totdat je ze weer aanzet. Uitnodigingen van de beheerder blijven werken.",
+"أُوقفت دعوات الأعضاء": "Uitnodigingen van leden gestopt",
+"أُعيد تشغيل دعوات الأعضاء": "Uitnodigingen van leden weer aangezet"
 };
