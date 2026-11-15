@@ -431,7 +431,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=40"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=41"><\/script>');
 })();
 </script>
 <script>
@@ -526,7 +526,10 @@ window.APP_CONFIG = {
     <h2>يلزم تحديث التطبيق</h2>
     <p class="lead" id="upd-force-text"></p>
     <div id="upd-force-notes" hidden></div>
+    <p class="hint" id="upd-prog-f" hidden></p>
     <button class="btn acc block" data-act="upd-go">تحديث الآن</button>
+    <button class="btn block" id="upd-web-f" data-act="upd-web" hidden style="margin-top:8px">التنزيل من المتصفح</button>
+    <button class="btn danger block" data-act="upd-sos" style="margin-top:14px">SOS استغاثة</button>
   </div>
 </div>
 
@@ -610,6 +613,7 @@ window.APP_CONFIG = {
       <div class="av" id="p-av"></div>
       <div class="grow"><div class="nm" id="p-name"></div><div class="st" id="p-st"></div><div class="st" id="p-addr"></div></div>
       <span class="badge warn" id="p-wifi" hidden>WiFi مطفأ</span>
+      <span class="badge" id="p-net" hidden></span>
       <span class="badge" id="p-bat" hidden></span>
     </div>
     <div class="bigbtns">
@@ -666,6 +670,11 @@ window.APP_CONFIG = {
     
     
     
+    <div class="card" id="qr-card" hidden>
+      <b>الإضافة برمز QR</b>
+      <p class="hint">اعرض رمزك ليمسحه صديقك من تطبيقه، أو امسح رمزه أنت. من ليس لديه التطبيق يصل بالرمز إلى صفحة التنزيل.</p>
+      <div class="acts"><button class="btn sm acc" data-act="qr-show">اعرض رمزي</button><button class="btn sm" data-act="qr-scan">امسح رمز صديق</button></div>
+    </div>
     <details class="acc" id="acc-friends" open><summary><span>أصدقائي وأصدقاء جدد</span><span class="badge warn" id="acc-friends-b" hidden></span></summary>
       <div id="people-list"></div>
 <div class="card" id="srch-card">
@@ -768,6 +777,7 @@ window.APP_CONFIG = {
     </div>
     <div class="card">
       <p class="hint" id="ver-line"></p>
+      <button class="btn sm" id="upd-check-btn" data-act="upd-check" hidden>البحث عن تحديث</button>
       <p class="hint" id="off-line"></p>
       <div class="sw-row" id="ui28-row"><div><span>الواجهة السابقة</span><p class="hint">ترتيب الأزرار القديم. متاحة لفترة مؤقتة.</p></div><label class="switch"><input type="checkbox" id="ui28-on" aria-label="الواجهة السابقة"><span></span></label></div>
       <button class="btn primary" data-act="pv-open">الخصوصية: من يراني وماذا يرى</button>
@@ -840,7 +850,12 @@ window.APP_CONFIG = {
         <label>ملاحظات التحديث (اختياري، تقبل عدة أسطر)<textarea id="st-notes" rows="7" maxlength="1500" placeholder="ما تم إصلاحه:&#10;• ...&#10;&#10;جديد:&#10;• ..."></textarea></label>
         <span class="hint" id="st-notes-n"></span>
         <div class="sw-row"><span>تحديث إلزامي (يمنع استخدام النسخ الأقدم)</span><label class="switch"><input type="checkbox" id="st-force" aria-label="تحديث إلزامي"><span></span></label></div>
-        <p class="hint">بعد بناء نسخة جديدة: ارفع الـ APK، ضع رابطه أعلاه، واكتب رقم إصدارها هنا. يظهر شريط تحديث لكل من يملك نسخة أقدم.</p>
+        <div class="sw-row"><div><span>إظهار التحديث للمشتركين</span><p class="hint">مطفأ: لا يراه أحد غيرك، ولا يجده زر البحث (للتجربة). شغّله بعد أن تعتمد النسخة، فيصل للمشتركين شريط وإشعار.</p></div><label class="switch"><input type="checkbox" id="st-ushow" aria-label="إظهار التحديث للمشتركين"><span></span></label></div>
+        <label>أقل إصدار مسموح (من هم أقدم منه يُجبرون على التحديث، 0 = لا أحد)<input id="st-umin" inputmode="numeric" dir="ltr" placeholder="0"></label>
+        <label>بصمة الملف SHA-256 (للتثبيت من داخل التطبيق 3.4 فما بعد)<input id="st-usha" dir="ltr" maxlength="64" placeholder="64 حرفاً"></label>
+        <input id="st-usize" type="hidden">
+        <button class="btn sm" data-act="upd-fetch">جلب بيانات آخر إصدار منشور</button>
+        <p class="hint">بعد نشر نسخة جديدة: اضغط «جلب بيانات آخر إصدار منشور» فتُملأ الخانات (الرقم والاسم والرابط والبصمة)، احفظ وجرّبها على هاتفك، ثم شغّل «إظهار التحديث للمشتركين».</p>
         <b style="margin-top:6px">دعوات المستخدمين</b>
         <div class="sw-row"><span>السماح للمستخدمين بدعوة أصدقائهم بكود (ينضمون مباشرة)</span><label class="switch"><input type="checkbox" id="st-userinv" aria-label="السماح بدعوات المستخدمين"><span></span></label></div>
         <b style="margin-top:6px">الإرسال بالإيميل</b>
@@ -954,12 +969,21 @@ window.APP_CONFIG = {
   <p>سيصل تنبيه عاجل بموقعك إلى <span id="sos-c-friends">0</span> من أصدقائك المتصلين بعد ثوانٍ، حتى من أخفيتَ موقعك عنه. ليست بديلاً عن الاتصال بالطوارئ.</p>
   <div class="acts"><button class="btn danger" data-act="sos-now">أرسل الآن</button><button class="btn" data-act="sos-no">إلغاء</button></div>
 </div>
+<div id="modal-qr" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true" style="text-align:center">
+    <b>رمزي للإضافة</b>
+    <img id="qr-img" alt="QR" style="width:min(70vw,280px);height:auto;margin:12px auto;display:block;image-rendering:pixelated;background:#fff;border-radius:12px">
+    <span class="hint">يمسحه صديقك من «امسح رمز صديق» في تطبيقه، فيصلك طلب إضافة توافق عليه.</span>
+    <div class="acts"><button class="btn" data-act="qr-close">إغلاق</button></div>
+  </div>
+</div>
 <div id="modal-upd" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b id="upd-title"></b>
     <span class="hint" id="upd-sub"></span>
     <div id="upd-notes"></div>
-    <div class="acts"><button id="upd-go2" class="btn primary" data-act="upd-go">تحديث الآن</button><button id="upd-close" class="btn" data-act="upd-close">إغلاق</button></div>
+    <p class="hint" id="upd-prog" hidden></p>
+    <div class="acts"><button id="upd-go2" class="btn primary" data-act="upd-go">تحديث الآن</button><button id="upd-web" class="btn" data-act="upd-web" hidden>التنزيل من المتصفح</button><button id="upd-close" class="btn" data-act="upd-close">إغلاق</button></div>
   </div>
 </div>
 <div id="modal-guard" class="modal" hidden>
@@ -1132,7 +1156,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '40';
+const UI_VERSION = '41';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1432,6 +1456,7 @@ const logout = async () => {
   if (isNative) {
     try { window.AndroidBridge.stopSharing(); } catch {}
     try { const cur = (await get(ref(db, 'sessions/' + S.uid))).val(); if (cur && S.deviceId && cur.id === S.deviceId) await remove(ref(db, 'sessions/' + S.uid)); } catch {}
+    try { if (S.deviceId) await remove(ref(db, 'fcm/' + S.uid + '/' + S.deviceId)); } catch {}      // 41: لا إيقاظ لهاتف خرج منه صاحبه
   }
   await signOut(auth);
 };
@@ -2651,6 +2676,7 @@ function applyTabVisibility() {
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
   S.person = id; applyTabVisibility(); renderPerson(); renderMap(); focusOn(id); loadLastTrip(id); loadLastGap(id); loadHomeSuggestion(id);
+  { const l = S.locs[id]; if (id !== S.uid && !S.limited && (connected(id) || S.isAdmin) && !recipWhy(id) && l && Date.now() - Math.max(Number(l.ts) || 0, Number(l.hb) || 0) > 10 * 60e3) wakeFriend(id, false); }   // 41: موقع قديم: إيقاظ صامت
   if (id !== S.uid) get(ref(db, 'reportShare/' + id)).then(s => { S.repShare = S.repShare || {}; S.repShare[id] = s.val() === true; if (S.person === id) renderPerson(); }).catch(() => {});
 }
 /* زر «التقرير» لا يظهر إلا لمن شارك تقريره معي (أو لولي أمره أو للمشرف) */
@@ -2671,6 +2697,10 @@ function renderPerson() {
   $('p-psm').hidden = !(!fz && id !== S.uid && l && l.psm === true && batNow);
   $('p-bat').textContent = bat; $('p-bat').hidden = !bat;
   $('p-wifi').hidden = !(!fz && l && l.wifi === false && typeof l.ts === 'number' && Date.now() - l.ts < 600000);   // التطبيق 2.7: الواي فاي مطفأ فتقل الدقة داخل المباني
+  { const fresh = !fz && l && Date.now() - Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < 600000, nt = l && l.nt, sg = l && typeof l.sg === 'number' ? l.sg : -1;   // 41: نوع الشبكة وقوتها
+    const bars = sg >= 0 ? ' ' + '▂▄▆█'.slice(0, Math.max(1, sg)) : '';
+    const txt = !fresh ? '' : nt === 'w' ? 'Wi-Fi' + bars : nt === 'm' ? _t("بيانات") + bars : '';
+    $('p-net').textContent = txt; $('p-net').hidden = !txt; }
   const offBad = !fz && !!(l && (l.off === true || l.noperm === true));
   const longOff = !fz && !offBad && id !== S.uid && !!(l && Math.max(Number(l.ts) || 0, Number(l.hb) || 0) < Date.now() - RECIP_STALE);
   const dead = !fz && id !== S.uid && deadBat(l);
@@ -3303,6 +3333,7 @@ function renderMe() {
   $('minor-note').hidden = !S.minor; $('lim-note').hidden = !S.limited; $('prox-card').hidden = S.limited;
   { const sv = isNative ? nat() : null; $('ver-line').textContent = tf("إصدار الواجهة {0}{1}", UI_VERSION, sv && sv.verName ? tf("، إصدار التطبيق {0} ({1})", sv.verName, sv.ver) : ''); }
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
+  { const sv = isNative ? nat() : null; $('qr-card').hidden = !(sv && sv.qr === 1) || S.limited; }
   offlineStatus().then(ok => { const el = $('off-line'); if (el) { el.textContent = ok ? _t("الفتح بلا إنترنت: جاهز") : _t("الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه."); el.style.color = ok ? 'var(--ok)' : ''; } });
   $('ui28-on').checked = !UI28;
   renderProx();
@@ -3415,6 +3446,7 @@ function renderAdmin() {
     else if (x.status === 'disabled') b = `<button class="btn sm primary" data-act="enable" data-id="${esc(u)}">${_t("إعادة تفعيل")}</button>`;
     b += `<button class="btn sm" data-act="edit" data-id="${esc(u)}">${_t("الرقم والميلاد")}</button>`;
     b += `<button class="btn sm" data-act="plan-edit" data-id="${esc(u)}">${_t("السجل الطويل")}</button>`;
+    if (u !== S.uid) b += `<button class="btn sm" data-act="wake" data-id="${esc(u)}">${_t("إيقاظ")}</button>`;
     b += `<button class="btn sm" data-act="vl-edit" data-id="${esc(u)}">${_t("سجل المشاهدين")}: ${(S.perks || {})[u]?.viewlog === true ? _t("مفعّل") : _t("متوقف")}</button>`;
     if (x.birthYear && isMinor(x.birthYear)) b += `<button class="btn sm" data-act="guard-edit" data-id="${esc(u)}">${_t("أولياء الأمور")}</button>`;
     if (!self && x.status !== 'disabled') b += `<button class="btn sm" data-act="end-session" data-id="${esc(u)}">${_t("إنهاء جلسته")}</button>`;
@@ -3501,6 +3533,7 @@ function fillSettings() {
   $('st-cemail').value = s.contactEmail || ''; $('st-cwa').value = s.contactWhatsapp || ''; $('st-gcid').value = s.googleClientId || '';
   { const en = s.engine || {}; $('en-on').checked = en.on !== false; $('en-still').value = en.stillMin ?? ''; $('en-rad').value = en.radius ?? ''; $('en-hb').value = en.hbMin ?? ''; $('en-batch').value = en.batchSec ?? ''; $('en-legacy').checked = en.legacy !== false; }
   $('st-ver').value = s.version || ''; $('st-vname').value = s.vname || ''; $('st-notes').value = s.notes || ''; $('st-notes-n').textContent = ($('st-notes').value.length) + ' / 1500'; $('st-force').checked = !!s.force;
+  { const u = S.upd || {}; $('st-ushow').checked = u.show === true; $('st-umin').value = u.min || ''; $('st-usha').value = u.sha || ''; $('st-usize').value = u.size || ''; }
 }
 
 /* ---------- دعوة الأصدقاء بكود ---------- */
@@ -3812,6 +3845,8 @@ const ACTIONS = {
   'upd-info': () => { const u = S.upd || {}; showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true); },
   'upd-close': () => { $('modal-upd').hidden = true; },
   'upd-go': async () => {
+    const u0 = S.upd || {};
+    if (isNative && updStartNative(u0)) { if ($('modal-upd').hidden && $('v-update').hidden) showUpdInfo(_t("تحديث جديد"), verLine(u0), u0.notes, false); return; }   // 3.4: من داخل التطبيق
     $('modal-upd').hidden = true;
     const url = S.upd && S.upd.url; if (!url) return toast(_t("رابط التحميل غير محدد بعد"));
     const bridge = isNative && window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function';
@@ -3821,6 +3856,32 @@ const ACTIONS = {
   },
   'open-privacy': () => openExternal(new URL('privacy.html', location.href).href),
   'upd-later': () => { S.updDismissed = true; renderUpdate(); },
+  'upd-web': () => { const url = S.upd && S.upd.url; if (url) openExternal(url); },
+  'upd-sos': () => openSosConfirm(),
+  'upd-check': async () => {
+    const s = nat(); if (!s) return;
+    let u = S.upd || {}; try { u = (await get(ref(db, 'appUpdate'))).val() || {}; S.upd = u; } catch {}
+    renderUpdate();
+    if (updNeed(s, u)) showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true);
+    else toast(tf("لديك أحدث إصدار ({0})", s.verName || s.ver));
+  },
+  'upd-fetch': async () => {
+    try {
+      const r = await fetch(new URL('version.json', location.href).href + '?t=' + Date.now(), { cache: 'no-store' });
+      const v = await r.json();
+      if (!v || !v.vc || !/^[0-9a-f]{64}$/.test(v.sha256 || '')) throw 0;
+      $('st-ver').value = v.vc; $('st-vname').value = v.vn || ''; $('st-apk').value = v.url || ''; $('st-usha').value = v.sha256; $('st-usize').value = v.size || '';
+      toast(tf("جُلبت بيانات الإصدار {0} ({1}). راجعها ثم احفظ.", v.vn || '', v.vc));
+    } catch { toast(_t("لا يوجد إصدار منشور بعد (version.json)")); }
+  },
+  wake: id => wakeFriend(id, true),
+  'qr-show': () => {
+    let src = ''; try { src = window.AndroidBridge.qrPng(myQrLink()); } catch {}
+    if (!src) return toast(_t("تعذر إنشاء الرمز"));
+    $('qr-img').src = src; $('modal-qr').hidden = false;
+  },
+  'qr-close': () => { $('modal-qr').hidden = true; },
+  'qr-scan': () => { try { window.AndroidBridge.scanQr(); } catch { toast(_t("المسح يحتاج التطبيق 3.4")); } },
   'prox-pick': async id => { $('prox-km').value = id; if (await saveProx($('prox-on').checked, id)) toast(tf("تم حفظ المسافة: {0} كم", id)); },
   'prox-save': async () => { if (await saveProx($('prox-on').checked, $('prox-km').value)) toast(_t("تم حفظ المسافة")); },
   srch: async () => {
@@ -3895,7 +3956,9 @@ const ACTIONS = {
     settings.engine = { on: $('en-on').checked, stillMin: num('en-still', 2, 30, 4), radius: num('en-rad', 30, 300, 75), hbMin: num('en-hb', 1, 5, 2), batchSec: num('en-batch', 0, 300, 90), legacy: $('en-legacy').checked };
     const ups = { 'settings/app': settings, publicConfig: { engine: settings.engine, scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa, userInvites: settings.userInvites, ...(gcid ? { googleClientId: gcid } : {}), ...(/^https:[/][/]/.test(url) && url.length <= 300 ? { apkUrl: url } : {}), ...(appUrl ? { appUrl } : {}) } };
     PUB.userInvites = settings.userInvites;
-    if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname }; else ups['appUpdate'] = null;
+    const usha = $('st-usha').value.trim().toLowerCase(), umin = Math.max(0, Math.min(100000, Number(toLatin($('st-umin').value)) || 0)), usize = Number($('st-usize').value) || 0;
+    if (usha && !/^[0-9a-f]{64}$/.test(usha)) return toast(_t("البصمة يجب أن تكون 64 حرفاً (0-9 وa-f)"));
+    if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname, show: $('st-ushow').checked, ...(umin ? { min: umin } : {}), ...(usha ? { sha: usha } : {}), ...(usize > 0 ? { size: usize } : {}) }; else ups['appUpdate'] = null;
     try { await update(ref(db), ups); }
     catch {
       // القواعد الجديدة لم تُنشر بعد: نحفظ دون اسم الإصدار حتى لا يضيع باقي الإعدادات
@@ -4041,10 +4104,14 @@ function migratePause() {
 }
 
 /* ---------- تحديث التطبيق ---------- */
+/* 41: يظهر التحديث للمشرف دائماً، وللمشتركين فقط بعد «إظهار التحديث». الإجباري: علامة force أو إصدار أقدم من min */
+const updVisible = u => !!u && (u.show === true || S.isAdmin);
+function updNeed(s, u) { return !!(s && updVisible(u) && Number(u.version) > (s.ver || 0)); }
 function renderUpdate() {
   const s = isNative ? nat() : null, u = S.upd || {};
-  const need = !!(s && Number(u.version) > (s.ver || 0));
-  const force = need && !!u.force, soft = need && !force && !S.updDismissed;
+  const need = updNeed(s, u);
+  const force = need && (!!u.force || (s.ver || 0) < (Number(u.min) || 0)), soft = need && !force && !S.updDismissed;
+  if ($('upd-check-btn')) $('upd-check-btn').hidden = !s;
   $('upd-bar').hidden = !soft;
   document.documentElement.style.setProperty('--ban', soft ? '84px' : '0px');
   if (soft) requestAnimationFrame(() => document.documentElement.style.setProperty('--ban', $('upd-bar').offsetHeight + 'px'));
@@ -4056,7 +4123,84 @@ function renderUpdate() {
     $('upd-force-notes').textContent = u.notes || ''; $('upd-force-notes').hidden = !u.notes;
   }
   maybeWhatsNew(s, u);
+  if (need && DEEP_UPD && !S.deepUpdDone) { S.deepUpdDone = true; showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true); }
+  maybeExitNotice(s);
 }
+const DEEP_UPD = /(^|[#&])upd=1/.test(location.hash);
+/* ---------- 41: التنزيل والتثبيت من داخل التطبيق (3.4 فما بعد) ---------- */
+const UPD_ERR = { url: "رابط التحديث غير مسموح", sha: "الملف المنزّل لا يطابق بصمة الإصدار. لم يُثبَّت شيء", pkg: "الملف ليس تطبيق مكاننا", ver: "رقم الإصدار في الملف غير المتوقع", net: "انقطع التنزيل. تأكد من الإنترنت وحاول مجدداً", space: "لا توجد مساحة كافية في الهاتف", io: "تعذر حفظ الملف", busy: "التنزيل جارٍ بالفعل", cancel: "أُلغي التنزيل", page: "أعد فتح التطبيق وحاول مجدداً" };
+function updMsg(t, err) {
+  for (const id of ['upd-prog', 'upd-prog-f']) { const el = $(id); if (el) { el.textContent = t || ''; el.hidden = !t; el.style.color = err ? 'var(--bad, #C4483B)' : ''; } }
+  for (const id of ['upd-web', 'upd-web-f']) { const el = $(id); if (el) el.hidden = !err; }
+}
+window.__updProg = (st, pct, info) => {
+  if (st === 'dl') updMsg(pct >= 0 ? tf("جارٍ التنزيل {0}%", pct) : tf("جارٍ التنزيل {0} م.ب", (Number(info) / 1048576).toFixed(1)));
+  else if (st === 'verify') updMsg(_t("يتحقق من سلامة الملف…"));
+  else if (st === 'ready') { updMsg(_t("جاهز. افتح نافذة التثبيت واضغط «تحديث»")); updInstall(); }
+  else if (st === 'install') updMsg(_t("اتبع نافذة التثبيت واضغط «تحديث». يُعاد فتح التطبيق بعدها."));
+  else if (st === 'perm') updMsg(_t("اسمح لمكاننا بتثبيت التحديثات (مفتاح «السماح من هذا المصدر») ثم ارجع، فيكمل وحده."));
+  else if (st === 'perm_denied') updMsg(_t("لم يُسمح بالتثبيت. يمكنك المحاولة مجدداً أو التنزيل من المتصفح."), true);
+  else if (st === 'err') updMsg(_t(UPD_ERR[info] || "تعذر التحديث") + (UPD_ERR[info] ? '' : ' (' + info + ')'), true);
+};
+function updInstall() {
+  let r = 'none'; try { r = window.AndroidBridge.updInstall(); } catch {}
+  if (r === 'install' || r === 'perm') window.__updProg(r, 100, '');
+  else updMsg(_t("تعذر فتح نافذة التثبيت"), true);
+}
+function updStartNative(u) {
+  const s = nat();
+  if (!s || s.upd !== 1 || !u.sha || !u.url || typeof window.AndroidBridge.updStart !== 'function') return false;
+  let r = 'err'; try { r = window.AndroidBridge.updStart(String(u.url), String(u.sha), Number(u.size) || 0, Number(u.version) || 0); } catch {}
+  if (r === 'ok') { updMsg(_t("يبدأ التنزيل…")); return true; }
+  if (r === 'busy') { updMsg(_t(UPD_ERR.busy)); return true; }
+  updMsg(_t(UPD_ERR[r] || "تعذر التحديث"), true);
+  return true;
+}
+/* 41: إن أغلق نظام الهاتف التطبيق (مدير الطاقة)، نشرح مرة واحدة لكل إغلاق ونفتح الشاشة الصحيحة */
+async function maybeExitNotice(s) {
+  if (!s || s.exitKind !== 'sys' || !s.sharing || !s.exitAt || Date.now() - s.exitAt > 3 * 864e5 || S.exitAsked) return;
+  let seen = 0; try { seen = Number(localStorage.getItem('mk_exit_seen')) || 0; } catch { return; }
+  if (seen >= s.exitAt) return;
+  S.exitAsked = true;
+  try { localStorage.setItem('mk_exit_seen', String(s.exitAt)); } catch {}
+  const xos = /infinix|tecno|itel|transsion/.test(String(s.brand || ''));
+  if (!s.oem && !xos) return;
+  const msg = tf("أغلق نظام هاتفك مكاننا ({0})، فتوقف إرسال موقعك حتى فتحته. ليبقى يعمل: {1}", s.exitTxt || '', xos
+    ? _t("افتح Phone Master، ثم «التشغيل التلقائي» وفعّل مكاننا، واستثنِه من «تجميد التطبيقات» و«تنظيف الخلفية».")
+    : _t("فعّل التشغيل التلقائي لمكاننا، واستثنِه من توفير البطارية."));
+  if (await ask(msg, xos ? _t("افتح Phone Master") : _t("افتح الإعداد"))) { try { xos ? window.AndroidBridge.openPhoneMaster() : window.AndroidBridge.openAutoStart(); } catch {} }
+}
+/* 41: نتيجة نافذة «تشغيل الموقع» */
+window.__locOn = r => { if (r === 'ok') toast(_t("الموقع يعمل")); else if (r === 'no') toast(_t("ما زال الموقع مطفأً")); try { renderMe(); } catch {} };
+/* ---------- 41: الإيقاظ: فتح بطاقة صديق موقعه قديم يرسل لهاتفه إشعاراً صامتاً يوقظ الإرسال ---------- */
+const WAKE = {};
+async function wakeFriend(u, manual) {
+  const url = PUB.scriptUrl; if (!url || !auth.currentUser) { if (manual) toast(_t("رابط السكربت غير مضبوط في الإعدادات")); return; }
+  if (!manual && WAKE[u] && Date.now() - WAKE[u] < 5 * 60e3) return;
+  WAKE[u] = Date.now();
+  try {
+    const idToken = await auth.currentUser.getIdToken();
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'wake', idToken, uid: u }) });
+    const j = await r.json().catch(() => ({}));
+    if (manual) toast(j.ok ? (j.sent ? _t("أُرسل الإيقاظ") : j.skipped ? _t("أُرسل إيقاظ قبل قليل") : _t("لا يوجد هاتف مسجّل للإيقاظ (التطبيق 3.4 فما بعد)")) : tf("تعذر الإيقاظ: {0}", j.error || r.status));
+  } catch { if (manual) toast(_t("تعذر الاتصال بالسكربت")); }
+}
+/* ---------- 41: رمز QR للإضافة ---------- */
+const myQrLink = () => location.origin + location.pathname.replace(/[^/]*$/, '') + 'download.html?u=' + encodeURIComponent(S.uid);
+window.__qr = async (text, err) => {
+  if (!text) { if (err && err !== 'cancel') toast(tf("تعذر المسح ({0})", err)); return; }
+  let u = null, c = null;
+  try { const x = new URL(text); u = x.searchParams.get('u'); c = x.searchParams.get('c') || x.searchParams.get('code'); } catch {}
+  if (u && /^[A-Za-z0-9_-]{6,64}$/.test(u)) {
+    if (u === S.uid) return toast(_t("هذا رمزك أنت"));
+    if (S.mine[u] === true && connected(u)) return toast(tf("{0} مضاف إلى قائمتك", dispName(u)));
+    if (S.limited) return toast(_t("الإضافة تتفعل بعد اعتماد حسابك"));
+    if (await ask(_t("إرسال طلب إضافة لصاحب هذا الرمز؟ يظهر على خريطتك بعد موافقته."), _t("إرسال"))) { try { await ACTIONS.add(u); } catch { toast(_t("تعذر إرسال الطلب")); } }
+    return;
+  }
+  if (c) return redeemCode(c);
+  toast(_t("هذا ليس رمز مكاننا"));
+};
 const verLine = u => tf("الإصدار {0}", u.name ? tf("{0} (رقم {1})", (u.name), u.version) : u.version);
 function showUpdInfo(title, sub, notes, canUpdate) {
   $('upd-title').textContent = title; $('upd-sub').textContent = sub; $('upd-notes').textContent = notes || _t("لا توجد ملاحظات.");
@@ -5098,6 +5242,7 @@ function notifGo(id) {
 window.__fromNative = tail => {
   const n = (String(tail).match(/notif=(\d+)/) || [])[1], rp = (String(tail).match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1], rw = (String(tail).match(/rwho=([A-Za-z0-9_-]{6,64})/) || [])[1], so = (String(tail).match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
   if (!S.started) return;
+  if (/(^|[#&])upd=1/.test(String(tail))) { const s = nat(), u = S.upd || {}; if (updNeed(s, u)) return showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true); }
   if (n && notifOK()) return notifGo(n);
   if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp, rw || undefined);
 };
