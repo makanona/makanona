@@ -431,7 +431,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=41"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=42"><\/script>');
 })();
 </script>
 <script>
@@ -756,11 +756,25 @@ window.APP_CONFIG = {
     </div>
     </details>
     <details class="acc" id="acc-health" ><summary><span>صحة التطبيق</span><span class="badge warn" id="acc-health-b" hidden></span></summary>
+<div class="card" id="car-card" hidden>
+      <b>شاشة السيارة: التشغيل التلقائي</b>
+      <p class="hint">شاشات السيارة تنام عند إطفاء السيارة، ولا تعيد تشغيل التطبيقات وحدها عند تشغيلها. ليعمل مكاننا تلقائياً:</p>
+      <ol class="hint" style="padding-inline-start:18px;margin:6px 0">
+        <li>اضغط «إظهار أيقونة التشغيل»، فتظهر في قائمة التطبيقات أيقونة «تشغيل مكاننا». تشغّل الإرسال دون فتح أي شاشة.</li>
+        <li>في إعدادات الشاشة ابحث عن خيار تطبيق يعمل بعد التشغيل (مثل Auto start أو Boot app)، غالباً في «السكون» أو «مصنع» أو «أكثر»، واختر «تشغيل مكاننا».</li>
+        <li>إن وجدت قائمة تطبيقات لا تُغلق عند النوم (Keep alive أو قائمة بيضاء)، فأضف مكاننا.</li>
+        <li>أطفئ السيارة دقيقة ثم شغّلها، وانظر «سجل الاستيقاظ» أدناه: يبيّن ما الذي أعاد تشغيل الإرسال.</li>
+      </ol>
+      <div class="acts"><button class="btn sm acc" id="kick-btn" data-act="kick-icon">إظهار أيقونة التشغيل</button><button class="btn sm" data-act="wake-log-clear">مسح السجل</button></div>
+      <b>سجل الاستيقاظ</b>
+      <div id="wake-log" class="hint"></div>
+    </div>
 <div class="card" id="native-card" hidden>
       <b>صحة التطبيق على هذا الهاتف</b>
       <div id="native-status"></div>
       <button id="btn-wiz" class="btn">فتح معالج الإعداد</button>
       <button id="btn-notif-set" class="btn">إخفاء إشعار الإرسال أو تغييره</button>
+      <button class="btn sm" id="car-reveal" data-act="car-reveal" hidden>هذا الجهاز شاشة سيارة؟</button>
       <p class="hint">الإشعار شرط من أندرويد لأي تطبيق يرسل الموقع في الخلفية، ولا يمكن حذفه من التطبيق. يظهر 10 ثوانٍ ثم يتحول إلى إشعار صغير صامت فيه اسم المكان الذي أنت فيه (من «أماكني») وآخر وقت تحديث. وتستطيع إخفاءه بنفسك: اضغط الزر أعلاه ثم أوقف إظهار هذه القناة. يستمر الإرسال في الأغلب، وإن لاحظت أن موقعك تأخر فأعد تفعيلها. تنبيهاتك في قنوات منفصلة فلا تتأثر.</p>
     </div>
     </details>
@@ -1156,7 +1170,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '41';
+const UI_VERSION = '42';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -3333,7 +3347,7 @@ function renderMe() {
   $('minor-note').hidden = !S.minor; $('lim-note').hidden = !S.limited; $('prox-card').hidden = S.limited;
   { const sv = isNative ? nat() : null; $('ver-line').textContent = tf("إصدار الواجهة {0}{1}", UI_VERSION, sv && sv.verName ? tf("، إصدار التطبيق {0} ({1})", sv.verName, sv.ver) : ''); }
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
-  { const sv = isNative ? nat() : null; $('qr-card').hidden = !(sv && sv.qr === 1) || S.limited; }
+  { const sv = isNative ? nat() : null; $('qr-card').hidden = !(sv && sv.qr === 1) || S.limited; renderCar(sv); }
   offlineStatus().then(ok => { const el = $('off-line'); if (el) { el.textContent = ok ? _t("الفتح بلا إنترنت: جاهز") : _t("الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه."); el.style.color = ok ? 'var(--ok)' : ''; } });
   $('ui28-on').checked = !UI28;
   renderProx();
@@ -3875,6 +3889,14 @@ const ACTIONS = {
     } catch { toast(_t("لا يوجد إصدار منشور بعد (version.json)")); }
   },
   wake: id => wakeFriend(id, true),
+  'car-reveal': () => { try { localStorage.setItem('mk_car', '1'); } catch {} renderMe(); },
+  'kick-icon': () => {
+    const s = nat(); if (!s) return;
+    let on = false; try { on = window.AndroidBridge.setKickIcon(!s.kickIcon); } catch {}
+    toast(on ? _t("ظهرت أيقونة «تشغيل مكاننا» في قائمة التطبيقات (قد تحتاج الشاشة ثوانٍ لتحديث القائمة)") : _t("أُخفيت أيقونة التشغيل"));
+    renderMe();
+  },
+  'wake-log-clear': () => { try { window.AndroidBridge.clearWakeLog(); } catch {} renderMe(); },
   'qr-show': () => {
     let src = ''; try { src = window.AndroidBridge.qrPng(myQrLink()); } catch {}
     if (!src) return toast(_t("تعذر إنشاء الرمز"));
@@ -4184,6 +4206,23 @@ async function wakeFriend(u, manual) {
     const j = await r.json().catch(() => ({}));
     if (manual) toast(j.ok ? (j.sent ? _t("أُرسل الإيقاظ") : j.skipped ? _t("أُرسل إيقاظ قبل قليل") : _t("لا يوجد هاتف مسجّل للإيقاظ (التطبيق 3.4 فما بعد)")) : tf("تعذر الإيقاظ: {0}", j.error || r.status));
   } catch { if (manual) toast(_t("تعذر الاتصال بالسكربت")); }
+}
+/* ---------- 42: شاشات السيارة: أيقونة التشغيل الخفية وسجل الاستيقاظ ---------- */
+const WAKE_W = { icon: "أيقونة التشغيل", bt: "اتصال بلوتوث", media: "تركيب ذاكرة", usb: "جهاز USB", time: "ضبط الوقت", tz: "المنطقة الزمنية", locale: "تغيير اللغة", boot: "إقلاع كامل", update: "تحديث التطبيق", watchdog: "المنبّه الاحتياطي", svc: "عادت خدمة الإرسال" };
+const WAKE_R = { started: "شغّل الإرسال", running: "كان يعمل", off: "المشاركة غير مفعّلة", perm: "لا إذن موقع", alarm: "جُدول تشغيله", on: "" };
+function renderCar(s) {
+  const can = !!(s && typeof window.AndroidBridge.wakeLog === 'function');
+  let forced = false; try { forced = localStorage.getItem('mk_car') === '1'; } catch {}
+  const show = can && (s.car === true || s.kickIcon === true || forced);
+  $('car-card').hidden = !show; $('car-reveal').hidden = !can || show;
+  if (!show) return;
+  $('kick-btn').textContent = s.kickIcon ? _t("إخفاء أيقونة التشغيل") : _t("إظهار أيقونة التشغيل");
+  let log = []; try { log = JSON.parse(window.AndroidBridge.wakeLog()) || []; } catch {}
+  $('wake-log').innerHTML = log.length ? log.slice(-15).reverse().map(e => {
+    const d = new Date(Number(e.t) || 0), when = (dayKey(+d) === dayKey(Date.now()) ? '' : d.toLocaleDateString(LOC, { day: 'numeric', month: 'short' }) + ' ') + fmtTime(+d);
+    const r = WAKE_R[e.r] !== undefined ? _t(WAKE_R[e.r]) : esc(e.r || '');
+    return `<div>${esc(when)} · ${_t(WAKE_W[e.w] || e.w || '?')}${r ? ' · ' + r : ''}</div>`;
+  }).join('') : _t("لا شيء بعد. أطفئ السيارة وشغّلها ثم ارجع هنا.");
 }
 /* ---------- 41: رمز QR للإضافة ---------- */
 const myQrLink = () => location.origin + location.pathname.replace(/[^/]*$/, '') + 'download.html?u=' + encodeURIComponent(S.uid);
