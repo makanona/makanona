@@ -1195,5 +1195,9 @@ window.I18N.nl = {
 "جُدول تشغيله": "Start gepland",
 "لا شيء بعد. أطفئ السيارة وشغّلها ثم ارجع هنا.": "Nog niets. Zet de auto uit en aan en kom dan hier terug.",
 "ظهرت أيقونة «تشغيل مكاننا» في قائمة التطبيقات (قد تحتاج الشاشة ثوانٍ لتحديث القائمة)": "Het icoon ‘Makanona starten’ staat nu in de app-lijst (het scherm heeft misschien een paar seconden nodig)",
-"أُخفيت أيقونة التشغيل": "Starticoon verborgen"
+"أُخفيت أيقونة التشغيل": "Starticoon verborgen",
+"راجع ترجمات «ما الجديد» ثم اضغط «حفظ» مرة أخرى": "Controleer de vertalingen van ‘Wat is er nieuw’ en tik nogmaals op ‘Opslaan’",
+"جارٍ ترجمة «ما الجديد»…": "‘Wat is er nieuw’ wordt vertaald…",
+"تُحفظ العربية فقط": "Alleen het Arabisch wordt opgeslagen",
+"يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.": "Wordt automatisch gevuld met ‘Gegevens van laatst gepubliceerde versie ophalen’, met vertalingen. Als je de tekst wijzigt, wordt hij bij opslaan opnieuw vertaald en controleer je de vertalingen vóór het definitief opslaan."
 };

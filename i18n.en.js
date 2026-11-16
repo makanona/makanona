@@ -1195,5 +1195,9 @@ window.I18N.en = {
 "جُدول تشغيله": "Start scheduled",
 "لا شيء بعد. أطفئ السيارة وشغّلها ثم ارجع هنا.": "Nothing yet. Turn the car off and on, then come back here.",
 "ظهرت أيقونة «تشغيل مكاننا» في قائمة التطبيقات (قد تحتاج الشاشة ثوانٍ لتحديث القائمة)": "The “Start Makanona” icon now appears in the app list (the screen may need a few seconds to refresh it)",
-"أُخفيت أيقونة التشغيل": "Start icon hidden"
+"أُخفيت أيقونة التشغيل": "Start icon hidden",
+"راجع ترجمات «ما الجديد» ثم اضغط «حفظ» مرة أخرى": "Review the “What's new” translations, then tap “Save” again",
+"جارٍ ترجمة «ما الجديد»…": "Translating “What's new”…",
+"تُحفظ العربية فقط": "Only the Arabic is saved",
+"يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.": "Filled automatically by “Fetch the latest published release” with its translations. If you edit the text, it is translated again when you save, and you review the translations before the final save."
 };

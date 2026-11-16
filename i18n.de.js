@@ -1195,5 +1195,9 @@ window.I18N.de = {
 "جُدول تشغيله": "Start geplant",
 "لا شيء بعد. أطفئ السيارة وشغّلها ثم ارجع هنا.": "Noch nichts. Schalte das Auto aus und ein und komm dann hierher zurück.",
 "ظهرت أيقونة «تشغيل مكاننا» في قائمة التطبيقات (قد تحتاج الشاشة ثوانٍ لتحديث القائمة)": "Das Symbol „Makanona starten“ erscheint jetzt in der App-Liste (das Display braucht evtl. ein paar Sekunden)",
-"أُخفيت أيقونة التشغيل": "Start-Symbol ausgeblendet"
+"أُخفيت أيقونة التشغيل": "Start-Symbol ausgeblendet",
+"راجع ترجمات «ما الجديد» ثم اضغط «حفظ» مرة أخرى": "Prüfe die Übersetzungen von „Was ist neu“ und tippe erneut auf „Speichern“",
+"جارٍ ترجمة «ما الجديد»…": "„Was ist neu“ wird übersetzt…",
+"تُحفظ العربية فقط": "Nur das Arabische wird gespeichert",
+"يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.": "Wird mit „Daten der zuletzt veröffentlichten Version laden“ samt Übersetzungen automatisch gefüllt. Wenn du den Text änderst, wird er beim Speichern neu übersetzt, und du prüfst die Übersetzungen vor dem endgültigen Speichern."
 };

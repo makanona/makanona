@@ -431,7 +431,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=42"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=43"><\/script>');
 })();
 </script>
 <script>
@@ -862,6 +862,8 @@ window.APP_CONFIG = {
         <label>رقم الإصدار الأحدث (versionCode)<input id="st-ver" inputmode="numeric" dir="ltr" placeholder="2"></label>
         <label>اسم الإصدار (يظهر للمستخدمين، مثل 2.0)<input id="st-vname" maxlength="20" dir="ltr" placeholder="2.0"></label>
         <label>ملاحظات التحديث (اختياري، تقبل عدة أسطر)<textarea id="st-notes" rows="7" maxlength="1500" placeholder="ما تم إصلاحه:&#10;• ...&#10;&#10;جديد:&#10;• ..."></textarea></label>
+        <p class="hint">يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.</p>
+        <div id="st-notes-tr" hidden></div>
         <span class="hint" id="st-notes-n"></span>
         <div class="sw-row"><span>تحديث إلزامي (يمنع استخدام النسخ الأقدم)</span><label class="switch"><input type="checkbox" id="st-force" aria-label="تحديث إلزامي"><span></span></label></div>
         <div class="sw-row"><div><span>إظهار التحديث للمشتركين</span><p class="hint">مطفأ: لا يراه أحد غيرك، ولا يجده زر البحث (للتجربة). شغّله بعد أن تعتمد النسخة، فيصل للمشتركين شريط وإشعار.</p></div><label class="switch"><input type="checkbox" id="st-ushow" aria-label="إظهار التحديث للمشتركين"><span></span></label></div>
@@ -1170,7 +1172,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '42';
+const UI_VERSION = '43';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -3547,6 +3549,7 @@ function fillSettings() {
   $('st-cemail').value = s.contactEmail || ''; $('st-cwa').value = s.contactWhatsapp || ''; $('st-gcid').value = s.googleClientId || '';
   { const en = s.engine || {}; $('en-on').checked = en.on !== false; $('en-still').value = en.stillMin ?? ''; $('en-rad').value = en.radius ?? ''; $('en-hb').value = en.hbMin ?? ''; $('en-batch').value = en.batchSec ?? ''; $('en-legacy').checked = en.legacy !== false; }
   $('st-ver').value = s.version || ''; $('st-vname').value = s.vname || ''; $('st-notes').value = s.notes || ''; $('st-notes-n').textContent = ($('st-notes').value.length) + ' / 1500'; $('st-force').checked = !!s.force;
+  S.updHist = { ...((S.upd || {}).hist || {}) }; ntTrReset();
   { const u = S.upd || {}; $('st-ushow').checked = u.show === true; $('st-umin').value = u.min || ''; $('st-usha').value = u.sha || ''; $('st-usize').value = u.size || ''; }
 }
 
@@ -3856,11 +3859,11 @@ const ACTIONS = {
   'sos-now': () => { closeSosConfirm(); sendSos(); },
   'sos-no': () => closeSosConfirm(),
   'refresh-contacts': () => refreshContacts(),
-  'upd-info': () => { const u = S.upd || {}; showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true); },
+  'upd-info': () => { const u = S.upd || {}; showUpdInfo(_t("تحديث جديد"), verLine(u), updNotes(u, myVer()), true); },
   'upd-close': () => { $('modal-upd').hidden = true; },
   'upd-go': async () => {
     const u0 = S.upd || {};
-    if (isNative && updStartNative(u0)) { if ($('modal-upd').hidden && $('v-update').hidden) showUpdInfo(_t("تحديث جديد"), verLine(u0), u0.notes, false); return; }   // 3.4: من داخل التطبيق
+    if (isNative && updStartNative(u0)) { if ($('modal-upd').hidden && $('v-update').hidden) showUpdInfo(_t("تحديث جديد"), verLine(u0), updNotes(u0, myVer()), false); return; }   // 3.4: من داخل التطبيق
     $('modal-upd').hidden = true;
     const url = S.upd && S.upd.url; if (!url) return toast(_t("رابط التحميل غير محدد بعد"));
     const bridge = isNative && window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function';
@@ -3876,7 +3879,7 @@ const ACTIONS = {
     const s = nat(); if (!s) return;
     let u = S.upd || {}; try { u = (await get(ref(db, 'appUpdate'))).val() || {}; S.upd = u; } catch {}
     renderUpdate();
-    if (updNeed(s, u)) showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true);
+    if (updNeed(s, u)) showUpdInfo(_t("تحديث جديد"), verLine(u), updNotes(u, s.ver), true);
     else toast(tf("لديك أحدث إصدار ({0})", s.verName || s.ver));
   },
   'upd-fetch': async () => {
@@ -3885,6 +3888,7 @@ const ACTIONS = {
       const v = await r.json();
       if (!v || !v.vc || !/^[0-9a-f]{64}$/.test(v.sha256 || '')) throw 0;
       $('st-ver').value = v.vc; $('st-vname').value = v.vn || ''; $('st-apk').value = v.url || ''; $('st-usha').value = v.sha256; $('st-usize').value = v.size || '';
+      if (v.notes && typeof v.notes === 'object') { S.updHist = { ...(S.updHist || {}), ...v.notes }; const cur = v.notes[v.vc]; if (cur && cur.ar) $('st-notes').value = cur.ar; ntTrReset(); }
       toast(tf("جُلبت بيانات الإصدار {0} ({1}). راجعها ثم احفظ.", v.vn || '', v.vc));
     } catch { toast(_t("لا يوجد إصدار منشور بعد (version.json)")); }
   },
@@ -3980,7 +3984,21 @@ const ACTIONS = {
     PUB.userInvites = settings.userInvites;
     const usha = $('st-usha').value.trim().toLowerCase(), umin = Math.max(0, Math.min(100000, Number(toLatin($('st-umin').value)) || 0)), usize = Number($('st-usize').value) || 0;
     if (usha && !/^[0-9a-f]{64}$/.test(usha)) return toast(_t("البصمة يجب أن تكون 64 حرفاً (0-9 وa-f)"));
-    if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname, show: $('st-ushow').checked, ...(umin ? { min: umin } : {}), ...(usha ? { sha: usha } : {}), ...(usize > 0 ? { size: usize } : {}) }; else ups['appUpdate'] = null;
+    let hist = null;
+    if (ver > 0 && url) {
+      hist = { ...(S.updHist || {}) };
+      const cur = hist[ver] || {};
+      if (notes && cur.ar === notes) hist[ver] = { ...cur, vn: vname || cur.vn || '' };            // لم يتغير النص: تبقى الترجمات
+      else if (notes) {
+        if (NT_TR && NT_TR.src === notes && NT_TR.ver === ver) hist[ver] = { vn: vname || '', ar: notes, ...ntTrValues() };
+        else if (PUB.scriptUrl) { if (await ntTranslate(notes, ver)) return toast(_t("راجع ترجمات «ما الجديد» ثم اضغط «حفظ» مرة أخرى")); hist[ver] = { vn: vname || '', ar: notes }; }
+        else hist[ver] = { vn: vname || '', ar: notes };
+      } else delete hist[ver];
+      const keys = Object.keys(hist).filter(k => /^[0-9]{1,6}$/.test(k) && hist[k] && hist[k].ar).sort((a, c) => a - c).slice(-12);
+      hist = Object.fromEntries(keys.map(k => [k, Object.fromEntries(Object.entries(hist[k]).filter(([l, t]) => /^(vn|ar|en|de|fr|tr|ru|nl)$/.test(l) && typeof t === 'string' && t).map(([l, t]) => [l, t.slice(0, l === 'vn' ? 20 : 1500)]))]));
+      if (!Object.keys(hist).length) hist = null;
+    }
+    if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname, show: $('st-ushow').checked, ...(hist ? { hist } : {}), ...(umin ? { min: umin } : {}), ...(usha ? { sha: usha } : {}), ...(usize > 0 ? { size: usize } : {}) }; else ups['appUpdate'] = null;
     try { await update(ref(db), ups); }
     catch {
       // القواعد الجديدة لم تُنشر بعد: نحفظ دون اسم الإصدار حتى لا يضيع باقي الإعدادات
@@ -4140,12 +4158,12 @@ function renderUpdate() {
   $('v-update').hidden = !force;
   if (need) {
     $('upd-text').textContent = tf("يتوفر تحديث جديد{0}", u.name ? ' · ' + u.name : '');
-    $('upd-info-btn').hidden = !u.notes;
+    $('upd-info-btn').hidden = !updNotes(u, s.ver);
     $('upd-force-text').textContent = tf("هذه النسخة قديمة ولا تعمل مع آخر تحديثات الخدمة. حمّل النسخة الجديدة{0} وثبّتها فوق القديمة.", u.name ? ' (' + u.name + ')' : '');
-    $('upd-force-notes').textContent = u.notes || ''; $('upd-force-notes').hidden = !u.notes;
+    { const nt = updNotes(u, s.ver); $('upd-force-notes').textContent = nt; $('upd-force-notes').hidden = !nt; }
   }
   maybeWhatsNew(s, u);
-  if (need && DEEP_UPD && !S.deepUpdDone) { S.deepUpdDone = true; showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true); }
+  if (need && DEEP_UPD && !S.deepUpdDone) { S.deepUpdDone = true; showUpdInfo(_t("تحديث جديد"), verLine(u), updNotes(u, s.ver), true); }
   maybeExitNotice(s);
 }
 const DEEP_UPD = /(^|[#&])upd=1/.test(location.hash);
@@ -4241,11 +4259,48 @@ window.__qr = async (text, err) => {
   toast(_t("هذا ليس رمز مكاننا"));
 };
 const verLine = u => tf("الإصدار {0}", u.name ? tf("{0} (رقم {1})", (u.name), u.version) : u.version);
+/* 43: «ما الجديد» لكل الإصدارات التي فاتت المستخدم (from < v <= الإصدار المنشور)، بلغة هاتفه وإلا بالعربية */
+function updNotes(u, from) {
+  u = u || {}; const to = Number(u.version) || 0, hist = u.hist || {}, lg = String(window.LANG || 'ar');
+  const vs = Object.keys(hist).map(Number).filter(v => v > (Number(from) || 0) && v <= to).sort((a, b) => a - b);
+  if (!vs.length) return u.notes || '';
+  const one = v => { const e = hist[v] || {}; return e[lg] || e.ar || (v === to ? u.notes : '') || ''; };
+  if (vs.length === 1) return one(vs[0]);
+  return vs.map(v => { const t = one(v); return t ? `${hist[v].vn || v}\n${t}` : ''; }).filter(Boolean).join('\n\n');
+}
+const myVer = () => { const s = isNative ? nat() : null; return s ? (s.ver || 0) : 0; };
 function showUpdInfo(title, sub, notes, canUpdate) {
   $('upd-title').textContent = title; $('upd-sub').textContent = sub; $('upd-notes').textContent = notes || _t("لا توجد ملاحظات.");
   $('upd-go2').hidden = !canUpdate; $('upd-close').textContent = canUpdate ? _t("إغلاق") : _t("حسناً");
   $('modal-upd').hidden = false;
 }
+/* 43: ترجمة «ما الجديد» المعدّل سطراً سطراً (حد السكربت 500 حرف للطلب) وعرضها للمراجعة */
+let NT_TR = null;
+function ntTrReset() { NT_TR = null; const el = $('st-notes-tr'); if (el) { el.innerHTML = ''; el.hidden = true; } }
+async function ntTranslate(text, ver) {
+  toast(_t("جارٍ ترجمة «ما الجديد»…"));
+  try {
+    const idToken = await auth.currentUser.getIdToken();
+    const lines = text.split('\n'), out = {};
+    for (const k of Object.keys(TR_LANGS)) out[k] = [];
+    for (const ln of lines) {
+      if (!ln.trim()) { for (const k in out) out[k].push(''); continue; }
+      const j = await callScript({ action: 'translate', idToken, text: ln.slice(0, 500) });
+      if (!j || !j.ok || !j.tr) throw new Error(j && j.error || '');
+      for (const k in out) out[k].push(j.tr[k] || '');
+    }
+    NT_TR = { src: text, ver };
+    $('st-notes-tr').innerHTML = Object.keys(TR_LANGS).map(k => `<label class="hint" style="display:block;margin-top:6px">${TR_LANGS[k]}</label><textarea data-nt="${k}" dir="ltr" maxlength="1500" rows="4" style="width:100%;font:inherit;padding:6px;border-radius:8px;border:1px solid var(--line)">${esc(out[k].join('\n'))}</textarea>`).join('');
+    $('st-notes-tr').hidden = false;
+    return true;
+  } catch (e) { toast(_t("تعذرت الترجمة") + (e && e.message ? ': ' + e.message : '') + ' — ' + _t("تُحفظ العربية فقط")); return false; }
+}
+function ntTrValues() {
+  const o = {};
+  $('st-notes-tr').querySelectorAll('textarea[data-nt]').forEach(x => { const v = x.value.trim().slice(0, 1500); if (v && TR_LANGS[x.dataset.nt]) o[x.dataset.nt] = v; });
+  return o;
+}
+$('st-notes').addEventListener('input', () => { if (NT_TR) ntTrReset(); });
 /* «ما الجديد»: مرة واحدة بعد أن يثبّت المستخدم نسخة أحدث من التي فتحها آخر مرة */
 function maybeWhatsNew(s, u) {
   if (!s || !s.ver || S.wnDone || !S.updLoaded) return;
@@ -4253,7 +4308,7 @@ function maybeWhatsNew(s, u) {
   let seen = null; try { seen = localStorage.getItem('mk_seen_ver'); } catch { return; }
   try { localStorage.setItem('mk_seen_ver', String(s.ver)); } catch {}
   if (seen === null || Number(seen) >= s.ver) return;                // أول تشغيل، أو لم تتغير النسخة
-  if (Number(u.version) === s.ver && u.notes) showUpdInfo(_t("ما الجديد"), verLine(u), u.notes, false);
+  if (Number(u.version) === s.ver) { const nt = updNotes(u, Number(seen)); if (nt) showUpdInfo(_t("ما الجديد"), verLine(u), nt, false); }
 }
 
 /* ---------- إعدادات التنبيهات والأماكن ---------- */
@@ -5281,7 +5336,7 @@ function notifGo(id) {
 window.__fromNative = tail => {
   const n = (String(tail).match(/notif=(\d+)/) || [])[1], rp = (String(tail).match(/report=(\d{4}-\d{2}-\d{2})/) || [])[1], rw = (String(tail).match(/rwho=([A-Za-z0-9_-]{6,64})/) || [])[1], so = (String(tail).match(/sos=([A-Za-z0-9_-]{6,64})/) || [])[1];
   if (!S.started) return;
-  if (/(^|[#&])upd=1/.test(String(tail))) { const s = nat(), u = S.upd || {}; if (updNeed(s, u)) return showUpdInfo(_t("تحديث جديد"), verLine(u), u.notes, true); }
+  if (/(^|[#&])upd=1/.test(String(tail))) { const s = nat(), u = S.upd || {}; if (updNeed(s, u)) return showUpdInfo(_t("تحديث جديد"), verLine(u), updNotes(u, s.ver), true); }
   if (n && notifOK()) return notifGo(n);
   if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp, rw || undefined);
 };

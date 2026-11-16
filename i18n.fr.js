@@ -1195,5 +1195,9 @@ window.I18N.fr = {
 "جُدول تشغيله": "Démarrage programmé",
 "لا شيء بعد. أطفئ السيارة وشغّلها ثم ارجع هنا.": "Rien pour l'instant. Éteignez et rallumez la voiture, puis revenez ici.",
 "ظهرت أيقونة «تشغيل مكاننا» في قائمة التطبيقات (قد تحتاج الشاشة ثوانٍ لتحديث القائمة)": "L'icône « Démarrer Makanona » apparaît maintenant dans la liste des applis (l'écran peut mettre quelques secondes)",
-"أُخفيت أيقونة التشغيل": "Icône de démarrage masquée"
+"أُخفيت أيقونة التشغيل": "Icône de démarrage masquée",
+"راجع ترجمات «ما الجديد» ثم اضغط «حفظ» مرة أخرى": "Vérifiez les traductions de « Nouveautés », puis touchez « Enregistrer » à nouveau",
+"جارٍ ترجمة «ما الجديد»…": "Traduction des « Nouveautés »…",
+"تُحفظ العربية فقط": "Seul l'arabe est enregistré",
+"يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.": "Rempli automatiquement par « Récupérer la dernière version publiée » avec ses traductions. Si vous modifiez le texte, il est retraduit à l'enregistrement et vous vérifiez les traductions avant l'enregistrement final."
 };

@@ -1195,5 +1195,9 @@ window.I18N.tr = {
 "جُدول تشغيله": "Başlatma planlandı",
 "لا شيء بعد. أطفئ السيارة وشغّلها ثم ارجع هنا.": "Henüz bir şey yok. Aracı kapatıp açın, sonra buraya dönün.",
 "ظهرت أيقونة «تشغيل مكاننا» في قائمة التطبيقات (قد تحتاج الشاشة ثوانٍ لتحديث القائمة)": "“Makanona'yı başlat” simgesi artık uygulama listesinde (ekranın yenilenmesi birkaç saniye sürebilir)",
-"أُخفيت أيقونة التشغيل": "Başlatma simgesi gizlendi"
+"أُخفيت أيقونة التشغيل": "Başlatma simgesi gizlendi",
+"راجع ترجمات «ما الجديد» ثم اضغط «حفظ» مرة أخرى": "“Yenilikler” çevirilerini kontrol edip tekrar “Kaydet”e dokunun",
+"جارٍ ترجمة «ما الجديد»…": "“Yenilikler” çevriliyor…",
+"تُحفظ العربية فقط": "Yalnızca Arapça kaydedilir",
+"يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.": "“Son yayınlanan sürümün bilgilerini getir” ile çevirileriyle birlikte otomatik doldurulur. Metni düzenlerseniz kaydederken yeniden çevrilir ve son kayıttan önce çevirileri kontrol edersiniz."
 };
