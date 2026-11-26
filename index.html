@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#10272F">
+<meta name="theme-color" content="#10272F" id="meta-theme">
 <title>مكاننا</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -283,6 +283,93 @@ details.sub>summary{font-weight:700;cursor:pointer}
 .simple #btn-gear{display:flex}
 .simple:not(.tab-other) #tabs,.simple #btn-style,.simple #btn-fit,.simple #btn-notif{display:none!important}
 #wn-list li{margin:6px 0}
+
+/* 44: ميزات الخريطة (حركة، نبض، صفوف المتقاربين، الحواف، الردود) */
+:root{--inkBg:#10272F}
+.mk-pulse{position:absolute;left:30px;top:42px;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:var(--c-sel,#E8A33D);opacity:0;pointer-events:none;animation:mkp 1.9s ease-out infinite}
+@keyframes mkp{0%{transform:scale(.8);opacity:.55}80%{transform:scale(2.1);opacity:0}100%{opacity:0}}
+.mk-lbl.spd .mb.walk svg{animation:mkw .9s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes mkw{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-1.5px) rotate(7deg)}}
+.mk-lbl.spd .mb.bike svg{animation:mkb 1.2s linear infinite}
+@keyframes mkb{0%,100%{transform:translateX(-.8px)}50%{transform:translateX(.8px)}}
+.mk-lbl.spd .mb.car svg{animation:mkc .5s ease-in-out infinite}
+@keyframes mkc{0%,100%{transform:translateY(0)}50%{transform:translateY(-.8px)}}
+@media (prefers-reduced-motion:reduce){.mk-pulse,.mk-lbl.spd .mb svg{animation:none}}
+.mkc{position:relative;width:64px;height:64px;cursor:pointer}
+.mkc .av3{position:absolute;width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:var(--c);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center;box-shadow:0 2px 6px #0005;background-size:cover;background-position:center}
+.mkc .n{position:absolute;right:-4px;top:-2px;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--inkBg);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
+#edge{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;z-index:480;pointer-events:none;overflow:hidden}
+.edg{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:3px solid #fff;background:var(--c);color:#fff;font-weight:700;font-size:15px;display:grid;place-items:center;box-shadow:0 2px 8px #0006;pointer-events:auto;cursor:pointer;background-size:cover;background-position:center;padding:0}
+.edg i{position:absolute;width:0;height:0;border:6px solid transparent;border-bottom:9px solid #fff;left:50%;top:50%;margin:-6px 0 0 -6px;transform-origin:6px 6px;pointer-events:none}
+.edg.more{background:var(--inkBg);font-size:12px}
+.edg b{position:absolute;top:-8px;right:-8px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--inkBg);color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid #fff}
+#p-react{display:flex;gap:6px;overflow-x:auto;margin:6px 0 2px;padding-bottom:2px}
+#p-react button{flex:none;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+#p-react button:active{transform:scale(.95)}
+#rx-bar{position:absolute;top:calc(58px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:700;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.rx{pointer-events:auto;background:var(--card);color:var(--ink);border-radius:16px;padding:10px 14px;box-shadow:0 6px 22px #0004;display:flex;gap:10px;align-items:center;cursor:pointer;animation:rxin .35s ease-out}
+.rx .e{font-size:28px;line-height:1}
+@keyframes rxin{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+#btn-ann{position:relative}
+.ann-row{border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:4px}
+.ann-row.new b{color:var(--bad)}
+.ann-row p{margin:0;white-space:pre-wrap}
+.welcome{flex-direction:row!important;align-items:center;gap:12px!important}
+.welcome .av{width:52px;height:52px;font-size:22px;background-size:cover;background-position:center}
+.err-row{border-bottom:1px solid var(--line);padding:8px 0;display:flex;flex-direction:column;gap:3px}
+.err-row code{direction:ltr;text-align:left;font-size:12px;white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:8px;padding:4px 6px}
+.statbar{display:flex;align-items:center;gap:8px;font-size:13px}
+.statbar i{display:block;height:8px;border-radius:4px;background:var(--acc);min-width:2px}
+
+/* 44: الوضع الليلي (مولَّد من الألوان الفاتحة أعلاه + متغيرات) */
+html.dk{--ink:#E3ECEF;--ink2:#B7C7CD;--mute:#8EA2AA;--line:#2D4048;--bg:#0D171B;--card:#16242A;--inkBg:#2C6578;--bad:#E0675A;--ok:#3FAF84;color-scheme:dark}
+html.dk input,html.dk select,html.dk textarea{background:#1B2A31}
+html.dk .btn{background:#1B2A31}
+html.dk .btn.primary{background:var(--inkBg);border-color:var(--inkBg)}
+html.dk .seg{background:#1B2A31}
+html.dk .seg button.on{background:var(--inkBg)}
+html.dk #map{background:#1a2226}
+html.dk .g-base{background:#1a2226}
+html.dk .gx-tip{background:#1B2A31;color:#E3ECEF}
+html.dk .chip{background:var(--inkBg)}
+html.dk button.chip{background:#1B2A31}
+html.dk #style-menu{background:#1B2A31}
+html.dk #style-menu button.on{background:var(--inkBg)}
+html.dk .badge.ok{background:#183A2E;color:#8FDDBB}
+html.dk .badge.warn{background:#4A3712;color:#F3C979}
+html.dk .badge.bad{background:#4A2622;color:#F2A59B}
+html.dk .modal .box{background:#1B2A31}
+html.dk #toast{background:var(--inkBg)}
+html.dk .mk-lbl{background:#1B2A31}
+html.dk .tag{background:#1B2A31}
+html.dk .sosrow .btn{background:#1B2A31}
+html.dk #pick-bar{background:var(--inkBg)}
+html.dk .pill{background:#1F3343}
+html.dk #upd-notes,html.dk #upd-force-notes{background:#1B2A31}
+html.dk #sos-confirm{background:#1B2A31}
+html.dk .seg{background:#1B2A31}
+html.dk .seg button.on{background:var(--inkBg)}
+html.dk .rbox{background:#1B2A31}
+html.dk .chipb{background:#1B2A31}
+html.dk .lt-svg{background:#1F2D33}
+html.dk #note-bar{background:#1B2A31}
+html.dk #rpt-bar,html.dk #req-bar{background:var(--inkBg)}
+html.dk .trip-bar{background:#1D3247;color:#E3ECEF}
+html.dk .trip-bar.in{background:#183A2E}
+html.dk #send-bar{background:#4A3712;color:#F3C979}
+html.dk #recip-bar{background:#22313A;color:#E3ECEF}
+html.dk .fab{background:#1B2A31}
+html.dk .bigb{background:#1F3343}
+html.dk .mk-lbl.spd{background:#1B2A31}
+html.dk .pchip{background:#1F3343}
+html.dk #health-alert{background:#4A2622}
+html.dk [style*="background:#fff"]{background:#1B2A31!important}html.dk [style*="background:#E9F0F7"]{background:#1F3343!important}html.dk [style*="background:#FBE9C8"]{background:#4A3712!important}html.dk [style*="background:#F6D9D5"]{background:#4A2622!important}html.dk [style*="background:#e8e6e0"]{background:#1a2226!important}html.dk [style*="background:#cfdadd"]{background:#1a2226!important}html.dk [style*="background:#EEF3F5"]{background:#1F2D33!important}html.dk [style*="background:#E3E9EC"]{background:#22313A!important}html.dk [style*="background:#DFF1E8"]{background:#183A2E!important}html.dk [style*="background:#DDEBF7"]{background:#1D3247!important}html.dk [style*="background:#D9F0E6"]{background:#183A2E!important}html.dk [style*="background:#FFF4DE"]{background:#3D3015!important}
+html.dk canvas[style*="background:#fff"]{background:#fff!important}
+html.dk .fab svg{stroke:var(--ink)}html.dk .modal{background:#000a}html.dk .seg button.on,html.dk .btn.primary,html.dk #style-menu button.on{color:#fff}
+html.dk svg text[fill="#10272F"]{fill:#E3ECEF}html.dk .chip{color:#fff}
+html.dk .leaflet-container{background:#1a2226}
+html.dk #map:not(.satl) .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) brightness(.92) contrast(.88) saturate(.55)}
+html.dk .leaflet-control-attribution{background:#16242Acc!important;color:#8EA2AA}html.dk .leaflet-control-attribution a{color:#B7C7CD}
 </style>
 <script>
 /* تشخيص: يعمل حتى لو فشل تحميل مكتبات Firebase */
@@ -421,6 +508,25 @@ window.APP_CONFIG = {
 };
 </script>
 <script>
+/* ====== 44: المظهر (تلقائي/نهاري/ليلي). التلقائي يتبع الهاتف (التطبيق 3.6 يخبر الصفحة بوضع الهاتف) ====== */
+(function () {
+  var mq = null; try { mq = window.matchMedia('(prefers-color-scheme: dark)'); } catch (e) {}
+  window.__theme = function () { var t = 'auto'; try { t = localStorage.getItem('mk_theme') || 'auto'; } catch (e) {} return t; };
+  window.__isDark = function () {
+    var t = window.__theme(); if (t === 'dark') return true; if (t === 'light') return false;
+    if (typeof window.__nativeNight === 'boolean') return window.__nativeNight;
+    try { var st = window.AndroidBridge && JSON.parse(window.AndroidBridge.status()); if (st && typeof st.night === 'boolean') return st.night; } catch (e) {}
+    return !!(mq && mq.matches);
+  };
+  window.__applyTheme = function () {
+    var d = window.__isDark(); document.documentElement.classList.toggle('dk', d);
+    var m = document.getElementById('meta-theme'); if (m) m.setAttribute('content', d ? '#0D171B' : '#10272F');
+    try { if (window.__onTheme) window.__onTheme(d); } catch (e) {}
+  };
+  window.__night = function (on) { window.__nativeNight = !!on; window.__applyTheme(); };
+  if (mq && mq.addEventListener) mq.addEventListener('change', window.__applyTheme);
+  window.__applyTheme();
+})();
 /* ====== اللغات: تلقائي حسب لغة الهاتف، ويمكن تغييرها من «حسابي». يُحمَّل قاموس اللغة المختارة فقط ====== */
 (function () {
   var SUP = ['ar', 'en', 'de', 'tr', 'ru', 'nl', 'fr'], pick = 'en', saved = null;
@@ -431,7 +537,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=43"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=44"><\/script>');
 })();
 </script>
 <script>
@@ -546,8 +652,11 @@ window.APP_CONFIG = {
 
 <div id="v-main" hidden>
   <div id="map"></div>
+  <div id="edge"></div>
+  <div id="rx-bar"></div>
   <div id="top"><div class="chip" id="chip"></div></div>
   <div id="fabs">
+    <button class="fab" id="btn-ann" aria-label="الإعلانات" hidden><svg viewBox="0 0 24 24"><path d="M3 10v4h3l6 4V6L6 10z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg><span id="ann-badge" class="fab-badge" hidden></span></button>
     <button class="fab" id="btn-notif" aria-label="الإشعارات" hidden><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span id="notif-badge" class="fab-badge" hidden></span></button>
     <button class="fab" id="btn-style" aria-label="نمط الخريطة"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="fab" id="btn-fit" aria-label="عرض الجميع"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -632,6 +741,7 @@ window.APP_CONFIG = {
       <button class="btn sm primary" id="p-otw" data-act="p-otw" hidden>أنا في الطريق إليك</button>
       <span class="pchip" id="p-dist" hidden></span>
     </div>
+    <div id="p-react" hidden></div>
     <div id="p-gap" class="hint" hidden style="margin:0 0 8px"></div>
     <div id="p-home" class="trip-card" hidden style="margin-bottom:8px"><b id="p-home-t"></b><span class="hint" id="p-home-s"></span><div class="acts"><button class="btn sm primary" data-act="home-yes">نعم، نبّهني</button><button class="btn sm" data-act="home-edit">تعديل المكان</button><button class="btn sm" data-act="home-no">لا تعرض مجدداً</button></div></div>
     <div id="p-off" class="trip-card" hidden style="background:#F6D9D5;margin-bottom:8px"><b id="p-off-t">الموقع مطفأ في هاتفه</b><span class="hint" id="p-off-s">خدمة الموقع في هاتفه متوقفة، فلا يصلنا موقعه حتى يشغّلها. اطلب منه تشغيلها.</span></div>
@@ -641,6 +751,7 @@ window.APP_CONFIG = {
 
   <div id="t-me" class="panel" hidden>
     <h2>حسابي</h2>
+    <div class="card welcome" id="welcome-card" hidden><div class="av" id="wl-av"></div><div class="grow"><b id="wl-t"></b><div class="hint" id="wl-s"></div></div></div>
     <div class="card" id="health-alert" data-act="health-go" hidden><b>تنبيه: قد يتوقف إرسال موقعك</b><p class="hint" id="health-alert-t"></p><p class="hint">اضغط هنا لعرض «صحة التطبيق» وإصلاحها.</p></div>
     <div class="card" id="prof-card">
       <label>الاسم<input id="me-name" maxlength="60"></label>
@@ -788,6 +899,7 @@ window.APP_CONFIG = {
     </div>
     <div class="card">
       <label class="sw-row"><b>اللغة · Language</b><select id="lang-sel" aria-label="Language" style="font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="auto">تلقائي حسب لغة الهاتف</option><option value="ar" data-native>العربية</option><option value="en" data-native>English</option><option value="de" data-native>Deutsch</option><option value="tr" data-native>Türkçe</option><option value="ru" data-native>Русский</option><option value="nl" data-native>Nederlands</option><option value="fr" data-native>Français</option></select></label>
+      <label class="sw-row"><b>المظهر</b><select id="theme-sel" aria-label="المظهر" style="font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:auto"><option value="auto">تلقائي حسب الهاتف</option><option value="light">نهاري</option><option value="dark">ليلي</option></select></label>
     </div>
     <div class="card">
       <p class="hint" id="ver-line"></p>
@@ -807,6 +919,7 @@ window.APP_CONFIG = {
       <button data-adm="members" class="on">الأعضاء</button>
       <button data-adm="invites">الدعوات</button>
       <button data-adm="create">حساب جديد</button>
+      <button data-adm="mon">المتابعة</button>
       <button data-adm="settings">الإعدادات</button>
     </div>
 
@@ -837,7 +950,13 @@ window.APP_CONFIG = {
       </div>
     </div>
 
+    <div id="adm-mon" hidden></div>
     <div id="adm-settings" hidden>
+      <div class="card" id="flags-card">
+        <b>مفاتيح الميزات</b>
+        <p class="hint">تُطبَّق فوراً على كل المشتركين دون تحديث. الاستغاثة SOS لا تُطفأ أبداً.</p>
+        <div id="flags-list"></div>
+      </div>
       <div class="card">
         <b>رابط تحميل التطبيق (APK)</b>
         <input id="st-apk" dir="ltr" placeholder="https://github.com/.../releases/download/.../makanona.apk">
@@ -865,6 +984,7 @@ window.APP_CONFIG = {
         <p class="hint">يُملأ تلقائياً بـ«جلب بيانات آخر إصدار منشور» مع ترجماته. إن عدّلت النص يُترجم من جديد عند الحفظ، وتراجع الترجمات قبل الحفظ النهائي.</p>
         <div id="st-notes-tr" hidden></div>
         <span class="hint" id="st-notes-n"></span>
+        <label>ملاحظات المطوّر لهذا الإصدار (لا يراها إلا المشرف)<textarea id="st-dev" rows="4" maxlength="3000" dir="auto" placeholder="تفاصيل تقنية: ما تغيّر في الكود والقواعد…"></textarea></label>
         <div class="sw-row"><span>تحديث إلزامي (يمنع استخدام النسخ الأقدم)</span><label class="switch"><input type="checkbox" id="st-force" aria-label="تحديث إلزامي"><span></span></label></div>
         <div class="sw-row"><div><span>إظهار التحديث للمشتركين</span><p class="hint">مطفأ: لا يراه أحد غيرك، ولا يجده زر البحث (للتجربة). شغّله بعد أن تعتمد النسخة، فيصل للمشتركين شريط وإشعار.</p></div><label class="switch"><input type="checkbox" id="st-ushow" aria-label="إظهار التحديث للمشتركين"><span></span></label></div>
         <label>أقل إصدار مسموح (من هم أقدم منه يُجبرون على التحديث، 0 = لا أحد)<input id="st-umin" inputmode="numeric" dir="ltr" placeholder="0"></label>
@@ -1098,7 +1218,11 @@ window.APP_CONFIG = {
 <div id="modal-del" class="modal" hidden>
   <div class="box" role="dialog" aria-modal="true">
     <b style="color:var(--bad)">حذف الحساب نهائياً</b>
-    <p class="hint" style="margin:0">سيُحذف حسابك وموقعك وسجل تنقلاتك وإعداداتك وصورتك، ولا يمكن التراجع. اكتب كلمة السر للتأكيد.</p>
+    <p class="hint" style="margin:0">سيُحذف حسابك وموقعك وسجل تنقلاتك وإعداداتك وصورتك، ولا يمكن التراجع.</p>
+    <label>لماذا تحذف حسابك؟<select id="del-why"><option value="">اختر السبب</option><option value="privacy">الخصوصية</option><option value="battery">يستهلك البطارية</option><option value="notuse">لم أعد أستعمله</option><option value="friends">أصدقائي لا يستعملونه</option><option value="bugs">مشاكل في التطبيق</option><option value="newacc">سأنشئ حساباً جديداً</option><option value="other">سبب آخر</option></select></label>
+    <label>ملاحظة (اختياري)<input id="del-note" maxlength="300"></label>
+    <label>للتأكيد اكتب كلمة delete<input id="del-word" dir="ltr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="delete"></label>
+    <p class="hint" id="del-phint" style="margin:0">واكتب كلمة السر:</p>
     <span class="pwwrap"><input id="del-pass" type="password" dir="ltr" autocomplete="current-password"><button type="button" class="pw-eye" data-eye="del-pass" aria-label="إظهار كلمة السر"></button></span>
     <p class="hint" id="del-ghint" hidden>للتأكيد سيُطلب منك اختيار حساب Google نفسه.</p>
     <p id="del-err" class="err" role="alert"></p>
@@ -1119,6 +1243,13 @@ window.APP_CONFIG = {
     <p id="am-text" style="white-space:pre-wrap;margin:10px 0;font-size:15px;line-height:1.6"></p>
     <p class="hint" id="am-time"></p>
     <div class="acts"><button class="btn primary" data-act="am-ok">تم</button></div>
+  </div>
+</div>
+<div id="modal-ann" class="modal" hidden>
+  <div class="box" role="dialog" aria-modal="true" style="width:min(520px,100%);max-height:84vh;display:flex;flex-direction:column">
+    <div class="sw-row" style="margin-bottom:4px"><b style="font-size:18px">الإعلانات</b><button class="btn sm" data-act="ann-close">إغلاق</button></div>
+    <div id="ann-list" style="overflow:auto;flex:1;min-height:60px"></div>
+    <div class="acts" id="ann-adm" hidden style="margin-top:8px"><button class="btn sm primary" data-act="ann-new">إعلان جديد</button></div>
   </div>
 </div>
 <div id="modal-amw" class="modal" hidden>
@@ -1150,8 +1281,8 @@ setTimeout(function () { var l = document.getElementById('v-loading'), h = docum
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signInWithCredential, reauthenticateWithPopup } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt, push, orderByChild, startAt, limitToLast } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, updateProfile, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signInWithCredential, reauthenticateWithPopup, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getDatabase, ref, onValue, set, update, get, remove, query, orderByKey, endAt, push, orderByChild, startAt, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const CFG = window.APP_CONFIG;
 CFG.appName = t(CFG.appName);
@@ -1172,7 +1303,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '43';
+const UI_VERSION = '44';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -1251,6 +1382,7 @@ function ago(ts) {
 const fmtDate = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'short' });
 function showView(v) { for (const id of ['loading', 'auth', 'profile', 'pending', 'main']) $('v-' + id).hidden = id !== v; if (v !== 'main') $('v-wizard').hidden = true; if (v !== 'loading' && !window.__boot.ok) { window.__boot.ok = true; $('v-diag').hidden = true; if (window.__boot.heal > 0) { window.__report && window.__report('healed'); try { history.replaceState(null, '', location.pathname); } catch {} } } }
 function authErr(e) {
+  try { errRec('login', (e && (e.code || e.message)) || 'unknown'); } catch {}
   if (!e.code) return e.message || _t("تعذر تنفيذ الطلب");
   const m = {
     'auth/invalid-credential': _t("البريد أو كلمة السر غير صحيحة"), 'auth/wrong-password': _t("البريد أو كلمة السر غير صحيحة"),
@@ -1489,6 +1621,7 @@ $('pf-save').onclick = async () => {
 };
 
 onAuthStateChanged(auth, u => {
+  setTimeout(() => { instPing(auth.currentUser); flushErrs(); }, 5000);             // 44: إحصائيات التثبيت والأخطاء المؤجلة
   if (window.__setStep) window.__setStep(u ? 'profile' : 'auth');
   if (u && u.email) { try { localStorage.setItem('mk_last_email', u.email); } catch {} }
   try { if (u) localStorage.setItem('mk_last_uid', u.uid); else { localStorage.removeItem('mk_last_uid'); dropSnap(); } } catch {}
@@ -1636,6 +1769,12 @@ function startMain() {
     S.unsubs.alerts = onValue(ref(db, 'alerts/' + S.uid), s => { S.alerts = s.val() || { on: false, km: 50 }; if (S.tab === 'me') { renderProx(); renderAlerts(); } pushProx(); }, e => console.error('alerts', e));
     S.unsubs.hide = onValue(ref(db, 'hide/' + S.uid), s => { S.hides = s.val() || {}; S.hidesLoaded = true; recipEval(); if (S.tab === 'me') renderPeople(); }, e => console.error('hide', e));
   }
+  S.unsubs.off = onValue(ref(db, 'publicConfig/off'), s => { PUB.off = s.val() || {}; applyFlags(); }, () => {});
+  if (!S.limited) S.unsubs.react = onValue(ref(db, 'react/' + S.uid), s => handleReacts(s.val() || {}), () => {});
+  S.unsubs.ann = onValue(ref(db, 'announce'), s => { S.ann = s.val() || {}; renderAnnBadge(); }, () => {});
+  S.unsubs.annSeen = onValue(ref(db, 'annSeen/' + S.uid), s => { S.annSeen = Math.max(S.annSeen || 0, Number(s.val()) || 0); renderAnnBadge(); }, () => {});
+  if (S.isAdmin) S.unsubs.devNotes = onValue(ref(db, 'settings/devNotes'), s => { S.devNotes = s.val() || {}; fillSettings(); }, () => {});
+  setTimeout(() => { flushErrs(); pullCrashes(); }, 3000);
   S.unsubs.conn = onValue(ref(db, '.info/connected'), s => { S.online = s.val() === true; renderConnBar(); }, () => {});
   renderConnBar(); setTimeout(() => { renderConnBar(); if (S.fromSnap) { renderMap(); renderSheet(); } }, 3200);
   S.unsubs.upd = onValue(ref(db, 'appUpdate'), s => { S.upd = s.val() || {}; S.updLoaded = true; renderUpdate(); }, e => console.error('upd', e));
@@ -1682,6 +1821,7 @@ function stopMain() {
   for (const m of [S.linkUn, S.dirUn, S.locUn]) Object.values(m).forEach(f => f?.());
   S.linkUn = {}; S.dirUn = {}; S.dirErr = {}; S.locUn = {};
   clearInterval(S.tick); S.started = false; S.mineLoaded = false; S.live = false; S.online = false; if ($('conn-bar')) $('conn-bar').hidden = true; S.hides = {}; S.histHides = {}; S.frz = {}; S.myTrip = null; S.tripIn = {}; S.tripsIn = {}; Object.values(S.tripUn || {}).forEach(f => f?.()); S.tripUn = {}; if ($('trip-bars')) $('trip-bars').innerHTML = ''; S.recipBad = null; S.badSince = 0; S.myLocLoaded = false; if ($('recip-bar')) $('recip-bar').hidden = true; S.migrated = false; S.mode = null;
+  S.ann = {}; S.annSeen = 0; S.reacts = {}; S.devNotes = null; S.mon = null; if ($('btn-ann')) $('btn-ann').hidden = true; if ($('edge')) $('edge').innerHTML = ''; for (const m of S.cmarks || []) { try { S.map.removeLayer(m); } catch {} } S.cmarks = [];
   S.dir = {}; S.mine = {}; S.their = {}; S.reqs = {}; S.locs = {}; S.hidden = {}; S.users = {}; S.invites = {}; S.settings = {}; S.matches = []; S.matchDone = false; S.places = {}; S.nick = {}; S.sosIn = {}; S.pickPlace = false; S.hideAll = false; S.phoneReq = null; S.phoneReqs = {}; S.histPriv = false; S.reportShare = false; S.follow = {}; S.sosAck = {}; S.sosSeen = {}; S.appInfo = {}; S.kids = {}; S.myGuardians = {}; S.guardians = {}; S.myInv = {}; S.myInvInfo = {};
   clearMarkers(); if (S.hl) S.hl.clearLayers(); if (S.hsel) S.hsel.clearLayers(); if (S.hmk) S.hmk.clearLayers(); S.person = null; S.histFor = null; S.repShare = {}; S.plan = null; S.plans = {}; S.perk = {}; S.perks = {}; S.vlog = {}; vlogEnd(); VL.last = {}; VL.deny = {};
 }
@@ -1911,6 +2051,7 @@ const GLayer = L.Layer.extend({
   _rs() { try { google.maps.event.trigger(this._gm, 'resize'); } catch {} this._sync(); }
 });
 function gAllowed() {
+  if (offOn('gmap')) return false;                                       // 44: مفتاح المشرف
   let bad = ''; try { bad = localStorage.getItem('mk_gbad') || ''; } catch {}
   let off = ''; try { off = sessionStorage.getItem('mk_goff') || ''; } catch {}
   return !S.gBad && !off && bad !== dayKey(Date.now()) && (!!S.gLayer || !!S.map && S.engine === 'gx' || gQ('m') < G_MAP_DAY_CAP);
@@ -1984,6 +2125,7 @@ function setStyle(k, save) {
   for (const [url, opt] of STYLES[k].layers) { const l = L.tileLayer(url, opt).addTo(S.map); S.base.push(l); }   // مع Google: تظهر العادية فوراً ثم تُستبدل حين تجهز
   if (save) { try { localStorage.setItem('mapStyle2', k); } catch {} }
   S.styleKey = k; S.gLoud = !!save;
+  $('map').classList.toggle('satl', k === 'sat' || k === 'hybrid');
   renderStyleMenu();
   if (k === 'g') gTry(tok);
 }
@@ -2084,11 +2226,12 @@ const LG = (() => {
   class GMap extends Ev {
     constructor(el) {
       super(); this.el = el; this._ovs = new Set();
-      const gm = this.gm = new google.maps.Map(el, { mapId: GMAP_ID, center: { lat: 35, lng: 38 }, zoom: 6, minZoom: 2, maxZoom: 21, disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false, keyboardShortcuts: false });
+      const gm = this.gm = new google.maps.Map(el, { mapId: GMAP_ID, ...(window.__isDark && window.__isDark() && google.maps.ColorScheme ? { colorScheme: google.maps.ColorScheme.DARK } : {}), center: { lat: 35, lng: 38 }, zoom: 6, minZoom: 2, maxZoom: 21, disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false, keyboardShortcuts: false });
       gm.__lg = this;
       let zt = 0;
       gm.addListener('zoom_changed', () => { clearTimeout(zt); zt = setTimeout(() => this.fire('zoomend'), 120); });
       gm.addListener('click', e => { if (e.latLng) this.fire('click', { latlng: { lat: e.latLng.lat(), lng: e.latLng.lng() } }); });
+      gm.addListener('bounds_changed', () => this.fire('move'));            // 44: لصور الأصدقاء على الحواف
       const ov = this._pj = new google.maps.OverlayView(); ov.onAdd = () => {}; ov.draw = () => {}; ov.onRemove = () => {}; ov.setMap(gm);
     }
     setView(c, z) { const p = ll(c); try { this.gm.moveCamera({ center: p, zoom: z }); } catch { this.gm.setZoom(z); this.gm.setCenter(p); } return this; }
@@ -2208,7 +2351,8 @@ function buildMap() {
   S.hmk = LX.layerGroup();
   S.accg = LX.layerGroup().addTo(S.map);
   S.plg = LX.layerGroup().addTo(S.map);
-  S.map.on('zoomend', () => { syncMarks(); if (S.person) renderMap(); });   // التراكب يتغير مع التكبير
+  S.map.on('zoomend', () => { syncMarks(); clearTimeout(S.rmT); S.rmT = setTimeout(renderMap, 40); });   // التراكب والصفوف تتغير مع التكبير (بعد انتهاء الحدث، لا داخله)
+  S.map.on('move', renderEdge);
   S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng, '', S.pickFriend); else mapTap(); });
   let k = wantGx ? 'gx' : GOOGLE_DEFAULT ? 'g' : 'osm';
   try { const s2 = localStorage.getItem('mapStyle2'), s1 = localStorage.getItem('mapStyle'); k = s2 || ((s1 === 'sat' || s1 === 'hybrid') ? s1 : k); } catch {}
@@ -2217,6 +2361,7 @@ function buildMap() {
   setTimeout(() => S.map.invalidateSize(), 100);
 }
 $('btn-style').onclick = () => { $('style-menu').hidden = !$('style-menu').hidden; };
+$('btn-ann').onclick = () => openAnn();
 $('btn-fit').onclick = () => (S.histFor ? fitHistory() : fitAll());
 
 /* ---------- أسماء مستعارة، صور، ونوع الحركة ---------- */
@@ -2363,7 +2508,7 @@ function addrOf(id) {
 const fmtKm = m => m < 1000 ? tf("{0} م", (Math.round(m))) : tf("{0} كم", ((m / 1000).toFixed(1)));
 const fmtDur = ms => { const m = Math.max(1, Math.round(ms / 60000)); return m < 60 ? tf("{0} دقيقة", (m)) : tf("{0} س و{1} د", (Math.floor(m / 60)), m % 60); };
 
-function pinIcon(id, l, extra = '') {
+function pinIcon(id, l, extra = '', dx = 0) {
   const fz = id !== S.uid && !!S.frz[id] && !!recipWhy(id);
   const d = S.dir[id] || {}, stale = Date.now() - l.ts > 180000, m = fz ? null : liveMode(id, l);
   const nm = id === S.uid ? _t("أنا") : dispName(id);
@@ -2371,8 +2516,9 @@ function pinIcon(id, l, extra = '') {
   const bad = l.off === true || l.noperm === true, dead = bad && appStale(l);
   const lbl = fz ? `<span class="mk-lbl frz">❄ ${typeof l.ts === 'number' ? esc(frzWhen(l.ts)) : ''}</span>` : m && !bad ? `<span class="mk-lbl spd">${ICON[m.mode]}${tf("{0} كم/س", m.kmh)}</span>` : bad ? `<span class="mk-lbl off">${dead ? _t("متوقف") : l.noperm === true ? _t("بلا إذن") : _t("مطفأ")}</span>` : l.apx === true && !stale ? `<span class="mk-lbl old">≈ ${_t("تقريبي")}</span>` : stale ? `<span class="mk-lbl old">${tf("قبل {0}", esc(ago(l.ts)))}</span>` : `<span class="mk-lbl"><i></i>${_t("الآن")}</span>`;
   const cone = (m && typeof l.brg === 'number') ? `<svg class="mk-cone" viewBox="0 0 80 80" style="transform:rotate(${Math.round(l.brg)}deg)"><path d="M40 40L22 4A40 40 0 0 1 58 4Z" fill="#3A6EA5" fill-opacity=".28"/></svg>` : '';
-  const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
-  return LX.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
+  const pulse = extra.includes(' sel') && !fz ? `<span class="mk-pulse" style="--c-sel:${safeColor(d.color)}"></span>` : '';
+  const html = `<div class="mk${stale ? ' stale' : ''}${fz ? ' frz' : ''}${extra}">${pulse}${fz ? '' : cone}${lbl}${bad && !fz ? '<span class="mk-wn">!</span>' : ''}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div><div class="tag">${esc(nm)}${sub}</div></div>`;
+  return LX.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30 - dx, 73] });
 }
 /* ---------- رسائل المشرف ----------
    adminMsg/<العضو>/<رقم> = {t, at, all?, ack?}. يكتبها المشرف، ويضغط العضو «تم» فيُسجَّل ack (الاستلام). */
@@ -2398,10 +2544,11 @@ async function ackAdminMsg() {
   try { await set(ref(db, `adminMsg/${S.uid}/${id}/ack`), Date.now()); } catch {}
   setTimeout(showAdminMsg, 300);
 }
-function openAdmWrite(ids) {
-  AMW_TO = ids;
+let AMW_MODE = '';
+function openAdmWrite(ids, mode = '') {
+  AMW_TO = ids; AMW_MODE = mode;
   const n = ids ? 1 : Object.keys(S.users).filter(u => u !== S.uid && S.users[u].status === 'approved').length;
-  $('amw-title').textContent = ids ? tf("رسالة إلى {0}", S.dir[ids[0]]?.name || S.users[ids[0]]?.name || '') : tf("رسالة لكل الأعضاء ({0})", n);
+  $('amw-title').textContent = mode === 'ann' ? _t("إعلان عام لكل المشتركين (يبقى في زر الإعلانات)") : ids ? tf("رسالة إلى {0}", S.dir[ids[0]]?.name || S.users[ids[0]]?.name || '') : tf("رسالة لكل الأعضاء ({0})", n);
   $('amw-in').value = ''; $('amw-n').textContent = '0 / 500'; amwTrReset(); $('amw-trh').hidden = !PUB.scriptUrl; $('modal-amw').hidden = false; setTimeout(() => $('amw-in').focus(), 50);
 }
 $('amw-in').addEventListener('input', () => { $('amw-n').textContent = $('amw-in').value.length + ' / 500'; if (AMW_TR) amwTrReset(); });
@@ -2436,6 +2583,12 @@ async function sendAdmMsg() {
     if (!(await ask(_t("تعذرت الترجمة. إرسال الرسالة بالعربية فقط؟"), _t("إرسال")))) return;
   }
   const tr = AMW_TR === t ? amwTrValues() : null;
+  if (AMW_MODE === 'ann') {
+    const id = (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+    try { await set(ref(db, 'announce/' + id), { t, at: Date.now(), ...(tr ? { tr } : {}) }); $('modal-amw').hidden = true; toast(_t("نُشر الإعلان")); }
+    catch { toast(_t("تعذر النشر. انشر القواعد الجديدة أولاً.")); }
+    return;
+  }
   const all = !AMW_TO, ids = AMW_TO || Object.keys(S.users).filter(u => u !== S.uid && S.users[u].status === 'approved');
   if (!ids.length) return;
   if (all && !(await ask(tf("إرسال الرسالة إلى {0} عضواً؟", ids.length), _t("إرسال")))) return;
@@ -2584,18 +2737,46 @@ function renderMap() {
   const keep = new Set();
   // الشخص المختار: دبوسه فوق الجميع، والدبابيس القريبة منه تبهت ويختفي اسمها حتى تُغلق بطاقته
   const selL = S.person && !S.histFor ? S.locs[S.person] : null, selPt = selL && typeof selL.lat === 'number' ? pinPt(selL) : null;
+  const ids = [];
   for (const id of visibleIds()) {
     const l = S.locs[id];
     if (!l || typeof l.lat !== 'number') continue;
     if (S.histFor && id !== S.histFor) continue;                         // في السجل: دبوس صاحب السجل فقط
+    ids.push(id);
+  }
+  // 44: المتقاربون على الشاشة يصطفون جنباً إلى جنب (حتى 4)، والأكثر يصيرون دائرة برقم
+  const grp = S.histFor ? [] : groupPins(ids);
+  const rowDx = {}, inClu = new Set(); S.rowOf = {}; S.cluOf = {};
+  const zMax = S.map.getZoom() >= 18;
+  for (const g of grp) {
+    if (g.length >= 5 && !zMax) { for (const id of g) if (id !== S.person) inClu.add(id); continue; }
+    const row = g.slice(0, 4).sort((a, b) => S.locs[a].lng - S.locs[b].lng);
+    row.forEach((id, k) => { rowDx[id] = Math.round((k - (row.length - 1) / 2) * 54); S.rowOf[id] = row; });
+  }
+  for (const id of ids) {
+    if (inClu.has(id)) continue;
+    const l = S.locs[id];
     keep.add(id);
-    const sel = !!selPt && id === S.person, dim = !!selPt && !sel && pxDist(pinPt(l), selPt) < 80;
-    const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '');
+    const sel = !!selPt && id === S.person, dim = !!selPt && !sel && !(S.rowOf[id] && S.rowOf[id].includes(S.person)) && pxDist(pinPt(l), selPt) < 80;
+    const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '', rowDx[id] || 0);
     if (!S.markers[id]) { S.markers[id] = LX.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id].on('click', () => pinTap(id)); }
     else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(icon); }
     try { S.markers[id].setZIndexOffset(sel ? 5000 : dim ? -500 : 0); } catch {}
   }
   for (const id of Object.keys(S.markers)) if (!keep.has(id)) { S.map.removeLayer(S.markers[id]); delete S.markers[id]; }
+  for (const m of S.cmarks || []) S.map.removeLayer(m);
+  S.cmarks = [];
+  for (const g of grp) {
+    const mem = g.filter(id => inClu.has(id)); if (mem.length < 2) continue;
+    const la = mem.reduce((a, id) => a + S.locs[id].lat, 0) / mem.length, ln = mem.reduce((a, id) => a + S.locs[id].lng, 0) / mem.length;
+    const av = mem.slice(0, 3).map((id, k) => { const d = S.dir[id] || {}; return `<span class="av3" style="${avStyle(d)};left:${4 + k * 12}px;top:${14 - k * 4}px">${avText(d)}</span>`; }).join('');
+    const m = LX.marker([la, ln], { icon: LX.divIcon({ className: '', html: `<div class="mkc" role="button" aria-label="${esc(tf("{0} أشخاص هنا", mem.length))}">${av}<span class="n">${mem.length}</span></div>`, iconSize: [64, 64], iconAnchor: [32, 40] }) }).addTo(S.map);
+    m.on('click', () => cluTap(mem));
+    try { m.setZIndexOffset(3000); } catch {}
+    for (const id of mem) S.cluOf[id] = mem;
+    S.cmarks.push(m);
+  }
+  S.mpos = ids.map(id => [S.locs[id].lat, S.locs[id].lng]);
   if (S.accg) {                                                          // دائرة الدقة للشخص المحدد (أو لي)
     S.accg.clearLayers();
     const aid = S.person || S.uid, al = S.locs[aid];
@@ -2605,10 +2786,68 @@ function renderMap() {
     }
     if (al && al.apx !== true && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && keep.has(aid)) LX.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
   }
-  if (!S.fitted && keep.size) { fitAll(); S.fitted = true; }
+  if (!S.fitted && ids.length) { S.fitted = true; fitAll(); }
+  renderEdge();
+}
+/* 44: تجميع الدبابيس المتقاربة على الشاشة (أقل من 40 نقطة) بربط متسلسل */
+function groupPins(ids) {
+  const pt = {}; for (const id of ids) pt[id] = pinPt(S.locs[id]);
+  const seen = new Set(), out = [];
+  for (const id of ids) {
+    if (seen.has(id) || !pt[id]) continue;
+    const g = [id]; seen.add(id);
+    for (let i = 0; i < g.length; i++) for (const o of ids) if (!seen.has(o) && pt[o] && pxDist(pt[g[i]], pt[o]) < 40) { seen.add(o); g.push(o); }
+    if (g.length > 1) out.push(g);
+  }
+  return out;
+}
+function cluTap(mem) {
+  const z = S.map.getZoom();
+  if (z >= 18) return pickAmong(mem);
+  S.map.fitBounds(L.latLngBounds(mem.map(id => [S.locs[id].lat, S.locs[id].lng])), { padding: [90, 90], maxZoom: Math.min(19, z + 3) });
+}
+function pickAmong(ids) {
+  $('ppick-list').innerHTML = ids.map(u => { const d = S.dir[u] || {}; return `<button class="btn" data-act="ppick" data-id="${esc(u)}" style="display:flex;gap:10px;align-items:center;justify-content:flex-start"><span class="chav" style="${avStyle(d)}">${avText(d)}</span>${esc(u === S.uid ? _t("أنا") : dispName(u))}</button>`; }).join('');
+  $('modal-ppick').hidden = false;
+}
+/* 44: أصدقاء خارج الجزء الظاهر من الخريطة: صورهم على الحافة باتجاههم، وبلمسة تذهب إليهم */
+var EDGE_RAF = 0;
+function renderEdge() {
+  if (EDGE_RAF) return;
+  EDGE_RAF = requestAnimationFrame(() => { EDGE_RAF = 0; try { drawEdge(); } catch (e) { console.error(e); } });
+}
+function drawEdge() {
+  const box = $('edge'); if (!box) return;
+  if (!S.map || S.histFor || S.tab !== 'map' || S.pickPlace || $('v-main').hidden) { box.innerHTML = ''; return; }
+  const mr = box.getBoundingClientRect(), W = mr.width, H = mr.height; if (!W || !H) return;
+  const vis = el => el && !el.hidden && el.offsetParent !== null;
+  const tb = $('top').getBoundingClientRect(), sh = vis($('psheet')) ? $('psheet') : vis($('sheet')) ? $('sheet') : null;
+  const T = Math.max(8, tb.bottom - mr.top) + 26, B = Math.min(H, sh ? sh.getBoundingClientRect().top - mr.top : H) - 26, M = 26;
+  if (B - T < 60) { box.innerHTML = ''; return; }
+  const fr = $('fabs').getBoundingClientRect(), fx0 = fr.left - mr.left - 24, fx1 = fr.right - mr.left + 24, fy1 = fr.bottom - mr.top + 10;
+  const cx = W / 2, cy = (T + B) / 2, placed = [], extra = [], cluDone = new Set();
+  for (const id of visibleIds()) {
+    if (id === S.uid) continue;
+    const mem = S.cluOf && S.cluOf[id];
+    if (mem) { if (cluDone.has(mem)) continue; cluDone.add(mem); }        // مجموعة خارج الشاشة: صورة واحدة برقم
+    const l = mem ? { lat: mem.reduce((a, x) => a + S.locs[x].lat, 0) / mem.length, lng: mem.reduce((a, x) => a + S.locs[x].lng, 0) / mem.length } : S.locs[id]; if (!l) continue;
+    const p = pinPt(l); if (!p) continue;
+    if (p.x >= 0 && p.x <= W && p.y >= T - 20 && p.y <= B + 40) continue;   // ظاهر
+    const dx = p.x - cx, dy = p.y - cy; if (!dx && !dy) continue;
+    const t = Math.min(dx ? (dx > 0 ? (W - M - cx) / dx : (M - cx) / dx) : Infinity, dy ? (dy > 0 ? (B - cy) / dy : (T - cy) / dy) : Infinity);
+    let x = cx + dx * t, y = cy + dy * t;
+    if (y < fy1 && x > fx0 && x < fx1) x = x < W / 2 ? fx1 + 4 : fx0 - 4;  // لا نغطي الأزرار الجانبية
+    for (let k = 0; k < 6 && placed.some(q => Math.hypot(q.x - x, q.y - y) < 40); k++) { if (Math.abs(x - M) < 2 || Math.abs(x - (W - M)) < 2) y += 42 * (y > cy ? -1 : 1); else x += 42 * (x > cx ? -1 : 1); }
+    if (placed.length >= 7) { extra.push(id); continue; }
+    placed.push({ id, x, y, a: Math.atan2(dy, dx) * 180 / Math.PI + 90, n: mem ? mem.length : 0 });
+  }
+  box.innerHTML = placed.map(q => { const d = S.dir[q.id] || {}; return `<button class="edg" data-act="${q.n ? 'edge-clu' : 'edge-go'}" data-id="${esc(q.id)}" style="left:${q.x.toFixed(0)}px;top:${q.y.toFixed(0)}px;${avStyle(d)}" aria-label="${esc(q.n ? tf("{0} أشخاص هنا", q.n) : dispName(q.id))}">${avText(d)}<i style="transform:rotate(${q.a.toFixed(0)}deg) translateY(-27px)"></i>${q.n ? `<b>${q.n}</b>` : ''}</button>`; }).join('')
+    + (extra.length ? `<button class="edg more" data-act="edge-more" style="left:${(W - M).toFixed(0)}px;top:${(B).toFixed(0)}px">+${extra.length}</button>` : '');
+  S.edgeMore = extra;
 }
 /* الضغط على دبوس: إن كان فوقه أو تحته دبوس آخر (متراكبان) نسأل أي شخص */
 function pinTap(id) {
+  if (S.rowOf && S.rowOf[id]) return openPerson(id);                       // 44: في صف المتقاربين لا تراكب
   const l = S.locs[id], p = l ? pinPt(l) : null;
   const near = p ? Object.keys(S.markers).filter(o => o !== id && S.locs[o] && pxDist(pinPt(S.locs[o]), p) < 30) : [];
   if (!near.length) return openPerson(id);
@@ -2618,7 +2857,7 @@ function pinTap(id) {
 }
 function clearMarkers() { if (S.map) for (const id of Object.keys(S.markers)) S.map.removeLayer(S.markers[id]); S.markers = {}; }
 function fitAll() {
-  const pts = Object.values(S.markers).map(m => m.getLatLng());
+  const pts = (S.mpos && S.mpos.length ? S.mpos : Object.values(S.markers).map(m => m.getLatLng()));
   if (!pts.length) return;
   if (pts.length === 1) S.map.setView(pts[0], 15); else S.map.fitBounds(L.latLngBounds(pts), { padding: [60, 60], maxZoom: 16 });
 }
@@ -2688,6 +2927,7 @@ function applyTabVisibility() {
   $('hsheet').hidden = !(hist && S.hState !== 'off');
   $('hshow').hidden = !(hist && S.hState === 'off');
   $('v-main').classList.toggle('hmode', hist);
+  renderEdge();
 }
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
@@ -2696,8 +2936,9 @@ function openPerson(id) {
   if (id !== S.uid) get(ref(db, 'reportShare/' + id)).then(s => { S.repShare = S.repShare || {}; S.repShare[id] = s.val() === true; if (S.person === id) renderPerson(); }).catch(() => {});
 }
 /* زر «التقرير» لا يظهر إلا لمن شارك تقريره معي (أو لولي أمره أو للمشرف) */
-const repAllowed = id => id === S.uid || S.isAdmin || !!(S.kids && S.kids[id]) || !!(S.repShare && S.repShare[id] === true);
+const repAllowed = id => id === S.uid || S.isAdmin || !!(S.kids && S.kids[id]) || (!offOn('rshare') && !!(S.repShare && S.repShare[id] === true));
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); renderMap(); }
+window.addEventListener('resize', () => renderEdge());
 function renderPerson() {
   const id = S.person; if (!id) return;
   $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited || !repAllowed(id); $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
@@ -2764,6 +3005,11 @@ function renderPerson() {
   }
   if (!fz && id !== S.uid && l && me && typeof me.lat === 'number' && typeof l.lat === 'number') { $('p-dist').textContent = tf("المسافة منك {0}", fmtKm(haversine(me, l))); $('p-dist').hidden = false; }
   else $('p-dist').hidden = true;
+  // 44: مفاتيح المشرف
+  if (offOn('hist') && id !== S.uid && !S.isAdmin) $('p-hist-btn').hidden = true;
+  if (offOn('share')) $('p-share-btn').hidden = true;
+  if (offOn('trip')) $('p-otw').hidden = true;
+  renderReactRow(id);
 }
 function miniRoute(pts) {
   if (pts.length < 2) return '';
@@ -3349,7 +3595,8 @@ function renderMe() {
   $('minor-note').hidden = !S.minor; $('lim-note').hidden = !S.limited; $('prox-card').hidden = S.limited;
   { const sv = isNative ? nat() : null; $('ver-line').textContent = tf("إصدار الواجهة {0}{1}", UI_VERSION, sv && sv.verName ? tf("، إصدار التطبيق {0} ({1})", sv.verName, sv.ver) : ''); }
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
-  { const sv = isNative ? nat() : null; $('qr-card').hidden = !(sv && sv.qr === 1) || S.limited; renderCar(sv); }
+  { const sv = isNative ? nat() : null; $('qr-card').hidden = !(sv && sv.qr === 1) || S.limited || offOn('qr'); renderCar(sv); }
+  renderWelcome();
   offlineStatus().then(ok => { const el = $('off-line'); if (el) { el.textContent = ok ? _t("الفتح بلا إنترنت: جاهز") : _t("الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه."); el.style.color = ok ? 'var(--ok)' : ''; } });
   $('ui28-on').checked = !UI28;
   renderProx();
@@ -3450,7 +3697,7 @@ function renderAdmin() {
   const invBy = u => { const c = (S.invites || {})[S.users[u].inviteCode].createdBy; return S.dir[c]?.name || S.users[c]?.name || '—'; };
   const invCard = `<div class="card"><div class="sw-row"><div><b>${_t("دعوات الأعضاء")}</b><p class="hint">${invOn ? tf("مفعّلة. انضم بها {0} خلال 14 يوماً.", viaMember.length) : _t("موقوفة: لا يُنشئ الأعضاء دعوات، ولا يُقبل أحد بدعوة عضو حتى تعيد تشغيلها.")}</p></div><button class="btn sm ${invOn ? 'danger' : 'primary'}" data-act="inv-toggle">${invOn ? _t("إيقاف فوري") : _t("إعادة تشغيل")}</button></div>${viaMember.slice(0, 10).map(u => `<div class="hint">${esc(tf("{0} بدعوة من {1} · {2}", S.users[u].name || '—', invBy(u), fmtDateY(S.users[u].createdAt)))}</div>`).join('')}</div>`;
   const modeCard = `<div class="card"><label class="sw-row"><span><b>${_t("عرض كل الأعضاء على الخريطة")}</b><br><span class="hint">${_t("للإشراف فقط. افتراضياً تظهر لك الخريطة أصدقاءك المتصلين فقط.")}</span></span><span class="switch"><input type="checkbox" data-adm-all ${S.adminAll ? 'checked' : ''} aria-label="${_t("عرض كل الأعضاء على الخريطة")}"><span></span></span></label></div>`;
-  const msgCard = `<div class="card"><div class="sw-row"><span><b>${_t("رسائل للأعضاء")}</b><br><span class="hint">${_t("تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.")}</span></span><button class="btn sm" data-act="amw-all">${_t("رسالة للجميع")}</button></div></div>`;
+  const msgCard = `<div class="card"><div class="sw-row"><span><b>${_t("رسائل للأعضاء")}</b><br><span class="hint">${_t("تصل إشعاراً على هواتفهم، وتظهر عند فتح التطبيق حتى يضغطوا «تم». ولكل عضو زر «رسالة» في بطاقته.")}</span></span><span class="acts"><button class="btn sm" data-act="amw-all">${_t("رسالة للجميع")}</button><button class="btn sm" data-act="ann-new">${_t("إعلان عام")}</button></span></div><p class="hint">${esc(tf("الإعلانات العامة تبقى في زر الإعلانات على الخريطة مع عدّاد غير المقروء. المنشور الآن: {0}", annList().length))}</p></div>`;
   $('adm-members').innerHTML = modeCard + invCard + msgCard + sickCard + reqHtml + verCard + (ids.length ? ids.map(u => {
     const x = S.users[u], self = u === S.uid, name = S.dir[u]?.name || x.name, waiting = x.status === 'pending' || x.status === 'limited';
     const badge = x.status === 'limited' ? `<span class="badge warn">${_t("قيد الاعتماد")}</span>` : x.status === 'pending' ? `<span class="badge warn">${_t("بانتظار الموافقة")}</span>` : x.status === 'approved' ? `<span class="badge ok">${_t("مفعّل")}</span>` : `<span class="badge bad">${_t("معطّل")}</span>`;
@@ -3473,7 +3720,9 @@ function renderAdmin() {
 function setAdm(t) {
   S.adm = t;
   document.querySelectorAll('#adm-seg button').forEach(b => b.classList.toggle('on', b.dataset.adm === t));
-  for (const k of ['members', 'invites', 'create', 'settings']) $('adm-' + k).hidden = k !== t;
+  for (const k of ['members', 'invites', 'create', 'settings', 'mon']) $('adm-' + k).hidden = k !== t;
+  if (t === 'mon') loadMon(false);
+  if (t === 'settings') renderFlags();
 }
 $('adm-seg').onclick = e => { const b = e.target.closest('button'); if (b) setAdm(b.dataset.adm); };
 
@@ -3550,6 +3799,7 @@ function fillSettings() {
   { const en = s.engine || {}; $('en-on').checked = en.on !== false; $('en-still').value = en.stillMin ?? ''; $('en-rad').value = en.radius ?? ''; $('en-hb').value = en.hbMin ?? ''; $('en-batch').value = en.batchSec ?? ''; $('en-legacy').checked = en.legacy !== false; }
   $('st-ver').value = s.version || ''; $('st-vname').value = s.vname || ''; $('st-notes').value = s.notes || ''; $('st-notes-n').textContent = ($('st-notes').value.length) + ' / 1500'; $('st-force').checked = !!s.force;
   S.updHist = { ...((S.upd || {}).hist || {}) }; ntTrReset();
+  if ($('st-dev')) $('st-dev').value = (S.devNotes || {})[s.version] || '';
   { const u = S.upd || {}; $('st-ushow').checked = u.show === true; $('st-umin').value = u.min || ''; $('st-usha').value = u.sha || ''; $('st-usize').value = u.size || ''; }
 }
 
@@ -3631,10 +3881,273 @@ async function approveUser(id) {
   }
   await update(ref(db), ups);
 }
+/* ====================== 44: مفاتيح الميزات، الردود، الإعلانات، الأخطاء، الإحصائيات ====================== */
+/* مفاتيح الميزات (publicConfig/off): true = الميزة موقوفة. تُقرأ حيّة فتُطبَّق فوراً */
+function offOn(k) { return !!(typeof PUB !== 'undefined' && PUB.off && PUB.off[k] === true); }
+const FLAGS = [['react', "الردود السريعة"], ['qr', "الإضافة برمز QR"], ['wake', "إيقاظ هاتف الصديق"], ['gmap', "خريطة Google"], ['hist', "سجل التنقلات للأصدقاء"], ['rshare', "مشاركة التقارير"], ['share', "مشاركة الموقع برابط"], ['trip', "أنا في الطريق إليك"]];
+function applyFlags() { if (!S.started) return; if (S.person) renderPerson(); if (S.tab === 'me') renderMe(); if (S.tab === 'admin') renderFlags(); }
+function renderFlags() {
+  const el = $('flags-list'); if (!el) return;
+  el.innerHTML = FLAGS.map(([k, t]) => `<div class="sw-row"><span>${_t(t)}</span><label class="switch"><input type="checkbox" data-flag="${k}" ${offOn(k) ? '' : 'checked'} aria-label="${_t(t)}"><span></span></label></div>`).join('');
+}
+$('flags-list').addEventListener('change', async e => {
+  const k = e.target && e.target.dataset.flag; if (!k) return;
+  const on = e.target.checked;
+  try { await set(ref(db, 'publicConfig/off/' + k), on ? null : true); toast(on ? _t("شُغّلت الميزة للجميع") : _t("أُوقفت الميزة للجميع")); }
+  catch { e.target.checked = !on; toast(_t("تعذر الحفظ. انشر القواعد الجديدة أولاً.")); }
+});
+
+/* الردود السريعة: خانة واحدة لكل مرسل في react/<المستلم>/<المرسل>، وإشارة sig/<المستلم>/r توقظ إشعار التطبيق */
+const RX = { hi: ['👋', "مرحبا"], love: ['❤️', "اشتقتلك"], night: ['🌙', "تصبح على خير"], here: ['📍', "أنا هنا"] };
+const rxLabel = k => RX[k] ? RX[k][0] + ' ' + _t(RX[k][1]) : '';
+function renderReactRow(id) {
+  const el = $('p-react'); if (!el) return;
+  const ok = id && id !== S.uid && !S.limited && connected(id) && !offOn('react');
+  el.hidden = !ok; if (!ok) return;
+  if (el.dataset.for !== id) { el.dataset.for = id; el.innerHTML = Object.keys(RX).map(k => `<button data-act="rx-send" data-id="${k}">${esc(rxLabel(k))}</button>`).join(''); }
+}
+async function sendReact(k) {
+  const to = S.person; if (!to || !RX[k]) return;
+  S.rxSent = S.rxSent || {};
+  if (S.rxSent[to] && Date.now() - S.rxSent[to] < 60e3) return toast(_t("انتظر دقيقة قبل رد آخر لنفس الشخص"));
+  try {
+    await set(ref(db, `react/${to}/${S.uid}`), { k, at: serverTimestamp() });
+    S.rxSent[to] = Date.now();
+    set(ref(db, `sig/${to}/r/${S.uid}`), serverTimestamp()).catch(() => {});
+    toast(tf("أُرسل «{0}» إلى {1}", rxLabel(k), dispName(to)));
+  } catch { toast(offOn('react') ? _t("الردود السريعة موقوفة مؤقتاً") : _t("انتظر دقيقة قبل رد آخر لنفس الشخص")); }
+}
+function handleReacts(all) {
+  S.reacts = all || {};
+  let seen = {}; try { seen = JSON.parse(localStorage.getItem('mk_rx_' + S.uid) || '{}') || {}; } catch {}
+  let ch = false;
+  for (const [from, r] of Object.entries(S.reacts)) {
+    const at = Number(r && r.at) || 0;
+    if (!r || !RX[r.k] || at <= (Number(seen[from]) || 0)) continue;
+    seen[from] = at; ch = true;
+    if (Date.now() - at < 6 * 3600e3 && (S.dir[from] || S.mine[from])) showRx(from, r.k, at);
+  }
+  if (ch) try { localStorage.setItem('mk_rx_' + S.uid, JSON.stringify(seen)); } catch {}
+}
+function showRx(from, k, at) {
+  const bar = $('rx-bar'); if (!bar) return;
+  const d = document.createElement('div'); d.className = 'rx'; d.dataset.act = 'rx-open'; d.dataset.id = from;
+  d.innerHTML = `<span class="e">${RX[k][0]}</span><span class="grow"><b>${esc(dispName(from))}</b><br><span>${esc(_t(RX[k][1]))}</span> <span class="hint">· ${esc(ago(at))}</span></span>`;
+  bar.prepend(d); while (bar.children.length > 3) bar.lastChild.remove();
+  setTimeout(() => d.remove(), 8000);
+  try { if (navigator.vibrate) navigator.vibrate(60); } catch {}
+}
+
+/* الإعلانات: announce/<رقم> = {t, at, tr}، وآخر ما قرأه العضو في annSeen/<uid> */
+const annList = () => Object.entries(S.ann || {}).filter(([, a]) => a && typeof a.t === 'string' && a.at).sort((a, b) => b[1].at - a[1].at);
+function renderAnnBadge() {
+  const b = $('btn-ann'); if (!b) return;
+  const L1 = annList(); b.hidden = !S.started || (!L1.length && !S.isAdmin);
+  const n = L1.filter(([, a]) => a.at > (S.annSeen || 0)).length;
+  $('ann-badge').hidden = !n; $('ann-badge').textContent = n > 99 ? '99+' : String(n);
+}
+function openAnn() {
+  const L1 = annList(), seen = S.annSeen || 0;
+  $('ann-list').innerHTML = L1.length ? L1.map(([id, a]) => `<div class="ann-row ${a.at > seen ? 'new' : ''}"><b>${a.at > seen ? _t("جديد") + ' · ' : ''}${esc(fmtFull(a.at))}</b><p>${esc(admText(a))}</p>${S.isAdmin ? `<div class="acts"><button class="btn sm danger" data-act="ann-del" data-id="${esc(id)}">${_t("حذف")}</button></div>` : ''}</div>`).join('') : `<p class="hint" style="padding:14px 0">${_t("لا توجد إعلانات.")}</p>`;
+  $('ann-adm').hidden = !S.isAdmin; $('modal-ann').hidden = false;
+  const top = L1.length ? L1[0][1].at : 0;
+  if (top > seen) { S.annSeen = top; renderAnnBadge(); set(ref(db, 'annSeen/' + S.uid), Math.min(top, Date.now())).catch(() => {}); }
+}
+
+/* شريط التحديث: «لاحقاً» يخفيه يوماً كاملاً لهذا الإصدار */
+function updLaterOn(u) { try { const x = JSON.parse(localStorage.getItem('mk_upd_later') || 'null'); return !!(x && x.v === Number(u.version) && Date.now() < x.until); } catch { return false; } }
+
+/* ملاحظات المطوّر (settings/devNotes) تظهر للمشرف وحده تحت «ما الجديد» */
+function devNotesFor(from, to) {
+  if (!S.isAdmin || !S.devNotes) return '';
+  const vs = Object.keys(S.devNotes).map(Number).filter(v => v > (Number(from) || 0) && v <= (Number(to) || 0)).sort((a, b) => a - b);
+  const t = vs.map(v => vs.length > 1 ? `${v}: ${S.devNotes[v]}` : S.devNotes[v]).filter(Boolean).join('\n');
+  return t ? '\n\n— ' + _t("للمطوّر (لا يراها غيرك)") + ' —\n' + t : '';
+}
+
+/* ---------- سجل الأخطاء والانهيارات (errs/<uid>/<مفتاح>) مع قاموس الحلول ---------- */
+const ERR_DICT = [
+  [/network|Failed to fetch|NetworkError|net::|offline|auth\/network-request-failed/i, "انقطاع الإنترنت أو ضعفه", "لا شيء غالباً؛ يعيد التطبيق المحاولة وحده", "تحقق من الإنترنت ثم أعد المحاولة"],
+  [/PERMISSION_DENIED|permission.denied/i, "قواعد Firebase رفضت العملية", "انشر آخر قواعد، أو الحساب غير معتمد/معطّل", "هذه العملية غير متاحة لحسابك الآن"],
+  [/auth\/(invalid-credential|wrong-password|user-not-found)/i, "بريد أو كلمة سر خاطئة", "طبيعي إن تكرر قليلاً؛ إن كثر من نفس الجهاز فقد يكون تخميناً", "البريد أو كلمة السر غير صحيحة"],
+  [/auth\/too-many-requests/i, "محاولات دخول كثيرة", "Firebase يوقفها مؤقتاً تلقائياً", "انتظر قليلاً ثم أعد المحاولة"],
+  [/auth\/(user-disabled)/i, "الحساب معطّل في Firebase", "أعد تفعيله من لوحة Firebase إن كان خطأ", "حسابك موقوف، تواصل مع المشرف"],
+  [/auth\/(operation-not-allowed|unauthorized-domain|popup|cancelled|internal-error)|google/i, "مشكلة في الدخول بحساب Google", "تأكد من تفعيل Google في Firebase والنطاق المسموح وبصمة SHA", "تعذر الدخول بحساب Google، جرّب البريد وكلمة السر"],
+  [/QuotaExceeded|quota/i, "امتلأت ذاكرة المتصفح أو حصة الخدمة", "يمسح التطبيق البيانات المؤقتة؛ راقب استهلاك Google Maps", "مساحة الهاتف ممتلئة"],
+  [/Loading chunk|Importing a module script failed|load|ChunkLoad/i, "فشل تحميل ملف من الإنترنت", "عادة بسبب انقطاع لحظي؛ يُصلح بإعادة الفتح", "أعد فتح التطبيق"],
+  [/OutOfMemory|OOM/i, "نفدت ذاكرة الهاتف", "شائع في الهواتف الضعيفة وشاشات السيارة؛ خفّف الخريطة", "أغلق التطبيقات الأخرى ثم افتح مكاننا"],
+  [/ForegroundServiceStartNotAllowed|startForegroundService|BackgroundServiceStart/i, "أندرويد منع تشغيل الإرسال من الخلفية", "يعالجه المنبّه الاحتياطي؛ اطلب «بلا قيود» للبطارية", "افتح مكاننا مرة ليعود الإرسال"],
+  [/SecurityException.*location|ACCESS_FINE_LOCATION/i, "إذن الموقع سُحب", "اطلب منه إعادة الإذن من «صحة التطبيق»", "أعد إذن الموقع من صحة التطبيق"],
+  [/WebView|RenderProcessGone|chromium/i, "مكوّن عرض الصفحة (WebView) تعطل", "حدّث Android System WebView من المتجر", "حدّث Android System WebView"],
+  [/Google|gm_authFailure|maps/i, "خريطة Google رفضت التحميل", "تحقق من المفتاح والحصة في Google Cloud", "عُرضت الخريطة العادية"]
+];
+const errInfo = m => { for (const d of ERR_DICT) if (d[0].test(m)) return { cause: _t(d[1]), fix: _t(d[2]), user: _t(d[3]) }; return null; };
+const errHash = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return 'e' + h.toString(36); };
+const ERR_MEM = {};
+function errRec(src, msg) {
+  try {
+    msg = String(msg || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+    if (!msg || /^Script error\.?$|ResizeObserver loop/i.test(msg)) return;
+    const k = errHash(src + '|' + msg.replace(/\d{3,}/g, '#'));
+    if (ERR_MEM[k] && Date.now() - ERR_MEM[k] < 10 * 60e3) return;             // نفس الخطأ مرة كل 10 دقائق
+    ERR_MEM[k] = Date.now();
+    let q = {}; try { q = JSON.parse(localStorage.getItem('mk_errq') || '{}') || {}; } catch {}
+    const e = q[k] || { s: src, m: msg, n: 0, f: Date.now() };
+    e.n = Math.min(1000000, (e.n || 0) + 1); e.at = Date.now(); e.p = 1;
+    q[k] = e;
+    const ks = Object.keys(q); if (ks.length > 40) ks.sort((a, b) => q[a].at - q[b].at).slice(0, ks.length - 40).forEach(x => delete q[x]);
+    try { localStorage.setItem('mk_errq', JSON.stringify(q)); } catch {}
+    setTimeout(flushErrs, 1500);
+  } catch {}
+}
+let ERR_BUSY = false;
+async function flushErrs() {
+  if (ERR_BUSY) return; ERR_BUSY = true;
+  try {
+    let q = {}; try { q = JSON.parse(localStorage.getItem('mk_errq') || '{}') || {}; } catch {}
+    const pend = Object.entries(q).filter(([, e]) => e.p); if (!pend.length) return;
+    const u = auth.currentUser, tgt = u ? { db, uid: u.uid } : await statsAuth();
+    if (!tgt) return;
+    const sv = isNative ? nat() : null, v = ((sv && sv.verName) || 'web') + '/' + UI_VERSION;
+    let md = ''; try { md = isNative ? (JSON.parse(window.AndroidBridge.deviceInfo()).model || '') : (navigator.platform || ''); } catch {}
+    for (const [k, e] of pend.slice(0, 15)) {
+      try { await set(ref(tgt.db, `errs/${tgt.uid}/${k}`), { m: e.m, s: e.s, v: v.slice(0, 24), md: String(md).slice(0, 40), at: Math.min(e.at, Date.now()), f: Math.min(e.f || e.at, Date.now()), n: e.n }); delete e.p; } catch { break; }
+    }
+    try { localStorage.setItem('mk_errq', JSON.stringify(q)); } catch {}
+  } finally { ERR_BUSY = false; }
+}
+window.addEventListener('error', e => errRec('js', (e.message || 'error') + ' @' + String(e.filename || '').split('/').pop() + ':' + (e.lineno || '')));
+window.addEventListener('unhandledrejection', e => { const r = e.reason; if (r && r.code && /^auth\//.test(r.code)) return; errRec('js', 'promise: ' + ((r && (r.code || r.message)) || r)); });
+(window.__boot.errors || []).forEach(m => errRec('boot', m));
+/* انهيارات التطبيق (3.6): يحفظها التطبيق، وتُرفع هنا عند الفتح التالي مع رسالة بسيطة للمستخدم */
+function pullCrashes() {
+  if (!isNative || typeof window.AndroidBridge.crashLog !== 'function') return;
+  let L1 = []; try { L1 = JSON.parse(window.AndroidBridge.crashLog()) || []; } catch {}
+  if (!L1.length) return;
+  for (const c of L1) errRec(c.k === 'anr' ? 'anr' : 'crash', String(c.m || '').slice(0, 300));
+  try { window.AndroidBridge.clearCrashLog(); } catch {}
+  const last = L1[L1.length - 1];
+  if (last && Date.now() - (Number(last.t) || 0) < 3 * 864e5) setTimeout(() => toast(_t("أُغلق التطبيق بشكل مفاجئ آخر مرة. أُرسل تقرير للمشرف تلقائياً.")), 2500);
+}
+
+/* ---------- إحصائيات التثبيت (inst/<رقم الجهاز>): الزائر بدخول مجهول منفصل لا يمسّ حساب الصفحة ---------- */
+let STATS = null;
+async function statsAuth() {
+  if (STATS) return STATS;
+  try {
+    const app2 = initializeApp(CFG.firebase, 'stats'), a2 = getAuth(app2);
+    const cred = a2.currentUser ? { user: a2.currentUser } : await signInAnonymously(a2);
+    STATS = { db: getDatabase(app2), uid: cred.user.uid };
+    return STATS;
+  } catch { return null; }
+}
+const rid = n => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', r = crypto.getRandomValues(new Uint8Array(n)); return [...r].map(x => A[x % A.length]).join(''); };
+async function instPing(u) {
+  try {
+    let iid = localStorage.getItem('mk_iid'); if (!iid || !/^[A-Za-z0-9]{12,32}$/.test(iid)) { iid = rid(20); localStorage.setItem('mk_iid', iid); }
+    let first = Number(localStorage.getItem('mk_inst_first')) || 0; if (!first) { first = Date.now(); localStorage.setItem('mk_inst_first', String(first)); }
+    const key = (u ? u.uid : 'anon') + '|' + UI_VERSION, last = JSON.parse(localStorage.getItem('mk_inst_at') || '{}') || {};
+    if (last.k === key && Date.now() - (last.t || 0) < 12 * 3600e3) return;
+    const sv = isNative ? nat() : null; let md = '', br = '';
+    try { if (isNative) { md = JSON.parse(window.AndroidBridge.deviceInfo()).model || ''; br = (sv && sv.brand) || ''; } else { md = navigator.platform || ''; br = (navigator.userAgentData && navigator.userAgentData.platform) || ''; } } catch {}
+    const tgt = u ? { db, uid: u.uid } : await statsAuth(); if (!tgt) return;
+    const rec = { a: tgt.uid, p: isNative ? 'app' : 'web', b: String(br).slice(0, 24), m: String(md).slice(0, 40), v: String((sv && sv.verName) || '').slice(0, 24), c: Number(sv && sv.ver) || 0, ui: UI_VERSION, sdk: Number(sv && sv.sdk) || 0, lg: String(window.LANG || 'ar').slice(0, 5), at: Math.min(first, Date.now()), ls: Date.now() };
+    if (u) rec.u = u.uid;
+    await set(ref(tgt.db, 'inst/' + iid), rec);
+    localStorage.setItem('mk_inst_at', JSON.stringify({ k: key, t: Date.now() }));
+  } catch {}
+}
+
+/* ---------- الإدارة ← المتابعة: الأخطاء، التثبيتات، أسباب الحذف ---------- */
+async function loadMon(force) {
+  if (S.monBusy || (!force && S.mon && Date.now() - S.mon.at < 60e3)) return renderMon();
+  S.monBusy = true; $('adm-mon').innerHTML = `<div class="card"><p class="hint">${_t("جارٍ التحميل…")}</p></div>`;
+  const g = async p => { try { return (await get(ref(db, p))).val() || {}; } catch { return null; } };
+  const [inst, errs, dels] = await Promise.all([g('inst'), g('errs'), g('delReasons')]);
+  S.mon = { at: Date.now(), inst, errs, dels }; S.monBusy = false; renderMon();
+}
+const DEL_R = { privacy: "الخصوصية", battery: "يستهلك البطارية", notuse: "لم أعد أستعمله", friends: "أصدقائي لا يستعملونه", bugs: "مشاكل في التطبيق", newacc: "سأنشئ حساباً جديداً", other: "سبب آخر" };
+function errGroups() {
+  const G = {};
+  for (const [uid, m] of Object.entries((S.mon && S.mon.errs) || {})) for (const [k, e] of Object.entries(m || {})) {
+    if (!e || !e.m) continue;
+    const g = G[k] || (G[k] = { k, s: e.s, m: e.m, n: 0, users: new Set(), vs: new Set(), mds: new Set(), at: 0 });
+    g.n += Number(e.n) || 1; g.users.add(uid); if (e.v) g.vs.add(e.v); if (e.md) g.mds.add(e.md); g.at = Math.max(g.at, Number(e.at) || 0);
+  }
+  return Object.values(G).sort((a, b) => b.at - a.at);
+}
+const ERR_SRC = { js: "الصفحة", boot: "بدء التشغيل", crash: "انهيار التطبيق", anr: "تجمّد التطبيق", login: "فشل الدخول" };
+function errLog() {
+  return errGroups().map(g => `[${g.s}] ×${g.n} · ${g.users.size} ${_t("حساب/جهاز")} · ${fmtFull(g.at)}\n${g.m}\n${[...g.vs].join(', ')} | ${[...g.mds].join(', ')}`).join('\n\n');
+}
+function renderMon() {
+  const el = $('adm-mon'); if (!el || !S.mon) return;
+  const { inst, errs, dels } = S.mon;
+  const bars = (obj, max = 8) => { const e = Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, max), top = e.length ? e[0][1] : 1; return e.map(([k, n]) => `<div class="statbar"><span style="min-width:96px">${esc(k || '—')}</span><i style="width:${Math.max(2, Math.round(n / top * 140))}px"></i><b>${n}</b></div>`).join(''); };
+  let instHtml;
+  if (inst === null) instHtml = `<p class="hint">${_t("تعذرت القراءة. انشر القواعد الجديدة.")}</p>`;
+  else {
+    const L1 = Object.values(inst).filter(x => x && x.ls), now = Date.now();
+    const a1 = L1.filter(x => now - x.ls < 864e5).length, a7 = L1.filter(x => now - x.ls < 7 * 864e5).length, n7 = L1.filter(x => now - (x.at || 0) < 7 * 864e5).length;
+    const app = L1.filter(x => x.p === 'app'), vis = L1.filter(x => !x.u && now - x.ls < 30 * 864e5);
+    const cnt = (arr, f) => arr.reduce((o, x) => { const k = f(x); o[k] = (o[k] || 0) + 1; return o; }, {});
+    instHtml = `<p class="hint">${esc(tf("الأجهزة: {0} · نشطة اليوم {1} · هذا الأسبوع {2} · جديدة هذا الأسبوع {3}", L1.length, a1, a7, n7))}</p>
+      <p class="hint">${esc(tf("التطبيق: {0} · المتصفح: {1} · زوار بلا حساب (30 يوماً): {2}", app.length, L1.length - app.length, vis.length))}</p>
+      <b>${_t("نسخ التطبيق (نشطة خلال 30 يوماً)")}</b>${bars(cnt(app.filter(x => now - x.ls < 30 * 864e5), x => x.v ? x.v + ' (' + x.c + ')' : '—'))}
+      <b>${_t("الشركات")}</b>${bars(cnt(app, x => x.b || '—'))}
+      <b>${_t("الطرازات")}</b>${bars(cnt(app, x => x.m || '—'), 10)}`;
+  }
+  let errHtml;
+  if (errs === null) errHtml = `<p class="hint">${_t("تعذرت القراءة. انشر القواعد الجديدة.")}</p>`;
+  else {
+    const G1 = errGroups();
+    errHtml = G1.length ? G1.slice(0, 60).map(g => { const inf = errInfo(g.m); return `<div class="err-row"><div><span class="badge ${g.s === 'crash' || g.s === 'anr' ? 'bad' : g.s === 'login' ? 'warn' : ''}">${esc(_t(ERR_SRC[g.s] || g.s))}</span> <b>×${g.n}</b> · ${esc(tf("{0} حساب/جهاز", g.users.size))} · ${esc(tf("قبل {0}", ago(g.at)))}</div><code>${esc(g.m)}</code><div class="hint" dir="ltr" style="text-align:right">${esc([...g.vs].slice(0, 4).join(', '))} · ${esc([...g.mds].slice(0, 4).join(', '))}</div>${inf ? `<div class="hint">🔎 ${esc(tf("السبب: {0}", inf.cause))}<br>🛠 ${esc(tf("الحل: {0}", inf.fix))}<br>💬 ${esc(tf("ما يراه المستخدم: {0}", inf.user))}</div>` : ''}</div>`; }).join('') : `<p class="hint">${_t("لا أخطاء مسجّلة. ممتاز!")}</p>`;
+  }
+  let delHtml = '';
+  if (dels && Object.keys(dels).length) {
+    const D = Object.values(dels).filter(x => x && x.r).sort((a, b) => b.at - a.at), c = {};
+    for (const x of D) c[_t(DEL_R[x.r] || x.r)] = (c[_t(DEL_R[x.r] || x.r)] || 0) + 1;
+    delHtml = `<div class="card"><b>${_t("أسباب حذف الحسابات")}</b>${bars(c)}${D.slice(0, 8).map(x => x.t ? `<div class="hint">• ${esc(fmtDateY(x.at))}: ${esc(x.t)}</div>` : '').join('')}</div>`;
+  }
+  el.innerHTML = `<div class="card"><div class="sw-row"><b>${_t("التثبيتات والأجهزة")}</b><button class="btn sm" data-act="mon-refresh">${_t("تحديث")}</button></div>${instHtml}</div>
+    <div class="card"><div class="sw-row"><b>${_t("الأخطاء والانهيارات")}</b><span class="acts"><button class="btn sm" data-act="err-copy">${_t("نسخ السجل")}</button><button class="btn sm danger" data-act="err-clear">${_t("مسح")}</button></span></div>${errHtml}</div>${delHtml}`;
+}
+
+/* ---------- بطاقة الترحيب في «حسابي» ---------- */
+function renderWelcome() {
+  const c = $('welcome-card'); if (!c || !S.me) return;
+  const d = S.dir[S.uid] || {}, name = d.name || S.me.name || '';
+  c.hidden = false;
+  $('wl-av').style.cssText = avStyle(d); $('wl-av').innerHTML = avText(d);
+  $('wl-t').textContent = tf("أهلاً {0}", name);
+  const kind = S.isAdmin ? _t("مشرف") : S.limited ? _t("قيد الاعتماد") : S.minor ? _t("حساب طفل") : _t("عضو");
+  const since = Number(S.me.createdAt) || 0, p = S.plan, long = p && planActive(p) ? ' · ' + tf("السجل الطويل حتى {0}", fmtDateY(Number(p.until) || 0)) : '';
+  $('wl-s').textContent = kind + (since ? ' · ' + tf("منذ {0}", fmtDateY(since)) : '') + long;
+}
+
+/* ---------- المظهر ---------- */
+$('theme-sel').value = window.__theme ? window.__theme() : 'auto';
+$('theme-sel').onchange = e => {
+  try { localStorage.setItem('mk_theme', e.target.value); } catch {}
+  window.__applyTheme && window.__applyTheme();
+  if (S.engine === 'gx') toast(_t("يتغير لون خريطة Google عند إعادة فتح التطبيق"));
+};
+
 const ACTIONS = {
+  'rx-send': k => sendReact(k),
+  'rx-open': id => { if (visibleIds().includes(id)) { setTab('map'); openPerson(id); } },
+  'edge-go': id => { if (S.person && S.person !== id) closePerson(); openPerson(id); },
+  'edge-more': () => pickAmong(S.edgeMore || []),
+  'edge-clu': id => { const mem = S.cluOf && S.cluOf[id]; if (mem) cluTap(mem); },
+  'ann-close': () => { $('modal-ann').hidden = true; },
+  'ann-new': () => { $('modal-ann').hidden = true; openAdmWrite(null, 'ann'); },
+  'ann-del': async id => { if (!(await ask(_t("حذف هذا الإعلان عند الجميع؟"), _t("حذف")))) return; try { await remove(ref(db, 'announce/' + id)); $('modal-ann').hidden = true; toast(_t("حُذف الإعلان")); } catch { toast(_t("تعذر الحذف")); } },
+  'mon-refresh': () => loadMon(true),
+  'err-copy': () => copy(errLog() || _t("لا أخطاء مسجّلة. ممتاز!")),
+  'err-clear': async () => { if (!(await ask(_t("مسح سجل الأخطاء كله؟"), _t("مسح")))) return; try { await remove(ref(db, 'errs')); S.mon.errs = {}; renderMon(); toast(_t("مُسح السجل")); } catch { toast(_t("تعذر المسح")); } },
   focus: id => openPerson(id),
   'p-close': () => closePerson(),
-  'p-hist': () => openHistory(S.person),
+  'p-hist': () => (offOn('hist') && S.person !== S.uid && !S.isAdmin ? toast(_t("هذه الميزة موقوفة مؤقتاً")) : openHistory(S.person)),
   'h-back': () => closeHistory(),
   'h-prev': () => shiftDay(-1),
   'h-next': () => shiftDay(1),
@@ -3838,7 +4351,7 @@ const ACTIONS = {
   'lt-open': idx => { const id = S.person; if (!id) return; S.pendingTrip = +idx; openHistory(id, dayKey(Date.now())); },
   'p-nav-trip': () => { const t = S.myTrip; if (t && t.to) navTo(t.to.lat, t.to.lng); },
   'trip-see': u => { setTab('map'); if (visibleIds().includes(u)) openPerson(u); },
-  'del-open': () => { $('del-pass').value = ''; $('del-err').textContent = ''; const g = isGoogleUser(auth.currentUser); $('del-pass').parentElement.hidden = g; $('del-ghint').hidden = !g; $('modal-del').hidden = false; },
+  'del-open': () => { $('del-pass').value = ''; $('del-err').textContent = ''; $('del-why').value = ''; $('del-note').value = ''; $('del-word').value = ''; const g = isGoogleUser(auth.currentUser); $('del-pass').parentElement.hidden = g; $('del-phint').hidden = g; $('del-ghint').hidden = !g; $('modal-del').hidden = false; },
   'diag-send': () => sendDiag(),
   'sos-cancel': () => cancelSos(),
   'sos-view': id => {
@@ -3872,14 +4385,14 @@ const ACTIONS = {
     openExternal(url);
   },
   'open-privacy': () => openExternal(new URL('privacy.html', location.href).href),
-  'upd-later': () => { S.updDismissed = true; renderUpdate(); },
+  'upd-later': () => { S.updDismissed = true; try { localStorage.setItem('mk_upd_later', JSON.stringify({ v: Number((S.upd || {}).version) || 0, until: Date.now() + 864e5 })); } catch {} renderUpdate(); },
   'upd-web': () => { const url = S.upd && S.upd.url; if (url) openExternal(url); },
   'upd-sos': () => openSosConfirm(),
   'upd-check': async () => {
     const s = nat(); if (!s) return;
     let u = S.upd || {}; try { u = (await get(ref(db, 'appUpdate'))).val() || {}; S.upd = u; } catch {}
     renderUpdate();
-    if (updNeed(s, u)) showUpdInfo(_t("تحديث جديد"), verLine(u), updNotes(u, s.ver), true);
+    if (updNeed(s, u)) showUpdInfo(_t("تحديث جديد"), verLine(u), updNotes(u, s.ver) + devNotesFor(s.ver, u.version), true);
     else toast(tf("لديك أحدث إصدار ({0})", s.verName || s.ver));
   },
   'upd-fetch': async () => {
@@ -3980,7 +4493,7 @@ const ACTIONS = {
     settings.googleClientId = gcid;
     const num = (id, lo, hi, def) => { const v = Number(toLatin($(id).value)); return $(id).value.trim() === '' || !isFinite(v) ? def : Math.min(hi, Math.max(lo, v)); };
     settings.engine = { on: $('en-on').checked, stillMin: num('en-still', 2, 30, 4), radius: num('en-rad', 30, 300, 75), hbMin: num('en-hb', 1, 5, 2), batchSec: num('en-batch', 0, 300, 90), legacy: $('en-legacy').checked };
-    const ups = { 'settings/app': settings, publicConfig: { engine: settings.engine, scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa, userInvites: settings.userInvites, ...(gcid ? { googleClientId: gcid } : {}), ...(/^https:[/][/]/.test(url) && url.length <= 300 ? { apkUrl: url } : {}), ...(appUrl ? { appUrl } : {}) } };
+    const ups = { 'settings/app': settings, publicConfig: { ...(PUB.off && Object.keys(PUB.off).length ? { off: PUB.off } : {}), engine: settings.engine, scriptUrl: settings.scriptUrl, contactEmail: cEmail, contactWhatsapp: cWa, userInvites: settings.userInvites, ...(gcid ? { googleClientId: gcid } : {}), ...(/^https:[/][/]/.test(url) && url.length <= 300 ? { apkUrl: url } : {}), ...(appUrl ? { appUrl } : {}) } };
     PUB.userInvites = settings.userInvites;
     const usha = $('st-usha').value.trim().toLowerCase(), umin = Math.max(0, Math.min(100000, Number(toLatin($('st-umin').value)) || 0)), usize = Number($('st-usize').value) || 0;
     if (usha && !/^[0-9a-f]{64}$/.test(usha)) return toast(_t("البصمة يجب أن تكون 64 حرفاً (0-9 وa-f)"));
@@ -3998,6 +4511,7 @@ const ACTIONS = {
       hist = Object.fromEntries(keys.map(k => [k, Object.fromEntries(Object.entries(hist[k]).filter(([l, t]) => /^(vn|ar|en|de|fr|tr|ru|nl)$/.test(l) && typeof t === 'string' && t).map(([l, t]) => [l, t.slice(0, l === 'vn' ? 20 : 1500)]))]));
       if (!Object.keys(hist).length) hist = null;
     }
+    if (ver > 0 && $('st-dev')) ups['settings/devNotes/' + ver] = $('st-dev').value.trim().slice(0, 3000) || null;
     if (ver > 0 && url) ups['appUpdate'] = { version: ver, url, notes, force, name: vname, show: $('st-ushow').checked, ...(hist ? { hist } : {}), ...(umin ? { min: umin } : {}), ...(usha ? { sha: usha } : {}), ...(usize > 0 ? { size: usize } : {}) }; else ups['appUpdate'] = null;
     try { await update(ref(db), ups); }
     catch {
@@ -4104,6 +4618,7 @@ function setSheetMin(m) {
   S.sheetMin = m; $('sheet').classList.toggle('min', m);
   $('grab').setAttribute('aria-label', m ? _t("توسيع القائمة") : _t("تصغير القائمة"));
   try { localStorage.setItem('sheetMin', m ? '1' : '0'); } catch {}
+  setTimeout(renderEdge, 250);
 }
 $('grab').onclick = () => setSheetMin(!S.sheetMin);
 $('hgrab').onclick = () => setHState(S.hState === 'full' ? 'min' : 'full');
@@ -4150,14 +4665,14 @@ function updNeed(s, u) { return !!(s && updVisible(u) && Number(u.version) > (s.
 function renderUpdate() {
   const s = isNative ? nat() : null, u = S.upd || {};
   const need = updNeed(s, u);
-  const force = need && (!!u.force || (s.ver || 0) < (Number(u.min) || 0)), soft = need && !force && !S.updDismissed;
+  const force = need && (!!u.force || (s.ver || 0) < (Number(u.min) || 0)), soft = need && !force && !S.updDismissed && !updLaterOn(u);
   if ($('upd-check-btn')) $('upd-check-btn').hidden = !s;
   $('upd-bar').hidden = !soft;
   document.documentElement.style.setProperty('--ban', soft ? '84px' : '0px');
   if (soft) requestAnimationFrame(() => document.documentElement.style.setProperty('--ban', $('upd-bar').offsetHeight + 'px'));
   $('v-update').hidden = !force;
   if (need) {
-    $('upd-text').textContent = tf("يتوفر تحديث جديد{0}", u.name ? ' · ' + u.name : '');
+    $('upd-text').textContent = tf("نسختك {0} • متوفر {1}", s.verName || s.ver, u.name || u.version);
     $('upd-info-btn').hidden = !updNotes(u, s.ver);
     $('upd-force-text').textContent = tf("هذه النسخة قديمة ولا تعمل مع آخر تحديثات الخدمة. حمّل النسخة الجديدة{0} وثبّتها فوق القديمة.", u.name ? ' (' + u.name + ')' : '');
     { const nt = updNotes(u, s.ver); $('upd-force-notes').textContent = nt; $('upd-force-notes').hidden = !nt; }
@@ -4215,6 +4730,7 @@ window.__locOn = r => { if (r === 'ok') toast(_t("الموقع يعمل")); else
 /* ---------- 41: الإيقاظ: فتح بطاقة صديق موقعه قديم يرسل لهاتفه إشعاراً صامتاً يوقظ الإرسال ---------- */
 const WAKE = {};
 async function wakeFriend(u, manual) {
+  if (offOn('wake')) { if (manual) toast(_t("الإيقاظ موقوف مؤقتاً من الإعدادات")); return; }
   const url = PUB.scriptUrl; if (!url || !auth.currentUser) { if (manual) toast(_t("رابط السكربت غير مضبوط في الإعدادات")); return; }
   if (!manual && WAKE[u] && Date.now() - WAKE[u] < 5 * 60e3) return;
   WAKE[u] = Date.now();
@@ -4245,6 +4761,7 @@ function renderCar(s) {
 /* ---------- 41: رمز QR للإضافة ---------- */
 const myQrLink = () => location.origin + location.pathname.replace(/[^/]*$/, '') + 'download.html?u=' + encodeURIComponent(S.uid);
 window.__qr = async (text, err) => {
+  if (offOn('qr')) return toast(_t("هذه الميزة موقوفة مؤقتاً"));
   if (!text) { if (err && err !== 'cancel') toast(tf("تعذر المسح ({0})", err)); return; }
   let u = null, c = null;
   try { const x = new URL(text); u = x.searchParams.get('u'); c = x.searchParams.get('c') || x.searchParams.get('code'); } catch {}
@@ -4308,7 +4825,7 @@ function maybeWhatsNew(s, u) {
   let seen = null; try { seen = localStorage.getItem('mk_seen_ver'); } catch { return; }
   try { localStorage.setItem('mk_seen_ver', String(s.ver)); } catch {}
   if (seen === null || Number(seen) >= s.ver) return;                // أول تشغيل، أو لم تتغير النسخة
-  if (Number(u.version) === s.ver) { const nt = updNotes(u, Number(seen)); if (nt) showUpdInfo(_t("ما الجديد"), verLine(u), nt, false); }
+  if (Number(u.version) === s.ver) { const nt = updNotes(u, Number(seen)); if (nt) showUpdInfo(_t("ما الجديد"), verLine(u), nt + devNotesFor(Number(seen), s.ver), false); }
 }
 
 /* ---------- إعدادات التنبيهات والأماكن ---------- */
@@ -4565,6 +5082,8 @@ $('btn-me').onclick = () => {
 $('del-no').onclick = () => { $('modal-del').hidden = true; };
 $('del-ok').onclick = async () => {
   const pass = $('del-pass').value; $('del-err').textContent = '';
+  if (!$('del-why').value) { $('del-err').textContent = _t("اختر سبب الحذف"); return; }
+  if ($('del-word').value.trim().toLowerCase() !== 'delete') { $('del-err').textContent = _t("اكتب كلمة delete للتأكيد"); return; }
   if (!pass && !isGoogleUser(auth.currentUser)) { $('del-err').textContent = _t("اكتب كلمة السر"); return; }
   $('del-ok').disabled = true;
   try { await deleteMyAccount(pass); }
@@ -4581,8 +5100,10 @@ async function deleteMyAccount(pass) {
     if (!others.length) throw { message: _t("أنت المشرف الوحيد. رقِّ مشرفاً آخر أولاً من الإدارة.") };
   }
   if (isGoogleUser(u)) await reauthGoogle(u); else await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pass));
+  try { const why = $('del-why').value, note = $('del-note').value.trim().slice(0, 300), d = Math.max(0, Math.min(100000, Math.floor((Date.now() - (Number(S.me && S.me.createdAt) || Date.now())) / 864e5))); if (why) await set(ref(db, 'delReasons/' + rid(16)), { r: why, ...(note ? { t: note } : {}), d, at: Date.now() }); } catch {}   // 44: السبب للمشرف (بلا اسم)
   const ups = {}, limited = S.limited;
-  ups['gone/' + uid] = true;                                             // علامة «حُذف»: لا يُعاد إنشاء الحساب بنفس المعرّف
+  ups['gone/' + uid] = true;
+  ups['annSeen/' + uid] = null; for (const f of Object.keys(S.reacts || {})) ups[`react/${uid}/${f}`] = null;                                             // علامة «حُذف»: لا يُعاد إنشاء الحساب بنفس المعرّف
   ups['users/' + uid] = null; ups['appInfo/' + uid] = null; ups['phoneReq/' + uid] = null; ups['directory/' + uid] = null; ups['locations/' + uid] = null; ups['sessions/' + uid] = null; ups['devState/' + uid] = null;
   if (!limited) {
     for (const c of Object.keys(S.myInv || {})) { ups['invitesBy/' + uid + '/' + c] = null; if (S.myInvInfo[c] && !S.myInvInfo[c].gone) ups['invites/' + c] = null; }
@@ -5293,7 +5814,7 @@ document.addEventListener('visibilitychange', () => {
 /* ---------- مركز الإشعارات: سجل الإشعارات المحفوظ على الهاتف (التطبيق 2.5+) ---------- */
 const notifOK = () => !!(isNative && window.AndroidBridge && typeof window.AndroidBridge.notifLog === 'function');
 const notifList = () => { try { return JSON.parse(window.AndroidBridge.notifLog()) || []; } catch { return []; } };
-const NOTIF_IC = { friend: '📍', guard: '🛡️', phone: '☎️', self_loc: '⚠️', self_net: '📶', self_gap: '⏸️', report: '📊', sos_in: '🆘', sos_ack: '🆘' };
+const NOTIF_IC = { react: '💬', ann: '📢', friend: '📍', guard: '🛡️', phone: '☎️', self_loc: '⚠️', self_net: '📶', self_gap: '⏸️', report: '📊', sos_in: '🆘', sos_ack: '🆘' };
 function updateNotifBadge() {
   const b = $('btn-notif'); if (!b) return;
   if (!notifOK() || !S.started) { b.hidden = true; return; }
@@ -5323,7 +5844,8 @@ function notifGo(id) {
   try { window.AndroidBridge.notifRead(Number(e.id)); } catch {}
   $('v-notif').hidden = true; updateNotifBadge();
   const d = e.d || {};
-  if ((e.k === 'friend' || e.k === 'guard' || e.k === 'trip') && d.u) {
+  if (e.k === 'ann') { setTab('map'); openAnn(); return; }
+  if ((e.k === 'friend' || e.k === 'guard' || e.k === 'trip' || e.k === 'react') && d.u) {
     if (visibleIds().includes(d.u)) { setTab('map'); openPerson(d.u); } else toast(_t("هذا الشخص غير ظاهر على خريطتك الآن"));
   } else if (e.k === 'report' && d.day) { const w = d.u || (Number(e.nid) === 4600 ? digestWho() : null); openReport('day', d.day, w || undefined); }
   else if (e.k === 'sos_in' && d.from) { setTab('map'); S.pendingSos = d.from; handleSosIncoming(S.sosIn || {}); }
