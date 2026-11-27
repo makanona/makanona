@@ -55,7 +55,7 @@ textarea{min-height:110px;resize:vertical}
 #top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));inset-inline:12px;z-index:500;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
 .chip{pointer-events:auto;background:var(--ink);color:#fff;padding:7px 15px;border-radius:999px;font-weight:600;font-size:14px;border:0;box-shadow:0 2px 10px #0003}
 button.chip{cursor:pointer;background:#fff;color:var(--ink)}
-#style-menu{position:absolute;top:calc(60px + env(safe-area-inset-top,0px));inset-inline-end:68px;z-index:520;background:#fff;border-radius:14px;padding:6px;box-shadow:0 4px 18px #0003;display:flex;flex-direction:column;gap:2px;min-width:160px}
+#style-menu{position:absolute;top:calc(58px + env(safe-area-inset-top,0px));inset-inline-end:12px;z-index:520;background:#fff;border-radius:14px;padding:6px;box-shadow:0 4px 18px #0003;display:flex;flex-direction:column;gap:2px;min-width:160px}
 #style-menu button{border:0;background:none;text-align:start;padding:9px 12px;border-radius:9px;font-weight:600;cursor:pointer}
 #style-menu button.on{background:var(--ink);color:#fff}
 .sheet{position:absolute;inset-inline:0;bottom:calc(var(--tabs) + var(--safeB) + var(--ban));z-index:500;background:var(--card);border-radius:20px 20px 0 0;box-shadow:0 -4px 18px #0002;max-height:44vh;overflow:auto;padding:8px 16px 12px}
@@ -149,7 +149,7 @@ details.acc[open]>summary{margin-bottom:8px}
 .tag small{display:block;text-align:center;font-weight:600;font-size:10px;color:var(--ink2)}
 .fab.sos{color:var(--bad);font-weight:800;font-size:12px}
 .fab.sos.hold{background:var(--bad);color:#fff;transition:background 1.8s linear}
-#stack{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:515;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#stack{position:absolute;inset-inline-start:12px;inset-inline-end:12px;top:calc(58px + env(safe-area-inset-top,0px));z-index:515;display:flex;flex-direction:column;gap:6px;pointer-events:none}
 #stack>*{pointer-events:auto}
 #sos-bar{display:flex;flex-direction:column;gap:6px}
 .sosrow{background:var(--bad);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
@@ -206,6 +206,7 @@ details.acc[open]>summary{margin-bottom:8px}
 #hshow .btn{pointer-events:auto;box-shadow:0 2px 10px #0003}
 #v-main.hmode #top,#v-main.hmode #send-bar{display:none}
 #v-main.hmode #fabs{top:calc(112px + env(safe-area-inset-top,0px))}
+#v-main.hmode #fabs-bot{display:none}
 #v-main.hmode #stack{top:calc(176px + env(safe-area-inset-top,0px))}
 .hide-btn{position:absolute;top:4px;inset-inline-end:10px}
 .legend{display:flex;flex-wrap:wrap;gap:3px 9px;justify-content:center;font-size:10.5px;color:var(--ink2);margin-top:2px}
@@ -216,7 +217,7 @@ details.acc[open]>summary{margin-bottom:8px}
 .pw-eye svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .contact-line{margin:0;font-size:13px;color:var(--ink2)}
 .contact-line a{color:var(--ink);font-weight:600}
-#bars{position:absolute;inset-inline-start:12px;inset-inline-end:68px;top:calc(56px + env(safe-area-inset-top,0px));z-index:505;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#bars{position:absolute;inset-inline-start:12px;inset-inline-end:12px;top:calc(58px + env(safe-area-inset-top,0px));z-index:505;display:flex;flex-direction:column;gap:6px;pointer-events:none}
 #bars>div{pointer-events:auto}
 #v-main.hmode #bars{display:none}
 .trip-bar{background:#DDEBF7;color:#10272F;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
@@ -228,7 +229,11 @@ details.acc[open]>summary{margin-bottom:8px}
 #recip-bar{background:#E3E9EC;color:#10272F;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 2px 8px #0002}
 #recip-bar span{flex:1;min-width:0}
 #v-main.hmode #recip-bar{display:none}
-#fabs{position:absolute;inset-inline-end:12px;top:calc(60px + env(safe-area-inset-top,0px));z-index:500;display:flex;flex-direction:column;gap:10px}
+#fabs{position:absolute;inset-inline-end:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:500;display:flex;flex-direction:row;gap:8px}
+#fabs .fab{width:40px;height:40px}#fabs .fab svg{width:20px;height:20px}
+#fabs-bot{position:absolute;inset-inline:12px;bottom:calc(var(--tabs) + var(--safeB) + 120px);z-index:500;display:flex;justify-content:space-between;pointer-events:none;transition:bottom .18s ease-out}
+#fabs-bot>.fab{pointer-events:auto;width:48px;height:48px}
+#fabs-bot>.fab.sos{font-size:13px}
 .fab{width:44px;height:44px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 10px #0003;display:grid;place-items:center;cursor:pointer}
 #btn-notif{position:relative}
 .fab-badge{position:absolute;top:-4px;inset-inline-end:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-sizing:border-box}
@@ -284,6 +289,11 @@ details.sub>summary{font-weight:700;cursor:pointer}
 .simple:not(.tab-other) #tabs,.simple #btn-style,.simple #btn-fit,.simple #btn-notif{display:none!important}
 #wn-list li{margin:6px 0}
 
+/* 46: البطاقات القابلة للطي في «حسابي» والإدارة: العنوان فقط حتى تُضغط */
+.card.cl>.cl-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;user-select:none}
+.card.cl>.cl-h::after{content:'';width:9px;height:9px;border-inline-end:2.5px solid var(--mute);border-bottom:2.5px solid var(--mute);transform:rotate(45deg);margin-top:-4px;transition:transform .15s;flex:none}
+.card.cl.open>.cl-h::after{transform:rotate(-135deg);margin-top:4px}
+.card.cl:not(.open)>:not(.cl-h){display:none!important}
 /* 44: ميزات الخريطة (حركة، نبض، صفوف المتقاربين، الحواف، الردود) */
 :root{--inkBg:#10272F}
 .mk-pulse{position:absolute;left:30px;top:42px;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:var(--c-sel,#E8A33D);opacity:0;pointer-events:none;animation:mkp 1.9s ease-out infinite}
@@ -301,7 +311,8 @@ details.sub>summary{font-weight:700;cursor:pointer}
 .mkc{position:relative;width:64px;height:64px;cursor:pointer}
 .mkc .av3{position:absolute;width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:var(--c);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center;box-shadow:0 2px 6px #0005;background-size:cover;background-position:center}
 .mkc .n{position:absolute;right:-4px;top:-2px;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--inkBg);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
-#edge{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;z-index:480;pointer-events:none;overflow:hidden}
+#edge{position:absolute;inset:0 0 calc(var(--tabs) + var(--safeB)) 0;z-index:480;pointer-events:none;overflow:hidden;transition:opacity .15s}
+#edge.mv{opacity:0}
 .edg{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:3px solid #fff;background:var(--c);color:#fff;font-weight:700;font-size:15px;display:grid;place-items:center;box-shadow:0 2px 8px #0006;pointer-events:auto;cursor:pointer;background-size:cover;background-position:center;padding:0}
 .edg i{position:absolute;width:0;height:0;border:6px solid transparent;border-bottom:9px solid #fff;left:50%;top:50%;margin:-6px 0 0 -6px;transform-origin:6px 6px;pointer-events:none}
 .edg.more{background:var(--inkBg);font-size:12px}
@@ -371,7 +382,7 @@ html.dk canvas[style*="background:#fff"]{background:#fff!important}
 html.dk .fab svg{stroke:var(--ink)}html.dk .modal{background:#000a}html.dk .seg button.on,html.dk .btn.primary,html.dk #style-menu button.on{color:#fff}
 html.dk svg text[fill="#10272F"]{fill:#E3ECEF}html.dk .chip{color:#fff}
 html.dk .leaflet-container{background:#1a2226}
-html.dk #map:not(.satl) .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) brightness(.92) contrast(.88) saturate(.55)}
+html.dk.dkmap #map:not(.satl) .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) brightness(.92) contrast(.88) saturate(.55)}
 html.dk .leaflet-control-attribution{background:#16242Acc!important;color:#8EA2AA}html.dk .leaflet-control-attribution a{color:#B7C7CD}
 </style>
 <script>
@@ -436,7 +447,7 @@ window.__diagText = function () {
   }
   function go(n, extra) { location.replace(location.pathname + '?heal=' + n + '&v=' + Date.now() + (extra || '')); }
   function clearLocal() {
-    try { var ks = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('mk_') !== 0) ks.push(k); } ks.forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+    try { var ks = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('mk_') !== 0 && !/^map(Style2?|Engine)$/.test(k)) ks.push(k); } ks.forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
     try { sessionStorage.clear(); } catch (e) {}
     try { if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }); } catch (e) {}
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}
@@ -523,6 +534,7 @@ window.APP_CONFIG = {
   };
   window.__applyTheme = function () {
     var d = window.__isDark(); document.documentElement.classList.toggle('dk', d);
+    var dm = false; try { dm = localStorage.getItem('mk_darkmap') === '1'; } catch (e) {} document.documentElement.classList.toggle('dkmap', d && dm);
     var m = document.getElementById('meta-theme'); if (m) m.setAttribute('content', d ? '#0D171B' : '#10272F');
     try { if (window.__onTheme) window.__onTheme(d); } catch (e) {}
   };
@@ -540,7 +552,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=45"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=46"><\/script>');
 })();
 </script>
 <script>
@@ -663,9 +675,11 @@ window.APP_CONFIG = {
     <button class="fab" id="btn-notif" aria-label="الإشعارات" hidden><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span id="notif-badge" class="fab-badge" hidden></span></button>
     <button class="fab" id="btn-style" aria-label="نمط الخريطة"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
     <button class="fab" id="btn-fit" aria-label="عرض الجميع"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
-    <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
     <button class="fab" id="btn-gear" data-act="simple-exit" aria-label="الإعدادات"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+  </div>
+  <div id="fabs-bot">
     <button class="fab sos" id="btn-sos" aria-label="استغاثة SOS">SOS</button>
+    <button class="fab" id="btn-me" aria-label="موقعي"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg></button>
   </div>
   <div id="pick-bar" hidden><span id="pick-bar-t">اضغط على الخريطة لتحديد المكان</span><button class="btn sm" data-act="pick-me">موقعي</button><button class="btn sm" data-act="pick-cancel">إلغاء</button></div>
   <div id="stack"><div id="sos-bar"></div>
@@ -789,7 +803,7 @@ window.APP_CONFIG = {
       <p class="hint">اعرض رمزك ليمسحه صديقك من تطبيقه، أو امسح رمزه أنت. من ليس لديه التطبيق يصل بالرمز إلى صفحة التنزيل.</p>
       <div class="acts"><button class="btn sm acc" data-act="qr-show">اعرض رمزي</button><button class="btn sm" data-act="qr-scan">امسح رمز صديق</button></div>
     </div>
-    <details class="acc" id="acc-friends" open><summary><span>أصدقائي وأصدقاء جدد</span><span class="badge warn" id="acc-friends-b" hidden></span></summary>
+    <details class="acc" id="acc-friends"><summary><span>أصدقائي وأصدقاء جدد</span><span class="badge warn" id="acc-friends-b" hidden></span></summary>
       <div id="people-list"></div>
 <div class="card" id="srch-card">
       <b>البحث برقم هاتف</b>
@@ -903,6 +917,7 @@ window.APP_CONFIG = {
     <div class="card">
       <label class="sw-row"><b>اللغة · Language</b><select id="lang-sel" aria-label="Language" style="font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="auto">تلقائي حسب لغة الهاتف</option><option value="ar" data-native>العربية</option><option value="en" data-native>English</option><option value="de" data-native>Deutsch</option><option value="tr" data-native>Türkçe</option><option value="ru" data-native>Русский</option><option value="nl" data-native>Nederlands</option><option value="fr" data-native>Français</option></select></label>
       <label class="sw-row"><b>المظهر</b><select id="theme-sel" aria-label="المظهر" style="font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:auto"><option value="auto">تلقائي حسب الهاتف</option><option value="light">نهاري</option><option value="dark">ليلي</option></select></label>
+      <label class="sw-row"><span><b>خريطة داكنة</b><br><span class="hint">تقلب ألوان الخريطة العادية في الوضع الليلي. قد تُبطئ الهواتف الضعيفة.</span></span><span class="switch"><input type="checkbox" id="darkmap-sw"><span></span></span></label>
     </div>
     <div class="card">
       <p class="hint" id="ver-line"></p>
@@ -1306,7 +1321,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '45';
+const UI_VERSION = '46';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -2355,7 +2370,7 @@ function buildMap() {
   S.accg = LX.layerGroup().addTo(S.map);
   S.plg = LX.layerGroup().addTo(S.map);
   S.map.on('zoomend', () => { syncMarks(); clearTimeout(S.rmT); S.rmT = setTimeout(renderMap, 40); });   // التراكب والصفوف تتغير مع التكبير (بعد انتهاء الحدث، لا داخله)
-  S.map.on('move', renderEdge);
+  S.map.on('move', edgeMove);
   S.map.on('click', e => { if (S.pickPlace) askPlace(e.latlng.lat, e.latlng.lng, '', S.pickFriend); else mapTap(); });
   let k = wantGx ? 'gx' : GOOGLE_DEFAULT ? 'g' : 'osm';
   try { const s2 = localStorage.getItem('mapStyle2'), s1 = localStorage.getItem('mapStyle'); k = s2 || ((s1 === 'sat' || s1 === 'hybrid') ? s1 : k); } catch {}
@@ -2757,9 +2772,9 @@ function renderMap() {
     keep.add(id);
     const sel = !!selPt && id === S.person, dim = !!selPt && !sel && pxDist(pinPt(l), selPt) < 80;
     const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '');
-    if (!S.markers[id]) { S.markers[id] = LX.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id].on('click', () => pinTap(id)); }
-    else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(icon); }
-    try { S.markers[id].setZIndexOffset(sel ? 5000 : dim ? -500 : 0); } catch {}
+    if (!S.markers[id]) { S.markers[id] = LX.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id]._h = icH(icon); S.markers[id].on('click', () => pinTap(id)); }
+    else { mkMove(S.markers[id], l.lat, l.lng); mkIcon(S.markers[id], icon); }
+    const zi = sel ? 5000 : dim ? -500 : 0; if (S.markers[id]._zi !== zi) { S.markers[id]._zi = zi; try { S.markers[id].setZIndexOffset(zi); } catch {} }
   }
   for (const id of Object.keys(S.markers)) if (!keep.has(id)) { S.map.removeLayer(S.markers[id]); delete S.markers[id]; }
   // دبابيس المجموعات: تُعاد استعمالها بمفتاحها حتى لا ترمش مع كل تحديث موقع
@@ -2769,9 +2784,9 @@ function renderMap() {
     gkeep.add(key);
     const la = mem.reduce((x, id) => x + S.locs[id].lat, 0) / mem.length, ln = mem.reduce((x, id) => x + S.locs[id].lng, 0) / mem.length;
     const icon = grpIcon(mem), sel = !!S.person && mem.includes(S.person);
-    if (!gm[key]) { gm[key] = LX.marker([la, ln], { icon }).addTo(S.map); gm[key].on('click', () => cluTap(S.cluOf[mem[0]] || mem)); }
-    else { gm[key].setLatLng([la, ln]); gm[key].setIcon(icon); }
-    try { gm[key].setZIndexOffset(sel ? 6000 : 1000); } catch {}
+    if (!gm[key]) { gm[key] = LX.marker([la, ln], { icon }).addTo(S.map); gm[key]._h = icH(icon); gm[key].on('click', () => cluTap(S.cluOf[mem[0]] || mem)); }
+    else { mkMove(gm[key], la, ln); mkIcon(gm[key], icon); }
+    const zi = sel ? 6000 : 1000; if (gm[key]._zi !== zi) { gm[key]._zi = zi; try { gm[key].setZIndexOffset(zi); } catch {} }
   }
   for (const k of Object.keys(gm)) if (!gkeep.has(k)) { S.map.removeLayer(gm[k]); delete gm[k]; }
   for (const m of S.cmarks || []) { try { S.map.removeLayer(m); } catch {} } S.cmarks = [];
@@ -2788,6 +2803,10 @@ function renderMap() {
   if (!S.fitted && ids.length) { S.fitted = true; fitAll(); }
   renderEdge();
 }
+/* 46: تحديث الدبوس فقط إن تغيّر شكله أو مكانه (إعادة رسمه تعيد تحميل الصورة وتُبطئ الهواتف المتوسطة) */
+const icH = i => (i && (i.options ? i.options.html : i.html)) || '';
+function mkIcon(m, icon) { const h = icH(icon); if (m._h === h) return; m._h = h; m.setIcon(icon); }
+function mkMove(m, la, ln) { const p = m.getLatLng ? m.getLatLng() : null; if (p && Math.abs(p.lat - la) < 1e-7 && Math.abs(p.lng - ln) < 1e-7) return; m.setLatLng([la, ln]); }
 /* تجميع الدبابيس المتقاربة على الشاشة (أقل من 56 نقطة، أي حين تتلامس الأسماء) بربط متسلسل */
 function groupPins(ids) {
   const pt = {}; for (const id of ids) pt[id] = pinPt(S.locs[id]);
@@ -2833,7 +2852,11 @@ function pickAmong(ids) {
 /* 45: أصدقاء خارج الجزء الظاهر: صورهم ملتصقة بطرف الشاشة الأقرب لاتجاههم، في الأماكن الفارغة فقط.
    كل طرف يُقسم إلى خانات ثابتة (لا تراكب)، وتُستثنى منه خانات الأزرار والشريط العلوي، فتنزلق الصورة على الطرف نفسه.
    البعيدون في الاتجاه نفسه تقريباً صورة واحدة برقم، والزائد عن الخانات في دائرة «+N» واحدة. */
-var EDGE_RAF = 0;
+var EDGE_RAF = 0, EDGE_T = 0;
+function edgeMove() {                                                     // أثناء السحب: نخفيها بلا حساب، ونرسمها بعد التوقف
+  const b = $('edge'); if (b && !b.classList.contains('mv')) b.classList.add('mv');
+  clearTimeout(EDGE_T); EDGE_T = setTimeout(() => { if (b) b.classList.remove('mv'); renderEdge(); }, 220);
+}
 function renderEdge() {
   if (EDGE_RAF) return;
   EDGE_RAF = requestAnimationFrame(() => { EDGE_RAF = 0; try { drawEdge(); } catch (e) { console.error(e); } });
@@ -2852,7 +2875,7 @@ function drawEdge() {
   // العوائق: الأزرار الجانبية وكل ما يظهر في الشريط العلوي
   const obs = [];
   const addOb = el => { if (!vis(el)) return; const r = el.getBoundingClientRect(); obs.push({ l: r.left - mr.left - 4, r: r.right - mr.left + 4, t: r.top - mr.top - 4, b: r.bottom - mr.top + 4 }); };
-  [...$('fabs').children].forEach(addOb); [...$('top').children].forEach(addOb);
+  [...$('fabs').children].forEach(addOb); [...$('top').children].forEach(addOb); [...$('fabs-bot').children].forEach(addOb);
   const hit = (x, y) => obs.some(o => x + R > o.l && x - R < o.r && y + R > o.t && y - R < o.b);
   // الخانات: يمين ويسار (عمودياً)، وأعلى وأسفل (أفقياً، بلا الزوايا)
   const slots = { L: [], R: [], T: [], B: [] };
@@ -2893,11 +2916,27 @@ function drawEdge() {
   }
   if (over.length && placed.length) { const q = placed.pop(); over.push(...q.mem); placed.push({ x: q.x, y: q.y, mem: over, more: true, a: 0 }); }
   S.edgeItems = placed;
-  box.innerHTML = placed.map((q, k) => {
-    const id = q.mem[0], d = S.dir[id] || {}, n = q.mem.length;
-    if (q.more) return `<button class="edg more" data-act="edge-pick" data-id="${k}" style="left:${q.x.toFixed(0)}px;top:${q.y.toFixed(0)}px">+${n}</button>`;
-    return `<button class="edg" data-act="${n > 1 ? 'edge-pick' : 'edge-go'}" data-id="${n > 1 ? k : esc(id)}" style="left:${q.x.toFixed(0)}px;top:${q.y.toFixed(0)}px;${avStyle(d)}" aria-label="${esc(n > 1 ? tf("{0} أشخاص هنا", n) : dispName(id))}">${avText(d)}<i style="transform:rotate(${q.a.toFixed(0)}deg) translateY(-27px)"></i>${n > 1 ? `<b>${n}</b>` : ''}</button>`;
-  }).join('');
+  // نعيد استعمال العنصر نفسه لكل شخص/مجموعة: لا تُعاد صناعة الصور، فقط مكانها
+  const keepK = new Set();
+  placed.forEach((q, k) => {
+    const id = q.mem[0], d = S.dir[id] || {}, n = q.mem.length, key = q.more ? '#more' : q.mem.slice().sort().join('|');
+    keepK.add(key);
+    let el = box.querySelector(`[data-k="${CSS.escape(key)}"]`);
+    const sig = q.more ? 'm' + n : (avStyle(d) + '|' + avText(d) + '|' + n);
+    if (!el || el.dataset.sig !== sig) {
+      if (el) el.remove();
+      el = document.createElement('button'); el.dataset.k = key; el.dataset.sig = sig;
+      el.className = 'edg' + (q.more ? ' more' : '');
+      if (q.more) el.textContent = '+' + n;
+      else { el.style.cssText = avStyle(d); el.innerHTML = `${avText(d)}<i></i>${n > 1 ? `<b>${n}</b>` : ''}`; el.setAttribute('aria-label', n > 1 ? tf("{0} أشخاص هنا", n) : dispName(id)); }
+      box.appendChild(el);
+    }
+    el.dataset.act = q.more || n > 1 ? 'edge-pick' : 'edge-go';
+    el.dataset.id = q.more || n > 1 ? String(k) : id;
+    el.style.left = q.x.toFixed(0) + 'px'; el.style.top = q.y.toFixed(0) + 'px';
+    const ar = el.querySelector('i'); if (ar) ar.style.transform = `rotate(${q.a.toFixed(0)}deg) translateY(-27px)`;
+  });
+  for (const el of [...box.children]) if (!keepK.has(el.dataset.k)) el.remove();
 }
 /* الضغط على دبوس: إن كان فوقه أو تحته دبوس آخر (متراكبان) نسأل أي شخص */
 function pinTap(id) {
@@ -2981,7 +3020,7 @@ function applyTabVisibility() {
   $('hsheet').hidden = !(hist && S.hState !== 'off');
   $('hshow').hidden = !(hist && S.hState === 'off');
   $('v-main').classList.toggle('hmode', hist);
-  renderEdge();
+  renderEdge(); placeBot();
 }
 function openPerson(id) {
   if (!visibleIds().includes(id)) return;
@@ -2992,7 +3031,17 @@ function openPerson(id) {
 /* زر «التقرير» لا يظهر إلا لمن شارك تقريره معي (أو لولي أمره أو للمشرف) */
 const repAllowed = id => id === S.uid || S.isAdmin || !!(S.kids && S.kids[id]) || (!offOn('rshare') && !!(S.repShare && S.repShare[id] === true));
 function closePerson() { S.person = null; S.pTok++; applyTabVisibility(); renderMap(); }
-window.addEventListener('resize', () => renderEdge());
+window.addEventListener('resize', () => { renderEdge(); placeBot(); });
+/* 46: زرّا SOS وموقعي فوق البطاقة السفلية الظاهرة، ويتحركان معها */
+function placeBot() {
+  const fb = $('fabs-bot'), vm = $('v-main'); if (!fb || !vm) return;
+  const vis = el => el && !el.hidden && el.offsetParent !== null && el.getBoundingClientRect().height > 0;
+  const sh = vis($('psheet')) ? $('psheet') : vis($('sheet')) ? $('sheet') : null;
+  const vr = vm.getBoundingClientRect();
+  const b = sh ? vr.bottom - sh.getBoundingClientRect().top + 12 : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tabs')) || 62) + 16;
+  fb.style.bottom = Math.max(8, Math.round(b)) + 'px';
+}
+try { const ro = new ResizeObserver(() => { placeBot(); renderEdge(); }); ['sheet', 'psheet'].forEach(id => $(id) && ro.observe($(id))); } catch {}
 function renderPerson() {
   const id = S.person; if (!id) return;
   $('p-hist-btn').hidden = S.limited; $('p-rep-btn').hidden = S.limited || !repAllowed(id); $('p-places-btn').hidden = S.limited; $('p-more-btn').hidden = !(id !== S.uid && S.mine[id] === true);
@@ -3650,7 +3699,7 @@ function renderMe() {
   { const sv = isNative ? nat() : null; $('ver-line').textContent = tf("إصدار الواجهة {0}{1}", UI_VERSION, sv && sv.verName ? tf("، إصدار التطبيق {0} ({1})", sv.verName, sv.ver) : ''); }
   $('native-card').hidden = !isNative; $('web-note').hidden = isNative;
   { const sv = isNative ? nat() : null; $('qr-card').hidden = !(sv && sv.qr === 1) || S.limited || offOn('qr'); renderCar(sv); }
-  renderWelcome();
+  renderWelcome(); collapsify();
   offlineStatus().then(ok => { const el = $('off-line'); if (el) { el.textContent = ok ? _t("الفتح بلا إنترنت: جاهز") : _t("الفتح بلا إنترنت: غير جاهز بعد. افتح التطبيق مرة والإنترنت متاح، ثم أغلقه وافتحه."); el.style.color = ok ? 'var(--ok)' : ''; } });
   $('ui28-on').checked = !UI28;
   renderProx();
@@ -3777,6 +3826,7 @@ function setAdm(t) {
   for (const k of ['members', 'invites', 'create', 'settings', 'mon']) $('adm-' + k).hidden = k !== t;
   if (t === 'mon') loadMon(false);
   if (t === 'settings') renderFlags();
+  collapsify();
 }
 $('adm-seg').onclick = e => { const b = e.target.closest('button'); if (b) setAdm(b.dataset.adm); };
 
@@ -4163,6 +4213,7 @@ function renderMon() {
     for (const x of D) c[_t(DEL_R[x.r] || x.r)] = (c[_t(DEL_R[x.r] || x.r)] || 0) + 1;
     delHtml = `<div class="card"><b>${_t("أسباب حذف الحسابات")}</b>${bars(c)}${D.slice(0, 8).map(x => x.t ? `<div class="hint">• ${esc(fmtDateY(x.at))}: ${esc(x.t)}</div>` : '').join('')}</div>`;
   }
+  setTimeout(collapsify, 0);
   el.innerHTML = `<div class="card"><div class="sw-row"><b>${_t("التثبيتات والأجهزة")}</b><button class="btn sm" data-act="mon-refresh">${_t("تحديث")}</button></div>${instHtml}</div>
     <div class="card"><div class="sw-row"><b>${_t("الأخطاء والانهيارات")}</b><span class="acts"><button class="btn sm" data-act="err-copy">${_t("نسخ السجل")}</button><button class="btn sm danger" data-act="err-clear">${_t("مسح")}</button></span></div>${errHtml}</div>${delHtml}`;
 }
@@ -4179,8 +4230,31 @@ function renderWelcome() {
   $('wl-s').textContent = kind + (since ? ' · ' + tf("منذ {0}", fmtDateY(since)) : '') + long;
 }
 
+/* ---------- 46: طيّ البطاقات (مغلقة عند كل فتح للتطبيق، وتبقى كما تركتها أثناء الجلسة) ---------- */
+const CL_OPEN = new Set();
+function collapsify() {
+  const roots = ['#t-me > .card', '#set-body > .card', '#adm-settings > .card', '#adm-mon > .card'];
+  for (const c of document.querySelectorAll(roots.join(','))) {
+    if (c.classList.contains('cl') || c.id === 'welcome-card' || c.classList.contains('welcome')) continue;
+    const h = c.firstElementChild;
+    if (!h || !(h.tagName === 'B' || (h.classList.contains('sw-row') && h.querySelector(':scope > b')) && !h.querySelector('input,select'))) continue;
+    if (h.tagName !== 'B' && h.querySelector('input,select,.switch')) continue;
+    const key = (h.textContent || '').trim().slice(0, 40);
+    if (!key) continue;
+    c.classList.add('cl'); h.classList.add('cl-h'); c.dataset.clk = key;
+    if (CL_OPEN.has(key)) c.classList.add('open');
+  }
+}
+document.addEventListener('click', e => {
+  const h = e.target.closest && e.target.closest('.card.cl > .cl-h'); if (!h || e.target.closest('button,a,input,select,label.switch')) return;
+  const c = h.parentElement, on = !c.classList.contains('open');
+  c.classList.toggle('open', on); if (on) CL_OPEN.add(c.dataset.clk); else CL_OPEN.delete(c.dataset.clk);
+});
+
 /* ---------- المظهر ---------- */
 $('theme-sel').value = window.__theme ? window.__theme() : 'auto';
+try { $('darkmap-sw').checked = localStorage.getItem('mk_darkmap') === '1'; } catch {}
+$('darkmap-sw').onchange = e => { try { localStorage.setItem('mk_darkmap', e.target.checked ? '1' : '0'); } catch {} window.__applyTheme && window.__applyTheme(); };
 $('theme-sel').onchange = e => {
   try { localStorage.setItem('mk_theme', e.target.value); } catch {}
   window.__applyTheme && window.__applyTheme();
@@ -5754,7 +5828,7 @@ function setTab(t) {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   const mapMode = t === 'map';
   $('t-me').hidden = t !== 'me'; $('t-admin').hidden = t !== 'admin';
-  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; renderRecipBar(); renderTrips(); renderConnBar();
+  applyTabVisibility(); $('top').hidden = !mapMode; $('fabs').hidden = !mapMode; $('fabs-bot').hidden = !mapMode; renderRecipBar(); renderTrips(); renderConnBar();
   if (!mapMode) { $('style-menu').hidden = true; endPick(); }
   if (mapMode && S.map) setTimeout(() => S.map.invalidateSize(), 50);
   renderAll(); updateSendBar();
@@ -5916,6 +5990,26 @@ window.__fromNative = tail => {
   if (so) { S.pendingSos = so; handleSosIncoming(S.sosIn || {}); } else if (rp) openReport('day', rp, rw || undefined);
 };
 $('btn-notif').onclick = openNotifCenter;
+/* 46: إن نُشرت واجهة أحدث من المفتوحة (من ذاكرة الهاتف)، نجلبها مباشرة ونعيد الفتح مرة واحدة */
+async function freshUi() {
+  try {
+    const r = await fetch('ui.txt?fresh=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return;
+    const v = parseInt((await r.text()).trim(), 10);
+    if (!(v > Number(UI_VERSION))) { try { if (isNative && typeof window.AndroidBridge.refreshOffline === 'function' && localStorage.getItem('mk_off_ui') !== UI_VERSION) { window.AndroidBridge.refreshOffline(); localStorage.setItem('mk_off_ui', UI_VERSION); } } catch {} return; }
+    const k = 'mk_fresh_' + v; if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, '1');
+    const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+    const files = ['index.html'].concat(LANG && LANG !== 'ar' ? ['i18n.' + LANG + '.js'] : []);
+    const got = await Promise.all(files.map(f => fetch(f + '?fresh=' + Date.now(), { cache: 'no-store' }).then(x => x.ok ? x : null).catch(() => null)));
+    if (got.some(x => !x)) return;
+    const txt = await got[0].clone().text(); if (!txt.includes("const UI_VERSION = '" + v + "'")) return;   // جاءت النسخة القديمة من ذاكرة وسيطة
+    if (window.caches) for (const ck of (await caches.keys()).filter(n => /^mk-v\d+$/.test(n))) { const c = await caches.open(ck); for (let i = 0; i < files.length; i++) await c.put(base + files[i], got[i].clone()); }
+    try { (await navigator.serviceWorker?.getRegistration())?.update(); } catch {}
+    const busy = () => [...document.querySelectorAll('.modal')].some(m => !m.hidden) || (document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+    const go = () => { if (busy()) return setTimeout(go, 3000); location.reload(); };
+    go();
+  } catch {}
+}
+setTimeout(freshUi, 2500);
 /* حفظ الصفحة ومكتباتها على الهاتف: تُفتح فوراً حتى بلا إنترنت وتُحدَّث في الخلفية. ?nosw يلغيه للتجربة */
 if ('serviceWorker' in navigator) {
   if (/[?&]nosw/.test(location.search)) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
@@ -5988,6 +6082,7 @@ function renderVlog() {
 function watchStop() { vlogEnd(); if (WATCH.id && S.uid) watchSet(WATCH.id, false); WATCH.id = null; }
 function watchTick() {
   if (!S.started || S.limited || document.hidden) return;
+  if (S.isAdmin) { if (WATCH.id || VL.id) watchStop(); return; }   // 46: المشرف لا يُسجَّل في «من شاهد بطاقتي» ولا يرسل «يشاهدك الآن» (الإيقاظ الصامت يكفي)
   const id = S.person && !$('psheet').hidden && S.tab === 'map' ? S.person : null;
   if (WATCH.id && WATCH.id !== id) watchStop();
   if (watchOk(id) && (WATCH.id !== id || Date.now() - WATCH.at > 18000)) { WATCH.id = id; WATCH.at = Date.now(); watchSet(id, true); }

@@ -1331,5 +1331,8 @@ window.I18N.tr = {
 "تحقق من المفتاح والحصة في Google Cloud": "Google Cloud'da anahtarı ve kotayı kontrol edin",
 "عُرضت الخريطة العادية": "Normal harita gösterildi",
 /* 44 */
-"{0} متوقف": "{0} durdu"
+"{0} متوقف": "{0} durdu",
+/* 44 */
+"خريطة داكنة": "Koyu harita",
+"تقلب ألوان الخريطة العادية في الوضع الليلي. قد تُبطئ الهواتف الضعيفة.": "Koyu modda normal harita renklerini ters çevirir. Zayıf telefonları yavaşlatabilir."
 };

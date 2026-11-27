@@ -6,7 +6,7 @@
    - للإيقاف الطارئ: استبدل محتوى هذا الملف بسطر واحد:
      self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.registration.unregister()));
 */
-const V = 'mk-v45';
+const V = 'mk-v46';
 const TILES = 'mk-tiles';                 // لا يُحذف مع تغيّر الإصدار
 const TILE_MAX = 2000, TILE_AGE = 30 * 864e5;
 const CORE = ['./index.html', './i18n.en.js', './i18n.de.js', './i18n.tr.js', './i18n.ru.js', './i18n.nl.js', './i18n.fr.js'];
@@ -43,6 +43,7 @@ self.addEventListener('activate', e => {
 
 const scopePath = new URL(self.registration.scope).pathname;          // مثل /makanona/
 function kind(u) {
+  if (u.searchParams.has('fresh')) return null;                         // 46: طلب مباشر من الشبكة (فحص الواجهة الأحدث)
   if (u.origin === location.origin) {
     const p = u.pathname;
     if (p === scopePath || p === scopePath + 'index.html') return 'page';

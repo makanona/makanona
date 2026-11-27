@@ -1331,5 +1331,8 @@ window.I18N.fr = {
 "تحقق من المفتاح والحصة في Google Cloud": "Vérifiez la clé et le quota dans Google Cloud",
 "عُرضت الخريطة العادية": "La carte normale a été affichée",
 /* 44 */
-"{0} متوقف": "{0} arrêté(s)"
+"{0} متوقف": "{0} arrêté(s)",
+/* 44 */
+"خريطة داكنة": "Carte sombre",
+"تقلب ألوان الخريطة العادية في الوضع الليلي. قد تُبطئ الهواتف الضعيفة.": "Inverse les couleurs de la carte normale en mode sombre. Peut ralentir les téléphones modestes."
 };

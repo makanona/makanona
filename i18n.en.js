@@ -1331,5 +1331,8 @@ window.I18N.en = {
 "تحقق من المفتاح والحصة في Google Cloud": "Check the key and quota in Google Cloud",
 "عُرضت الخريطة العادية": "The regular map was shown",
 /* 44 */
-"{0} متوقف": "{0} stopped"
+"{0} متوقف": "{0} stopped",
+/* 44 */
+"خريطة داكنة": "Dark map",
+"تقلب ألوان الخريطة العادية في الوضع الليلي. قد تُبطئ الهواتف الضعيفة.": "Inverts the regular map colours in dark mode. May slow down weak phones."
 };

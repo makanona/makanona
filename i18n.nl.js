@@ -1331,5 +1331,8 @@ window.I18N.nl = {
 "تحقق من المفتاح والحصة في Google Cloud": "Controleer sleutel en quotum in Google Cloud",
 "عُرضت الخريطة العادية": "De gewone kaart werd getoond",
 /* 44 */
-"{0} متوقف": "{0} gestopt"
+"{0} متوقف": "{0} gestopt",
+/* 44 */
+"خريطة داكنة": "Donkere kaart",
+"تقلب ألوان الخريطة العادية في الوضع الليلي. قد تُبطئ الهواتف الضعيفة.": "Keert de kleuren van de gewone kaart om in donkere modus. Kan zwakke telefoons vertragen."
 };

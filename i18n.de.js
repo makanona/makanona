@@ -1331,5 +1331,8 @@ window.I18N.de = {
 "تحقق من المفتاح والحصة في Google Cloud": "Prüfe Schlüssel und Kontingent in Google Cloud",
 "عُرضت الخريطة العادية": "Die normale Karte wurde angezeigt",
 /* 44 */
-"{0} متوقف": "{0} gestoppt"
+"{0} متوقف": "{0} gestoppt",
+/* 44 */
+"خريطة داكنة": "Dunkle Karte",
+"تقلب ألوان الخريطة العادية في الوضع الليلي. قد تُبطئ الهواتف الضعيفة.": "Kehrt im Dunkelmodus die Farben der normalen Karte um. Kann schwache Telefone verlangsamen."
 };
