@@ -1329,5 +1329,7 @@ window.I18N.tr = {
 "حدّث Android System WebView": "Android System WebView'u güncelleyin",
 "خريطة Google رفضت التحميل": "Google harita yüklenmeyi reddetti",
 "تحقق من المفتاح والحصة في Google Cloud": "Google Cloud'da anahtarı ve kotayı kontrol edin",
-"عُرضت الخريطة العادية": "Normal harita gösterildi"
+"عُرضت الخريطة العادية": "Normal harita gösterildi",
+/* 44 */
+"{0} متوقف": "{0} durdu"
 };

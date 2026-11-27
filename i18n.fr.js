@@ -1329,5 +1329,7 @@ window.I18N.fr = {
 "حدّث Android System WebView": "Mettez à jour Android System WebView",
 "خريطة Google رفضت التحميل": "La carte Google a refusé de se charger",
 "تحقق من المفتاح والحصة في Google Cloud": "Vérifiez la clé et le quota dans Google Cloud",
-"عُرضت الخريطة العادية": "La carte normale a été affichée"
+"عُرضت الخريطة العادية": "La carte normale a été affichée",
+/* 44 */
+"{0} متوقف": "{0} arrêté(s)"
 };

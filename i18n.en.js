@@ -1329,5 +1329,7 @@ window.I18N.en = {
 "حدّث Android System WebView": "Update Android System WebView",
 "خريطة Google رفضت التحميل": "Google map refused to load",
 "تحقق من المفتاح والحصة في Google Cloud": "Check the key and quota in Google Cloud",
-"عُرضت الخريطة العادية": "The regular map was shown"
+"عُرضت الخريطة العادية": "The regular map was shown",
+/* 44 */
+"{0} متوقف": "{0} stopped"
 };

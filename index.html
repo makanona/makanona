@@ -295,6 +295,9 @@ details.sub>summary{font-weight:700;cursor:pointer}
 .mk-lbl.spd .mb.car svg{animation:mkc .5s ease-in-out infinite}
 @keyframes mkc{0%,100%{transform:translateY(0)}50%{transform:translateY(-.8px)}}
 @media (prefers-reduced-motion:reduce){.mk-pulse,.mk-lbl.spd .mb svg{animation:none}}
+.mk.grp{cursor:pointer}
+.mk-sm{position:absolute;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:var(--c);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;box-shadow:0 1px 4px #0005;background-size:cover;background-position:center;z-index:1}
+.mk-n{position:absolute;left:38px;top:10px;min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:var(--inkBg);color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center;border:2px solid #fff;z-index:2}
 .mkc{position:relative;width:64px;height:64px;cursor:pointer}
 .mkc .av3{position:absolute;width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:var(--c);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center;box-shadow:0 2px 6px #0005;background-size:cover;background-position:center}
 .mkc .n{position:absolute;right:-4px;top:-2px;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--inkBg);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
@@ -537,7 +540,7 @@ window.APP_CONFIG = {
     for (var i = 0; i < L.length; i++) { var c = String(L[i]).toLowerCase().slice(0, 2); if (SUP.indexOf(c) >= 0) { pick = c; break; } }
   }
   window.LANGS = SUP; window.LANG = pick;
-  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=44"><\/script>');
+  if (pick !== 'ar') document.write('<script src="i18n.' + pick + '.js?v=45"><\/script>');
 })();
 </script>
 <script>
@@ -1303,7 +1306,7 @@ const planKeep = p => (p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until
 const planActive = p => !!(p && p.days > PRUNE_DAYS && Date.now() <= (Number(p.until) || 0));
 const myKeep = () => planKeep(S.plan);
 const fmtDateY = ts => new Date(ts).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
-const UI_VERSION = '44';
+const UI_VERSION = '45';
 // الواجهة الجديدة هي الأساس للجميع؛ «الواجهة السابقة» اختيار مؤقت لكل مستخدم على هاتفه (أو ?ui=27 / ?ui=28)
 // الميزات الجديدة توضع في الواجهة الجديدة فقط، والسابقة تُحذف لاحقاً
 const UI28 = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q === '27') localStorage.setItem('mk_ui', 'old'); else if (q === '28') localStorage.removeItem('mk_ui'); localStorage.removeItem('mk_ui28'); return localStorage.getItem('mk_ui') !== 'old'; } catch { return true; } })();
@@ -2744,73 +2747,92 @@ function renderMap() {
     if (S.histFor && id !== S.histFor) continue;                         // في السجل: دبوس صاحب السجل فقط
     ids.push(id);
   }
-  // 44: المتقاربون على الشاشة يصطفون جنباً إلى جنب (حتى 4)، والأكثر يصيرون دائرة برقم
+  // 45: المتقاربون على الشاشة يُدمجون في دبوس واحد (مثل iSharing): صورة الأول وصور صغيرة ورقم
   const grp = S.histFor ? [] : groupPins(ids);
-  const rowDx = {}, inClu = new Set(); S.rowOf = {}; S.cluOf = {};
-  const zMax = S.map.getZoom() >= 18;
-  for (const g of grp) {
-    if (g.length >= 5 && !zMax) { for (const id of g) if (id !== S.person) inClu.add(id); continue; }
-    const row = g.slice(0, 4).sort((a, b) => S.locs[a].lng - S.locs[b].lng);
-    row.forEach((id, k) => { rowDx[id] = Math.round((k - (row.length - 1) / 2) * 54); S.rowOf[id] = row; });
-  }
+  const inGrp = new Set(); S.rowOf = {}; S.cluOf = {};
+  for (const g of grp) for (const id of g) { inGrp.add(id); S.cluOf[id] = g; }
   for (const id of ids) {
-    if (inClu.has(id)) continue;
+    if (inGrp.has(id)) continue;
     const l = S.locs[id];
     keep.add(id);
-    const sel = !!selPt && id === S.person, dim = !!selPt && !sel && !(S.rowOf[id] && S.rowOf[id].includes(S.person)) && pxDist(pinPt(l), selPt) < 80;
-    const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '', rowDx[id] || 0);
+    const sel = !!selPt && id === S.person, dim = !!selPt && !sel && pxDist(pinPt(l), selPt) < 80;
+    const icon = pinIcon(id, l, sel ? ' sel' : dim ? ' dim' : '');
     if (!S.markers[id]) { S.markers[id] = LX.marker([l.lat, l.lng], { icon }).addTo(S.map); S.markers[id].on('click', () => pinTap(id)); }
     else { S.markers[id].setLatLng([l.lat, l.lng]); S.markers[id].setIcon(icon); }
     try { S.markers[id].setZIndexOffset(sel ? 5000 : dim ? -500 : 0); } catch {}
   }
   for (const id of Object.keys(S.markers)) if (!keep.has(id)) { S.map.removeLayer(S.markers[id]); delete S.markers[id]; }
-  for (const m of S.cmarks || []) S.map.removeLayer(m);
-  S.cmarks = [];
+  // دبابيس المجموعات: تُعاد استعمالها بمفتاحها حتى لا ترمش مع كل تحديث موقع
+  const gm = S.gmarks || (S.gmarks = {}), gkeep = new Set();
   for (const g of grp) {
-    const mem = g.filter(id => inClu.has(id)); if (mem.length < 2) continue;
-    const la = mem.reduce((a, id) => a + S.locs[id].lat, 0) / mem.length, ln = mem.reduce((a, id) => a + S.locs[id].lng, 0) / mem.length;
-    const av = mem.slice(0, 3).map((id, k) => { const d = S.dir[id] || {}; return `<span class="av3" style="${avStyle(d)};left:${4 + k * 12}px;top:${14 - k * 4}px">${avText(d)}</span>`; }).join('');
-    const m = LX.marker([la, ln], { icon: LX.divIcon({ className: '', html: `<div class="mkc" role="button" aria-label="${esc(tf("{0} أشخاص هنا", mem.length))}">${av}<span class="n">${mem.length}</span></div>`, iconSize: [64, 64], iconAnchor: [32, 40] }) }).addTo(S.map);
-    m.on('click', () => cluTap(mem));
-    try { m.setZIndexOffset(3000); } catch {}
-    for (const id of mem) S.cluOf[id] = mem;
-    S.cmarks.push(m);
+    const mem = grpOrder(g), key = mem.slice().sort().join('|');
+    gkeep.add(key);
+    const la = mem.reduce((x, id) => x + S.locs[id].lat, 0) / mem.length, ln = mem.reduce((x, id) => x + S.locs[id].lng, 0) / mem.length;
+    const icon = grpIcon(mem), sel = !!S.person && mem.includes(S.person);
+    if (!gm[key]) { gm[key] = LX.marker([la, ln], { icon }).addTo(S.map); gm[key].on('click', () => cluTap(S.cluOf[mem[0]] || mem)); }
+    else { gm[key].setLatLng([la, ln]); gm[key].setIcon(icon); }
+    try { gm[key].setZIndexOffset(sel ? 6000 : 1000); } catch {}
   }
+  for (const k of Object.keys(gm)) if (!gkeep.has(k)) { S.map.removeLayer(gm[k]); delete gm[k]; }
+  for (const m of S.cmarks || []) { try { S.map.removeLayer(m); } catch {} } S.cmarks = [];
   S.mpos = ids.map(id => [S.locs[id].lat, S.locs[id].lng]);
   if (S.accg) {                                                          // دائرة الدقة للشخص المحدد (أو لي)
     S.accg.clearLayers();
     const aid = S.person || S.uid, al = S.locs[aid];
-    for (const id of keep) {                                             // موقع تقريبي (إذن الموقع الدقيق غير مفعّل): دائرة كبيرة متقطعة بدل الدقة
+    for (const id of ids) {                                              // موقع تقريبي (إذن الموقع الدقيق غير مفعّل): دائرة كبيرة متقطعة بدل الدقة
       const x = S.locs[id];
       if (x && x.apx === true && typeof x.lat === 'number' && Date.now() - x.ts < 30 * 60e3) LX.circle([x.lat, x.lng], { radius: Math.min(5000, Math.max(300, Number(x.acc) || 1500)), color: '#E8A33D', weight: 1.5, dashArray: '5 5', fillColor: '#E8A33D', fillOpacity: .08, interactive: false }).addTo(S.accg);
     }
-    if (al && al.apx !== true && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && keep.has(aid)) LX.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
+    if (al && al.apx !== true && typeof al.lat === 'number' && Date.now() - al.ts < 180000 && ids.includes(aid)) LX.circle([al.lat, al.lng], { radius: Math.min(200, Math.max(12, Number(al.acc) || 0)), color: '#3A6EA5', weight: 1, fillColor: '#3A6EA5', fillOpacity: .1, interactive: false }).addTo(S.accg);
   }
   if (!S.fitted && ids.length) { S.fitted = true; fitAll(); }
   renderEdge();
 }
-/* 44: تجميع الدبابيس المتقاربة على الشاشة (أقل من 40 نقطة) بربط متسلسل */
+/* تجميع الدبابيس المتقاربة على الشاشة (أقل من 56 نقطة، أي حين تتلامس الأسماء) بربط متسلسل */
 function groupPins(ids) {
   const pt = {}; for (const id of ids) pt[id] = pinPt(S.locs[id]);
   const seen = new Set(), out = [];
   for (const id of ids) {
     if (seen.has(id) || !pt[id]) continue;
     const g = [id]; seen.add(id);
-    for (let i = 0; i < g.length; i++) for (const o of ids) if (!seen.has(o) && pt[o] && pxDist(pt[g[i]], pt[o]) < 40) { seen.add(o); g.push(o); }
+    for (let i = 0; i < g.length; i++) for (const o of ids) if (!seen.has(o) && pt[o] && pxDist(pt[g[i]], pt[o]) < 56) { seen.add(o); g.push(o); }
     if (g.length > 1) out.push(g);
   }
   return out;
 }
+/* ترتيب المجموعة: المفتوحة بطاقته أولاً، ثم أنا، ثم الأحدث موقعاً */
+function grpOrder(g) {
+  return g.slice().sort((a, b) => (b === S.person) - (a === S.person) || (b === S.uid) - (a === S.uid) || (S.locs[b].ts || 0) - (S.locs[a].ts || 0));
+}
+/* دبوس المجموعة: دبوس الأول بصورته، وصورتان صغيرتان ملاصقتان، ورقم الباقين، واسم واحد مختصر.
+   الشارة العليا تظهر فقط إن كان أحدهم يتحرك (أسرعهم) أو متوقفاً، لا «الآن» */
+function grpIcon(mem) {
+  const id = mem[0], d = S.dir[id] || {}, l = S.locs[id];
+  const nm = id === S.uid ? _t("أنا") : dispName(id), more = mem.length - 1;
+  let fast = null;
+  for (const x of mem) { const m = liveMode(x, S.locs[x]); if (m && (!fast || m.kmh > fast.m.kmh)) fast = { x, m }; }
+  const off = mem.filter(x => { const q = S.locs[x]; return q.off === true || q.noperm === true; }).length;
+  const lbl = fast ? `<span class="mk-lbl spd">${ICON[fast.m.mode]}${tf("{0} كم/س", fast.m.kmh)}</span>` : off ? `<span class="mk-lbl off">${off === mem.length ? _t("متوقف") : tf("{0} متوقف", off)}</span>` : '';
+  const small = mem.slice(1, 3).map((x, k) => { const dx = S.dir[x] || {}; return `<span class="mk-sm" style="${avStyle(dx)};left:${42 + k * 10}px;top:${18 + k * 16}px">${avText(dx)}</span>`; }).join('');
+  const sel = !!S.person && mem.includes(S.person);
+  const pulse = sel ? `<span class="mk-pulse" style="--c-sel:${safeColor((S.dir[S.person] || {}).color)}"></span>` : '';
+  const html = `<div class="mk grp${sel ? ' sel' : ''}${Date.now() - l.ts > 180000 ? ' stale' : ''}" role="button" aria-label="${esc(tf("{0} أشخاص هنا", mem.length))}">${pulse}${lbl}<div class="mk-pin"><div class="mk-ph" style="${avStyle(d)}">${avText(d)}</div></div>${small}<div class="tag"><bdi>${esc(nm)}</bdi> <bdi dir="ltr">+${more}</bdi></div></div>`;
+  return LX.divIcon({ className: '', html, iconSize: [60, 110], iconAnchor: [30, 73] });
+}
 function cluTap(mem) {
   const z = S.map.getZoom();
-  if (z >= 18) return pickAmong(mem);
-  S.map.fitBounds(L.latLngBounds(mem.map(id => [S.locs[id].lat, S.locs[id].lng])), { padding: [90, 90], maxZoom: Math.min(19, z + 3) });
+  // متباعدون فعلاً على الأرض (أكثر من 25 م): نقرّب حتى ينفصلوا. وإلا (نفس المكان) قائمة نختار منها
+  let far = 0; for (const a of mem) for (const b of mem) far = Math.max(far, haversine(S.locs[a], S.locs[b]));
+  if (z < 18 && far > 25) return S.map.fitBounds(L.latLngBounds(mem.map(id => [S.locs[id].lat, S.locs[id].lng])), { padding: [110, 110], maxZoom: Math.min(19, z + 4) });
+  pickAmong(grpOrder(mem));
 }
 function pickAmong(ids) {
   $('ppick-list').innerHTML = ids.map(u => { const d = S.dir[u] || {}; return `<button class="btn" data-act="ppick" data-id="${esc(u)}" style="display:flex;gap:10px;align-items:center;justify-content:flex-start"><span class="chav" style="${avStyle(d)}">${avText(d)}</span>${esc(u === S.uid ? _t("أنا") : dispName(u))}</button>`; }).join('');
   $('modal-ppick').hidden = false;
 }
-/* 44: أصدقاء خارج الجزء الظاهر من الخريطة: صورهم على الحافة باتجاههم، وبلمسة تذهب إليهم */
+/* 45: أصدقاء خارج الجزء الظاهر: صورهم ملتصقة بطرف الشاشة الأقرب لاتجاههم، في الأماكن الفارغة فقط.
+   كل طرف يُقسم إلى خانات ثابتة (لا تراكب)، وتُستثنى منه خانات الأزرار والشريط العلوي، فتنزلق الصورة على الطرف نفسه.
+   البعيدون في الاتجاه نفسه تقريباً صورة واحدة برقم، والزائد عن الخانات في دائرة «+N» واحدة. */
 var EDGE_RAF = 0;
 function renderEdge() {
   if (EDGE_RAF) return;
@@ -2820,30 +2842,62 @@ function drawEdge() {
   const box = $('edge'); if (!box) return;
   if (!S.map || S.histFor || S.tab !== 'map' || S.pickPlace || $('v-main').hidden) { box.innerHTML = ''; return; }
   const mr = box.getBoundingClientRect(), W = mr.width, H = mr.height; if (!W || !H) return;
-  const vis = el => el && !el.hidden && el.offsetParent !== null;
-  const tb = $('top').getBoundingClientRect(), sh = vis($('psheet')) ? $('psheet') : vis($('sheet')) ? $('sheet') : null;
-  const T = Math.max(8, tb.bottom - mr.top) + 26, B = Math.min(H, sh ? sh.getBoundingClientRect().top - mr.top : H) - 26, M = 26;
-  if (B - T < 60) { box.innerHTML = ''; return; }
-  const fr = $('fabs').getBoundingClientRect(), fx0 = fr.left - mr.left - 24, fx1 = fr.right - mr.left + 24, fy1 = fr.bottom - mr.top + 10;
-  const cx = W / 2, cy = (T + B) / 2, placed = [], extra = [], cluDone = new Set();
+  const vis = el => el && !el.hidden && el.offsetParent !== null && el.getBoundingClientRect().width > 0;
+  const sh = vis($('psheet')) ? $('psheet') : vis($('sheet')) ? $('sheet') : null;
+  const R = 19, G = 5, SP = 2 * R + 8;                                     // نصف القطر، البعد عن الطرف، المسافة بين الخانات
+  const top = Math.max(0, (parseFloat(getComputedStyle($('top')).top) || 10) - 10) + G + R;   // أسفل شريط حالة الهاتف
+  const bot = Math.min(H, sh ? sh.getBoundingClientRect().top - mr.top : H) - G - R;
+  const L1 = G + R, R1 = W - G - R;
+  if (bot - top < SP * 2) { box.innerHTML = ''; return; }
+  // العوائق: الأزرار الجانبية وكل ما يظهر في الشريط العلوي
+  const obs = [];
+  const addOb = el => { if (!vis(el)) return; const r = el.getBoundingClientRect(); obs.push({ l: r.left - mr.left - 4, r: r.right - mr.left + 4, t: r.top - mr.top - 4, b: r.bottom - mr.top + 4 }); };
+  [...$('fabs').children].forEach(addOb); [...$('top').children].forEach(addOb);
+  const hit = (x, y) => obs.some(o => x + R > o.l && x - R < o.r && y + R > o.t && y - R < o.b);
+  // الخانات: يمين ويسار (عمودياً)، وأعلى وأسفل (أفقياً، بلا الزوايا)
+  const slots = { L: [], R: [], T: [], B: [] };
+  for (let y = top; y <= bot + 0.5; y += SP) { if (!hit(L1, y)) slots.L.push({ x: L1, y }); if (!hit(R1, y)) slots.R.push({ x: R1, y }); }
+  for (let x = L1 + SP; x <= R1 - SP + 0.5; x += SP) { if (!hit(x, top)) slots.T.push({ x, y: top }); if (!hit(x, bot)) slots.B.push({ x, y: bot }); }
+  // الأهداف: كل شخص غير ظاهر، أو مجموعة (موقعها المتوسط)
+  const cx = W / 2, cy = (top + bot) / 2, items = [], done = new Set();
   for (const id of visibleIds()) {
-    if (id === S.uid) continue;
-    const mem = S.cluOf && S.cluOf[id];
-    if (mem) { if (cluDone.has(mem)) continue; cluDone.add(mem); }        // مجموعة خارج الشاشة: صورة واحدة برقم
-    const l = mem ? { lat: mem.reduce((a, x) => a + S.locs[x].lat, 0) / mem.length, lng: mem.reduce((a, x) => a + S.locs[x].lng, 0) / mem.length } : S.locs[id]; if (!l) continue;
-    const p = pinPt(l); if (!p) continue;
-    if (p.x >= 0 && p.x <= W && p.y >= T - 20 && p.y <= B + 40) continue;   // ظاهر
+    if (id === S.uid || !S.locs[id] || typeof S.locs[id].lat !== 'number') continue;
+    const mem = (S.cluOf && S.cluOf[id]) || [id];
+    if (mem.length > 1) { if (done.has(mem)) continue; done.add(mem); }
+    const ll = { lat: mem.reduce((x, k) => x + S.locs[k].lat, 0) / mem.length, lng: mem.reduce((x, k) => x + S.locs[k].lng, 0) / mem.length };
+    const p = pinPt(ll); if (!p) continue;
+    if (p.x >= -10 && p.x <= W + 10 && p.y >= top - 30 && p.y <= bot + 60) continue;   // ظاهر على الشاشة
     const dx = p.x - cx, dy = p.y - cy; if (!dx && !dy) continue;
-    const t = Math.min(dx ? (dx > 0 ? (W - M - cx) / dx : (M - cx) / dx) : Infinity, dy ? (dy > 0 ? (B - cy) / dy : (T - cy) / dy) : Infinity);
-    let x = cx + dx * t, y = cy + dy * t;
-    if (y < fy1 && x > fx0 && x < fx1) x = x < W / 2 ? fx1 + 4 : fx0 - 4;  // لا نغطي الأزرار الجانبية
-    for (let k = 0; k < 6 && placed.some(q => Math.hypot(q.x - x, q.y - y) < 40); k++) { if (Math.abs(x - M) < 2 || Math.abs(x - (W - M)) < 2) y += 42 * (y > cy ? -1 : 1); else x += 42 * (x > cx ? -1 : 1); }
-    if (placed.length >= 7) { extra.push(id); continue; }
-    placed.push({ id, x, y, a: Math.atan2(dy, dx) * 180 / Math.PI + 90, n: mem ? mem.length : 0 });
+    const tx = dx ? (dx > 0 ? (R1 - cx) / dx : (L1 - cx) / dx) : Infinity, ty = dy ? (dy > 0 ? (bot - cy) / dy : (top - cy) / dy) : Infinity;
+    const side = tx <= ty ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'B' : 'T'), t = Math.min(tx, ty);
+    items.push({ mem: grpOrder(mem), side, c: side === 'L' || side === 'R' ? cy + dy * t : cx + dx * t, a: Math.atan2(dy, dx) * 180 / Math.PI + 90 });
   }
-  box.innerHTML = placed.map(q => { const d = S.dir[q.id] || {}; return `<button class="edg" data-act="${q.n ? 'edge-clu' : 'edge-go'}" data-id="${esc(q.id)}" style="left:${q.x.toFixed(0)}px;top:${q.y.toFixed(0)}px;${avStyle(d)}" aria-label="${esc(q.n ? tf("{0} أشخاص هنا", q.n) : dispName(q.id))}">${avText(d)}<i style="transform:rotate(${q.a.toFixed(0)}deg) translateY(-27px)"></i>${q.n ? `<b>${q.n}</b>` : ''}</button>`; }).join('')
-    + (extra.length ? `<button class="edg more" data-act="edge-more" style="left:${(W - M).toFixed(0)}px;top:${(B).toFixed(0)}px">+${extra.length}</button>` : '');
-  S.edgeMore = extra;
+  // في كل طرف: من تقاربت مواضعهم (أقل من خانة) يُدمجون، ثم يأخذ كل واحد أقرب خانة فارغة على طرفه، وإن لم يجد فعلى طرف مجاور
+  const NEXT = { L: ['B', 'T', 'R'], R: ['B', 'T', 'L'], T: ['L', 'R', 'B'], B: ['L', 'R', 'T'] };
+  const placed = [], over = [];
+  for (const sd of ['L', 'R', 'T', 'B']) {
+    const lst = items.filter(i => i.side === sd).sort((a, b) => a.c - b.c), merged = [];
+    for (const it of lst) { const last = merged[merged.length - 1]; if (last && it.c - last.c1 < SP * 0.8) { last.mem = last.mem.concat(it.mem); last.c1 = it.c; } else merged.push({ ...it, c1: it.c }); }
+    for (const it of merged) {
+      const c = (it.c + it.c1) / 2;
+      let best = null;
+      for (const s2 of [sd].concat(NEXT[sd])) {
+        const free = slots[s2].filter(q => !q.used); if (!free.length) continue;
+        const key = q => s2 === 'L' || s2 === 'R' ? q.y : q.x;
+        best = s2 === sd ? free.reduce((m, q) => Math.abs(key(q) - c) < Math.abs(key(m) - c) ? q : m) : free.reduce((m, q) => Math.hypot(q.x - (sd === 'L' ? L1 : sd === 'R' ? R1 : c), q.y - (sd === 'T' ? top : sd === 'B' ? bot : c)) < Math.hypot(m.x - (sd === 'L' ? L1 : sd === 'R' ? R1 : c), m.y - (sd === 'T' ? top : sd === 'B' ? bot : c)) ? q : m);
+        break;
+      }
+      if (!best) { over.push(...it.mem); continue; }
+      best.used = true; placed.push({ ...best, mem: it.mem, a: it.a });
+    }
+  }
+  if (over.length && placed.length) { const q = placed.pop(); over.push(...q.mem); placed.push({ x: q.x, y: q.y, mem: over, more: true, a: 0 }); }
+  S.edgeItems = placed;
+  box.innerHTML = placed.map((q, k) => {
+    const id = q.mem[0], d = S.dir[id] || {}, n = q.mem.length;
+    if (q.more) return `<button class="edg more" data-act="edge-pick" data-id="${k}" style="left:${q.x.toFixed(0)}px;top:${q.y.toFixed(0)}px">+${n}</button>`;
+    return `<button class="edg" data-act="${n > 1 ? 'edge-pick' : 'edge-go'}" data-id="${n > 1 ? k : esc(id)}" style="left:${q.x.toFixed(0)}px;top:${q.y.toFixed(0)}px;${avStyle(d)}" aria-label="${esc(n > 1 ? tf("{0} أشخاص هنا", n) : dispName(id))}">${avText(d)}<i style="transform:rotate(${q.a.toFixed(0)}deg) translateY(-27px)"></i>${n > 1 ? `<b>${n}</b>` : ''}</button>`;
+  }).join('');
 }
 /* الضغط على دبوس: إن كان فوقه أو تحته دبوس آخر (متراكبان) نسأل أي شخص */
 function pinTap(id) {
@@ -4137,8 +4191,7 @@ const ACTIONS = {
   'rx-send': k => sendReact(k),
   'rx-open': id => { if (visibleIds().includes(id)) { setTab('map'); openPerson(id); } },
   'edge-go': id => { if (S.person && S.person !== id) closePerson(); openPerson(id); },
-  'edge-more': () => pickAmong(S.edgeMore || []),
-  'edge-clu': id => { const mem = S.cluOf && S.cluOf[id]; if (mem) cluTap(mem); },
+  'edge-pick': k => { const q = (S.edgeItems || [])[Number(k)]; if (q) pickAmong(q.mem); },
   'ann-close': () => { $('modal-ann').hidden = true; },
   'ann-new': () => { $('modal-ann').hidden = true; openAdmWrite(null, 'ann'); },
   'ann-del': async id => { if (!(await ask(_t("حذف هذا الإعلان عند الجميع؟"), _t("حذف")))) return; try { await remove(ref(db, 'announce/' + id)); $('modal-ann').hidden = true; toast(_t("حُذف الإعلان")); } catch { toast(_t("تعذر الحذف")); } },

@@ -1329,5 +1329,7 @@ window.I18N.nl = {
 "حدّث Android System WebView": "Werk Android System WebView bij",
 "خريطة Google رفضت التحميل": "Google-kaart weigerde te laden",
 "تحقق من المفتاح والحصة في Google Cloud": "Controleer sleutel en quotum in Google Cloud",
-"عُرضت الخريطة العادية": "De gewone kaart werd getoond"
+"عُرضت الخريطة العادية": "De gewone kaart werd getoond",
+/* 44 */
+"{0} متوقف": "{0} gestopt"
 };
